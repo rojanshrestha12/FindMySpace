@@ -31,61 +31,72 @@ function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#f2ece3]">
-      <div className="flex w-full max-w-4xl bg-[#f2ece3] rounded-lg p-8">
-        {/* Left Section */}
-        <div className="flex-1 text-center p-8">
-          <img src="/assets/logo.png" alt="Logo" className="w-32 mb-8" />
-          <h2 className="text-3xl font-bold mb-4">Simplifying Room Rentals</h2>
-          <p className="text-xl text-[#8d6d62] font-semibold mb-6">
-            List, browse, inspect, and rent securely - all in one place.
-          </p>
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
+      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
+      {/* Left Section */}
+      <div className="flex-3 md:text-left pl-20 pr-40 mb-50">
+          <div className="flex items-center space-x-3 mb-6">
+            {/* Logo (Left) */}
+            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mb-20 max-w-md" />
+
+            {/* Brand Name (Right) */}
+            <h1 className="text-4xl absolute mb-10 ml-20  mb-2 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>Find My Space</h1>
+          </div>
+
+          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">
+            SIMPLIFYING ROOM RENTALS
+          </h2>
+          <h2 className="text-2xl font-normal text-[#4a2c27] mt-4 mb-6 max-w-md">
+            List, browse, inspect, and rent securly-all in one place.
+          </h2>
+</div>
 
         {/* Right Section */}
-        <div className="flex-1 p-8">
-          <h2 className="text-3xl font-bold mb-6 flex items-center justify-center gap-2">
+        <div className="flex-2 mt-8 mr-15">
+          <h2 className="text-2xl font-bold mb-6 flex items-center justify-left gap-10">
             Create an account
-            <span className="text-lg font-normal">
-              <Link to="/login" className="text-[#e48f44]">Login instead</Link>
+            <span className="text-lg font-bold underline">
+              <Link to="/login" className="text-[#fffff]">Login instead</Link>
             </span>
           </h2>
 
           <form onSubmit={handleRegister}>
+            <label className="font-bold">Username</label>
             <input
               type="text"
-              placeholder="Full Name"
               required
-              className="w-full p-4 mb-4 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setUsername(e.target.value)}
             />
+
+            <label className="font-bold">Number</label>
             <input
               type="text"
-              placeholder="Phone Number"
               required
-              className="w-full p-4 mb-4 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setPhone(e.target.value)}
             />
+
+            <label className="font-bold">Email</label>
             <input
               type="email"
-              placeholder="Email"
               required
-              className="w-full p-4 mb-4 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setEmail(e.target.value)}
             />
+
+            <label className="font-bold">Password</label>
             <input
-              type="password"
-              placeholder="Password"
-              required
-              className="w-full p-4 mb-4 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              type="password"              required
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <div className="text-xl text-[#8d6d62] font-semibold mb-4">What’s your role?</div>
-            <div className="flex justify-center gap-10 mb-6">
+            <div className="text-1xl text-[#8d6d62] font-semibold mb-4">What’s your role?</div>
+            <div className="flex justify-center gap-8 mb-4">
               <label className="text-lg text-[#8d6d62]">
                 <input
-                  type="radio"
+                  type="radio"  
                   value="tenant"
                   checked={role === "tenant"}
                   onChange={() => setRole("tenant")}
@@ -105,28 +116,25 @@ function Register() {
               </label>
             </div>
 
-            <p className="text-lg text-black mb-4">
+            <p className="text-Md text-black mb-2">
               By signing up, you agree to our{" "}
-              <Link to="/terms" className="text-[#e48f44] font-bold">
+              <Link to="/terms" className="text-Md text-[#e48f44] font-bold">
                 Terms & Conditions
               </Link>
             </p>
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#e48f44] text-white text-xl rounded-lg cursor-pointer hover:bg-[#d67d3b] mb-6"
+              className="w-full py-2 bg-[#e48f44] text-white text-xl rounded-lg cursor-pointer hover:bg-[#d67d3b] mb-1"
             >
               Create an account
             </button>
           </form>
 
-          <p className="text-center text-lg my-4 text-gray-500">- OR -</p>
-          <button
-            className="w-full py-4 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg flex justify-center items-center"
-            // onClick={signInWithGoogle}
-          >
-            <img src="/assets/google-logo.png" alt="Google" className="w-6 mr-2" />
-            Continue with Google
+          <p className="text-center text-lg my-2 text-gray-500">- OR -</p>
+          <button className="w-full flex items-center justify-center py-2 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg shadow-md hover:bg-gray-100">
+            <img src="/assets/google_logo.png" alt="Google" className="w-6 mr-2" />
+            Sign in with Google
           </button>
         </div>
       </div>

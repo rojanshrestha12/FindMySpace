@@ -24,21 +24,31 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
-      <div className="flex flex-col md:flex-row items-center w-full max-w-5xl bg-[#f8f1ea] rounded-lg p-6 md:p-12">
+      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-14 md:pb-4 md:pt-0">
         
         {/* Left Section */}
-        <div className="flex-1 text-center md:text-left">
-          <img src="/assets/logo.png" alt="Logo" className="w-40 mx-auto md:mx-0" />
-          <h2 className="text-3xl font-bold text-[#4a2c27] mt-4 mb-6">Simplifying Room Rentals</h2>
+        <div className="flex-2 md:text-left pl-20 pr-40">
+          <div className="flex items-center space-x-3 mb-6">
+            {/* Logo (Left) */}
+            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mt-10 mb-20 max-w-md" />
+
+            {/* Brand Name (Right) */}
+            <h1 className="text-4xl absolute ml-20  mb-2 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>Find My Space</h1>
+          </div>
+
+          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">
+            SIMPLIFYING ROOM RENTALS
+          </h2>
+
           <img
             src="/assets/illustration.jpg"
             alt="Illustration"
-            className="w-full max-w-md mx-auto"
+            className="w-150 ax-w-md rounded-lg"
           />
         </div>
 
         {/* Right Section */}
-        <div className="flex-1 p-6 md:p-12">
+        <div className="flex-1 p-6 md:8 mt-20 mr-20">
           <h2 className="text-3xl font-bold text-[#4a2c27] flex items-center">
             Welcome Back <span className="ml-2">👋</span>
           </h2>
@@ -88,6 +98,10 @@ function Login() {
             <Link to="/register" className="text-[#e48f44] hover:underline">
               Sign up
             </Link>
+          </p>
+
+          <p className="text-center text-gray-500 mt-8">
+            © 2023 ALL RIGHTS RESERVED
           </p>
         </div>
       </div>

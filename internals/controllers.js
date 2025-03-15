@@ -2,7 +2,7 @@ const db = require("./db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.signup = (req, res) => {
+exports.register = (req, res) => {
   const { username, phone, email, password, role } = req.body;
   if (!username || !phone || !email || !password || !role) {
     return res.status(400).json({ message: "All fields required" });
