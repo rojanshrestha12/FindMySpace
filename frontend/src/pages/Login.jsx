@@ -33,10 +33,10 @@ function Login() {
             <img src="/assets/logo.png" alt="Logo" className="w-20 relative mt-10 mb-20 max-w-md" />
 
             {/* Brand Name (Right) */}
-            <h1 className="text-4xl absolute ml-20  mb-2 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>Find My Space</h1>
+            <h1 className="text-4xl absolute ml-20  mb-2 font-bold text-[#4a2c27] italic">Find My Space</h1>
           </div>
 
-          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">
+          <h2 className="text-4xl font-bold text-geist mt-4 mb-6 max-w-md">
             SIMPLIFYING ROOM RENTALS
           </h2>
 
