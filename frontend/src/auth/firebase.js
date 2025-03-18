@@ -3,13 +3,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCyP3Bzot_DjT-nWzD7iklNu3BeJmOc93I",
-  authDomain: "find-my-space-918d0.firebaseapp.com",
-  projectId: "find-my-space-918d0",
-  storageBucket: "find-my-space-918d0.firebasestorage.app",
-  messagingSenderId: "824423363684",
-  appId: "1:824423363684:web:2539c87582a8dda8381b71",
-  measurementId: "G-FX7DQE7E7N"
+  apiKey: import.meta.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: import.meta.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 
