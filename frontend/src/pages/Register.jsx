@@ -1,7 +1,6 @@
 import { useState } from "react";
-// import { signInWithGoogle } from "../firebase"; // Firebase only for Google login
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios for API requests
+import { registerWithEmail, handleGoogleSignIn } from "../auth/auth"; // Import updated auth functions
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -9,132 +8,158 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("tenant");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Handle user registration
   const handleRegister = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:3000/api/signup", {
-        username:username,
-        phone:phone,
-        email:email,
-        password:password,
-        role:role,
-      });
+    setLoading(true);
 
-      // Store token & redirect to dashboard
-      localStorage.setItem("token", response.data.token);
+    const response = await registerWithEmail(username, phone, email, password, role);
+    if (response.success) {
       navigate("/dashboard");
-    } catch (error) {
-      alert(error.response?.data?.message || "Registration failed");
+    } else {
+      alert(response.message);
+    }
+
+    setLoading(false);
+  };
+
+  // Handle Google Sign-In
+  const handleGoogleLogin = async () => {
+    const response = await handleGoogleSignIn();
+    if (response.success) {
+      navigate("/dashboard");
+    } else {
+      alert(response.message);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
-      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
-      {/* Left Section */}
-      <div className="flex-3 md:text-left pl-20 pr-40 mb-50">
+      <div className="flex flex-col md:flex-row items-center w-full max-w-4xl bg-white shadow-lg rounded-lg p-8 md:px-16 md:py-12">
+        
+        {/* Left Section */}
+        <div className="flex-1 md:text-left px-8">
           <div className="flex items-center space-x-3 mb-6">
-            {/* Logo (Left) */}
-            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mb-20 max-w-md" />
-
-            {/* Brand Name (Right) */}
-            <h1 className="text-4xl absolute mb-10 ml-20  mb-2 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>Find My Space</h1>
+            <img src="/assets/logo.png" alt="Logo" className="w-16" />
+            <h1 className="text-3xl font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>
+              Find My Space
+            </h1>
           </div>
+          <h2 className="text-3xl font-bold text-[#4a2c27] mb-4">SIMPLIFYING ROOM RENTALS</h2>
+          <p className="text-lg text-[#4a2c27] max-w-md">
+            List, browse, inspect, and rent securely—all in one place.
+          </p>
+        </div>
 
-          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">
-            SIMPLIFYING ROOM RENTALS
-          </h2>
-          <h2 className="text-2xl font-normal text-[#4a2c27] mt-4 mb-6 max-w-md">
-            List, browse, inspect, and rent securly-all in one place.
-          </h2>
-</div>
+        {/* Right Section (Form) */}
+        <div className="flex-1 mt-8">
+          <h2 className="text-2xl font-bold mb-4">Create an account</h2>
+          
+          <p className="text-md text-gray-600 mb-2">
+            Already have an account? 
+            <Link to="/login" className="text-[#e48f44] font-bold ml-2">Login here</Link>
+          </p>
 
-        {/* Right Section */}
-        <div className="flex-2 mt-8 mr-15">
-          <h2 className="text-2xl font-bold mb-6 flex items-center justify-left gap-10">
-            Create an account
-            <span className="text-lg font-bold underline">
-              <Link to="/login" className="text-[#fffff]">Login instead</Link>
-            </span>
-          </h2>
-
-          <form onSubmit={handleRegister}>
-            <label className="font-bold">Username</label>
-            <input
-              type="text"
-              required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <label className="font-bold">Number</label>
-            <input
-              type="text"
-              required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
-              onChange={(e) => setPhone(e.target.value)}
-            />
-
-            <label className="font-bold">Email</label>
-            <input
-              type="email"
-              required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <label className="font-bold">Password</label>
-            <input
-              type="password"              required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <div className="text-1xl text-[#8d6d62] font-semibold mb-4">What’s your role?</div>
-            <div className="flex justify-center gap-8 mb-4">
-              <label className="text-lg text-[#8d6d62]">
-                <input
-                  type="radio"  
-                  value="tenant"
-                  checked={role === "tenant"}
-                  onChange={() => setRole("tenant")}
-                  className="mr-2"
-                />
-                Tenant
-              </label>
-              <label className="text-lg text-[#8d6d62]">
-                <input
-                  type="radio"
-                  value="landlord"
-                  checked={role === "landlord"}
-                  onChange={() => setRole("landlord")}
-                  className="mr-2"
-                />
-                Landlord
-              </label>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label className="block font-semibold">Username</label>
+              <input 
+                type="text" 
+                required 
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
+                onChange={(e) => setUsername(e.target.value)}
+              />
             </div>
 
-            <p className="text-Md text-black mb-2">
-              By signing up, you agree to our{" "}
-              <Link to="/terms" className="text-Md text-[#e48f44] font-bold">
-                Terms & Conditions
-              </Link>
+            <div>
+              <label className="block font-semibold">Phone Number</label>
+              <input 
+                type="text" 
+                required 
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold">Email</label>
+              <input 
+                type="email" 
+                required 
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold">Password</label>
+              <input 
+                type="password" 
+                required 
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <p className="text-lg font-semibold text-[#8d6d62]">What’s your role?</p>
+              <div className="flex space-x-6">
+                <label className="flex items-center text-lg text-[#8d6d62]">
+                  <input 
+                    type="radio" 
+                    value="tenant" 
+                    checked={role === "tenant"} 
+                    onChange={() => setRole("tenant")}
+                    className="mr-2"
+                  />
+                  Tenant
+                </label>
+                <label className="flex items-center text-lg text-[#8d6d62]">
+                  <input 
+                    type="radio" 
+                    value="landlord" 
+                    checked={role === "landlord"} 
+                    onChange={() => setRole("landlord")}
+                    className="mr-2"
+                  />
+                  Landlord
+                </label>
+              </div>
+            </div>
+
+            {/* Terms & Conditions */}
+            <p className="text-md text-gray-600">
+              By signing up, you agree to our  
+              <Link to="/terms" className="text-[#e48f44] font-bold ml-1">Terms & Conditions</Link>
             </p>
 
-            <button
-              type="submit"
-              className="w-full py-2 bg-[#e48f44] text-white text-xl rounded-lg cursor-pointer hover:bg-[#d67d3b] mb-1"
+            {/* Submit Button */}
+            <button 
+              type="submit" 
+              className="w-full py-2 bg-[#e48f44] text-white text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b]"
+              disabled={loading}
             >
-              Create an account
+              {loading ? "Creating account..." : "Create an account"}
             </button>
           </form>
 
-          <p className="text-center text-lg my-2 text-gray-500">- OR -</p>
-          <button className="w-full flex items-center justify-center py-2 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg shadow-md hover:bg-gray-100">
+          {/* OR Separator */}
+          <div className="flex items-center justify-center my-4">
+            <div className="border-b border-gray-300 w-1/3"></div>
+            <p className="text-md text-gray-500 mx-2">OR</p>
+            <div className="border-b border-gray-300 w-1/3"></div>
+          </div>
+
+          {/* Google Sign-In Button */}
+          <button 
+            onClick={handleGoogleLogin} 
+            className="w-full flex items-center justify-center border border-gray-400 rounded-lg p-2 text-gray-700 hover:bg-gray-100">
             <img src="/assets/google_logo.png" alt="Google" className="w-6 mr-2" />
-            Sign in with Google
+            Sign up with Google
           </button>
         </div>
       </div>

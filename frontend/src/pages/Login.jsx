@@ -1,108 +1,117 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { loginWithEmail, loginWithGoogle } from "../auth/auth"; // Import authentication functions
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Function to handle login with API
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:3000/api/login", {
-        email,
-        password,
-      });
+    setLoading(true);
 
-      localStorage.setItem("token", response.data.token);
+    const response = await loginWithEmail(email, password);
+    if (response.success) {
       navigate("/dashboard");
-    } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+    } else {
+      alert(response.message);
+    }
+
+    setLoading(false);
+  };
+
+  // Function to handle Google Sign-in
+  const handleGoogleLogin = async () => {
+    const response = await loginWithGoogle();
+    if (response.success) {
+      navigate("/dashboard");
+    } else {
+      alert(response.message);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
-      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-14 md:pb-4 md:pt-0">
-        
+      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
         {/* Left Section */}
-        <div className="flex-2 md:text-left pl-20 pr-40">
+        <div className="flex-3 md:text-left pl-20 pr-40 mb-50">
           <div className="flex items-center space-x-3 mb-6">
-            {/* Logo (Left) */}
-            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mt-10 mb-20 max-w-md" />
-
-            {/* Brand Name (Right) */}
-            <h1 className="text-4xl absolute ml-20  mb-2 font-bold text-[#4a2c27] italic">Find My Space</h1>
+            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mb-20 max-w-md" />
+            <h1 className="text-4xl absolute mb-10 ml-20 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>
+              Find My Space
+            </h1>
           </div>
-
-          <h2 className="text-4xl font-bold text-geist mt-4 mb-6 max-w-md">
-            SIMPLIFYING ROOM RENTALS
+          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
+          <h2 className="text-2xl font-normal text-[#4a2c27] mt-4 mb-6 max-w-md">
+            List, browse, inspect, and rent securely - all in one place.
           </h2>
-
-          <img
-            src="/assets/illustration.jpg"
-            alt="Illustration"
-            className="w-150 ax-w-md rounded-lg"
-          />
         </div>
 
         {/* Right Section */}
-        <div className="flex-1 p-6 md:8 mt-20 mr-20">
-          <h2 className="text-3xl font-bold text-[#4a2c27] flex items-center">
-            Welcome Back <span className="ml-2">👋</span>
+        <div className="flex-2 mt-8 mr-15">
+          <h2 className="text-2xl font-bold mb-6 flex items-center justify-left gap-10">
+            Log in to your account
+            <span className="text-lg font-bold underline">
+              <Link to="/register" className="text-[#4a2c27]">Create an account</Link>
+            </span>
           </h2>
-          
-          <form onSubmit={handleLogin} className="mt-6">
-            <label className="block text-lg font-medium text-gray-700">Username</label>
+
+          <form onSubmit={handleLogin}>
+            <label htmlFor="email" className="font-bold">Email</label>
             <input
+              id="email"
               type="email"
-              placeholder="Enter your email"
               required
-              className="w-full p-3 mt-2 mb-4 border-2 border-[#caa38d] rounded-lg text-black bg-[#f0e0d1] focus:outline-none focus:ring-2 focus:ring-[#a87d68]"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label className="block text-lg font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="font-bold">Password</label>
             <input
+              id="password"
               type="password"
-              placeholder="Enter your password"
               required
-              className="w-full p-3 mt-2 mb-2 border-2 border-[#caa38d] rounded-lg text-black bg-[#f0e0d1] focus:outline-none focus:ring-2 focus:ring-[#a87d68]"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <div className="text-right text-lg mb-6">
-              <Link to="/forgot-password" className="text-[#e48f44] hover:underline">
-                Forgot Password?
+            <p className="text-Md text-black mb-2">
+              By logging in, you agree to our{" "}
+              <Link to="/terms" className="text-Md text-[#e48f44] font-bold">
+                Terms & Conditions
               </Link>
-            </div>
+            </p>
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#e48f44] text-white text-lg font-semibold rounded-lg shadow-md hover:bg-[#d67d3b]"
+              disabled={loading}
+              className={`w-full py-2 bg-[#e48f44] text-white text-xl rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#d67d3b]'}`}
             >
-              Sign in
+              {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
 
-          <p className="text-center text-gray-500 my-6">Or</p>
+          {/* Forgot Password */}
+          <p
+            className="text-md text-[#e48f44] font-bold cursor-pointer text-center mt-2"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password?
+          </p>
 
-          <button className="w-full flex items-center justify-center py-3 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg shadow-md hover:bg-gray-100">
+          <p className="text-center text-lg my-2 text-gray-500">- OR -</p>
+
+          {/* Google Sign-in Button */}
+          <button
+            className="w-full flex items-center justify-center py-2 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg shadow-md hover:bg-gray-100"
+            onClick={handleGoogleLogin}
+          >
             <img src="/assets/google_logo.png" alt="Google" className="w-6 mr-2" />
             Sign in with Google
           </button>
-
-          <p className="text-center text-lg mt-6">
-            Don’t have an account?{" "}
-            <Link to="/register" className="text-[#e48f44] hover:underline">
-              Sign up
-            </Link>
-          </p>
-
-          <p className="text-center text-gray-500 mt-8">
-            © 2023 ALL RIGHTS RESERVED
-          </p>
         </div>
       </div>
     </div>
