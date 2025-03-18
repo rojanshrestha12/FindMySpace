@@ -10,6 +10,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Debugging: Log the environment variables to ensure they are loaded correctly
+console.log("Firebase Config:", firebaseConfig);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
