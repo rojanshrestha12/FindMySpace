@@ -40,12 +40,12 @@ function Login() {
         <div className="flex-3 md:text-left pl-20 pr-40 mb-50">
           <div className="flex items-center space-x-3 mb-6">
             <img src="/assets/logo.png" alt="Logo" className="w-20 relative mb-20 max-w-md" />
-            <h1 className="text-4xl absolute mb-10 ml-20 font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>
+            <h1 className="text-4xl absolute mb-10 ml-20 font-bold text-[#8d6d62] italic" style={{ fontFamily: "Brush Script MT" }}>
               Find My Space
             </h1>
           </div>
-          <h2 className="text-4xl font-bold text-[#4a2c27] mt-4 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
-          <h2 className="text-2xl font-normal text-[#4a2c27] mt-4 mb-6 max-w-md">
+          <h2 className="text-4xl font-bold text-[#8d6d62] mt-4 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
+          <h2 className="text-2xl font-normal text-[#8d6d62] mt-4 mb-6 max-w-md">
             List, browse, inspect, and rent securely - all in one place.
           </h2>
         </div>
@@ -55,12 +55,12 @@ function Login() {
           <h2 className="text-2xl font-bold mb-6 flex items-center justify-left gap-10">
             Log in to your account
             <span className="text-lg font-bold underline">
-              <Link to="/register" className="text-[#4a2c27]">Create an account</Link>
+              <Link to="/register" className="text-[#8d6d62]">Create an account</Link>
             </span>
           </h2>
 
           <form onSubmit={handleLogin}>
-            <label htmlFor="email" className="font-bold">Email</label>
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
@@ -69,7 +69,7 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label htmlFor="password" className="font-bold">Password</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
@@ -80,7 +80,7 @@ function Login() {
 
             <p className="text-Md text-black mb-2">
               By logging in, you agree to our{" "}
-              <Link to="/terms" className="text-Md text-[#e48f44] font-bold">
+              <Link to="/terms" className="text-Md text-[#8d6d62] font-bold">
                 Terms & Conditions
               </Link>
             </p>
@@ -96,7 +96,7 @@ function Login() {
 
           {/* Forgot Password */}
           <p
-            className="text-md text-[#e48f44] font-bold cursor-pointer text-center mt-2"
+            className="text-md text-[#8d6d62] font-bold cursor-pointer text-center mt-2"
             onClick={() => navigate("/forgot-password")}
           >
             Forgot Password?

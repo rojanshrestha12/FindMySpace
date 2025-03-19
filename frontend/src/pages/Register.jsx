@@ -7,7 +7,6 @@ function Register() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("tenant");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +15,7 @@ function Register() {
     e.preventDefault();
     setLoading(true);
 
-    const response = await registerWithEmail(username, phone, email, password, role);
+    const response = await registerWithEmail(username, phone, email, password);
     if (response.success) {
       navigate("/dashboard");
     } else {
@@ -38,103 +37,64 @@ function Register() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
-      <div className="flex flex-col md:flex-row items-center w-full max-w-4xl bg-white shadow-lg rounded-lg p-8 md:px-16 md:py-12">
+      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
         
-        {/* Left Section */}
-        <div className="flex-1 md:text-left px-8">
-          <div className="flex items-center space-x-3 mb-6">
-            <img src="/assets/logo.png" alt="Logo" className="w-16" />
-            <h1 className="text-3xl font-bold text-[#4a2c27] italic" style={{ fontFamily: "Brush Script MT" }}>
-              Find My Space
-            </h1>
-          </div>
-          <h2 className="text-3xl font-bold text-[#4a2c27] mb-4">SIMPLIFYING ROOM RENTALS</h2>
-          <p className="text-lg text-[#4a2c27] max-w-md">
-            List, browse, inspect, and rent securely—all in one place.
+{/* Left Section */}
+        <div className="flex-1 text-center p-8">
+          <img src="/assets/logo.png" alt="Logo" className="w-32 mb-8" />
+          <h2 className="text-3xl font-bold mb-4">Simplifying Room Rentals</h2>
+          <p className="text-xl text-[#8d6d62] font-semibold mb-6">
+            List, browse, inspect, and rent securely - all in one place.
           </p>
         </div>
 
-        {/* Right Section (Form) */}
-        <div className="flex-1 mt-8">
-          <h2 className="text-2xl font-bold mb-4">Create an account</h2>
-          
-          <p className="text-md text-gray-600 mb-2">
-            Already have an account? 
-            <Link to="/login" className="text-[#e48f44] font-bold ml-2">Login here</Link>
-          </p>
+        {/* Right Section */}
+        <div className="flex-1 p-8">
+          <h2 className="text-3xl font-bold mb-6 flex items-center justify-center gap-50">
+            Create an account
+            <span className="text-lg font-normal">
+              <Link to="/login" className="text-[#8d6d62] underline">Login instead</Link>
+            </span>
+          </h2>
 
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="block font-semibold">Username</label>
-              <input 
-                type="text" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
+          <form onSubmit={handleRegister}>
+            <label>Username</label>
+            <input
+              type="text"
+              required
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              onChange={(e) => setUsername(e.target.value)}
+            />
 
-            <div>
-              <label className="block font-semibold">Phone Number</label>
-              <input 
-                type="text" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
+            <label>Number</label>
+            <input
+              type="text"
+              required
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              onChange={(e) => setPhone(e.target.value)}
+            />
 
-            <div>
-              <label className="block font-semibold">Email</label>
-              <input 
-                type="email" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+            <label>Email</label>
+            <input
+              type="email"
+              required
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-            <div>
-              <label className="block font-semibold">Password</label>
-              <input 
-                type="password" 
-                required 
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e48f44]"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            <label>Password</label>
+            <input
+              type="password"
+              required
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-            {/* Role Selection */}
-            <div>
-              <p className="text-lg font-semibold text-[#8d6d62]">What’s your role?</p>
-              <div className="flex space-x-6">
-                <label className="flex items-center text-lg text-[#8d6d62]">
-                  <input 
-                    type="radio" 
-                    value="tenant" 
-                    checked={role === "tenant"} 
-                    onChange={() => setRole("tenant")}
-                    className="mr-2"
-                  />
-                  Tenant
-                </label>
-                <label className="flex items-center text-lg text-[#8d6d62]">
-                  <input 
-                    type="radio" 
-                    value="landlord" 
-                    checked={role === "landlord"} 
-                    onChange={() => setRole("landlord")}
-                    className="mr-2"
-                  />
-                  Landlord
-                </label>
-              </div>
-            </div>
 
             {/* Terms & Conditions */}
             <p className="text-md text-gray-600">
               By signing up, you agree to our  
-              <Link to="/terms" className="text-[#e48f44] font-bold ml-1">Terms & Conditions</Link>
+              <Link to="/terms" className="text-[#8d6d62] font-bold ml-1">Terms & Conditions</Link>
             </p>
 
             {/* Submit Button */}
