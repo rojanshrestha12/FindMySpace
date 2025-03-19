@@ -19,7 +19,6 @@ db.connect((err) => {
       phone VARCHAR(20) NOT NULL,
       email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255),
-      role ENUM('tenant', 'landlord') NOT NULL,
       google_id VARCHAR(255) UNIQUE NULL,
       reset_token VARCHAR(255) NULL
     )
