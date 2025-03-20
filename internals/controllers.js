@@ -6,20 +6,20 @@ const crypto = require("crypto");
 
 // User signup
 exports.signup = (req, res) => {
-  const { username, phone, email, password, role } = req.body;
-  if (!username || !phone || !email || !password || !role) {
+  const { username, phone, email, password} = req.body;
+  if (!username || !phone || !email || !password) {
     return res.status(400).json({ message: "All fields required" });
   }
 
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) return res.status(500).json({ message: "Error hashing password" });
 
-    const sql = "INSERT INTO users (username, phone, email, password, role) VALUES (?, ?, ?, ?, ?)";
-    db.query(sql, [username, phone, email, hash, role], (err) => {
+    const sql = "INSERT INTO users (username, phone, email, password) VALUES (?, ?, ?, ?)";
+    db.query(sql, [username, phone, email, hash], (err) => {
       if (err) return res.status(500).json({ message: "User already exists or DB error" });
       res.json({ message: "User created" });
     });
-  });
+  }); 
 };
 
 // User login
@@ -34,7 +34,7 @@ exports.login = (req, res) => {
     bcrypt.compare(password, user.password, (err, match) => {
       if (!match) return res.status(400).json({ message: "Invalid credentials" });
 
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
       res.json({ token });
     });
   });
@@ -60,7 +60,7 @@ exports.forgotPassword = (req, res) => {
     const mailOptions = {
       to: email,
       subject: "Password Reset",
-      text: `Click the link to reset your password: http://localhost:3000/reset-password/${token}`,
+      text: `Click the link to reset your password: http://localhost:3000/resetpassword/${token}`,
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
@@ -84,3 +84,21 @@ exports.resetPassword = (req, res) => {
     });
   });
 };
+
+
+exports.saveUser = (req, res) => {
+  const { email, name, google_id } = req.body;
+  if (!email || !name || !google_id) {
+    return res.status(400).json({ message: "All fields required" });
+  }
+
+  const query = `
+    INSERT INTO users (email, username, google_id)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE username = VALUES(username), google_id = VALUES(google_id)
+  `;
+  db.query(query, [email, name, google_id], (err) => {
+    if (err) return res.status(500).json({ message: "Error saving user" });
+    res.json({ message: "User saved" });
+  });
+}

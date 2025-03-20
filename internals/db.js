@@ -30,4 +30,15 @@ db.connect((err) => {
   });
 });
 
+const saveUser = (user, callback) => {
+  const { email, name, google_id } = user;
+  const query = `
+    INSERT INTO users (email, username, google_id)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE username = VALUES(username), google_id = VALUES(google_id)
+  `;
+  db.query(query, [email, name, google_id], callback);
+};
+
 module.exports = db;
+module.exports.saveUser = saveUser;

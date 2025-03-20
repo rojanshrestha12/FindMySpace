@@ -8,14 +8,13 @@ const API_URL = "http://localhost:3000/api";
 /**
  * Register user with email and password (API-based)
  */
-export const registerWithEmail = async (username, phone, email, password, role) => {
+export const registerWithEmail = async (username, phone, email, password) => {
   try {
     const response = await axios.post(`${API_URL}/signup`, {
       username,
       phone,
       email,
       password,
-      role,
     });
 
     // Store token in local storage
@@ -78,6 +77,14 @@ export const loginWithGoogle = async () => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     console.log("Google Sign-in successful:", user);
+
+    // Save user information to the database
+    await axios.post(`${API_URL}/saveUser`, {
+      email: user.email,
+      name: user.displayName,
+      google_id: user.uid,
+    });
+
     return { success: true, user };
   } catch (error) {
     return { success: false, message: error.message };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginWithEmail, loginWithGoogle } from "../auth/auth"; // Import authentication functions
+import axios from "axios"; // Import axios for making API requests
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -27,7 +28,18 @@ function Login() {
   const handleGoogleLogin = async () => {
     const response = await loginWithGoogle();
     if (response.success) {
-      navigate("/dashboard");
+      // Save user information to MySQL database
+      try {
+        await axios.post("http://localhost:3000/api/saveUser", {
+          email: response.user.email,
+          name: response.user.displayName,
+          google_id: response.user.uid,
+          // Add other user information as needed
+        });
+        navigate("/dashboard");
+      } catch {
+        alert("Failed to save user information.");
+      }
     } else {
       alert(response.message);
     }
@@ -97,7 +109,7 @@ function Login() {
           {/* Forgot Password */}
           <p
             className="text-md text-[#8d6d62] font-bold cursor-pointer text-center mt-2"
-            onClick={() => navigate("/forgot-password")}
+            onClick={() => navigate("/forgotpassword")}
           >
             Forgot Password?
           </p>
