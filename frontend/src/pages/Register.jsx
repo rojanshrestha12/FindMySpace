@@ -39,21 +39,21 @@ function Register() {
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
       <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
         
-{/* Left Section */}
-        <div className="flex-1 text-center p-8">
-          <img src="/assets/logo.png" alt="Logo" className="w-32 mb-8" />
-          <h2 className="text-3xl font-bold mb-4">Simplifying Room Rentals</h2>
-          <p className="text-xl text-[#8d6d62] font-semibold mb-6">
-            List, browse, inspect, and rent securely - all in one place.
+        {/* Left Section */}
+        <div className="flex-2 p-8">
+        <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
+          <h2 className="text-6xl  mb-4">SIMPLIFYING ROOM RENTALS</h2>
+          <p className="text-lg font-bold mb-6 mr-40 text-[#8d6d62]">
+          A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.
           </p>
         </div>
 
         {/* Right Section */}
         <div className="flex-1 p-8">
-          <h2 className="text-3xl font-bold mb-6 flex items-center justify-center gap-50">
+          <h2 className="text-2xl mb-6 flex items-center gap-30">
             Create an account
-            <span className="text-lg font-normal">
-              <Link to="/login" className="text-[#8d6d62] underline">Login instead</Link>
+            <span className="text-sm font-normal">
+              <Link to="/login" className="text-[#1E4AE9]">Login instead</Link>
             </span>
           </h2>
 
@@ -90,17 +90,10 @@ function Register() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-
-            {/* Terms & Conditions */}
-            <p className="text-md text-gray-600">
-              By signing up, you agree to our  
-              <Link to="/terms" className="text-[#8d6d62] font-bold ml-1">Terms & Conditions</Link>
-            </p>
-
             {/* Submit Button */}
             <button 
               type="submit" 
-              className="w-full py-2 bg-[#e48f44] text-white text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b]"
+              className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-4 mb-4" 
               disabled={loading}
             >
               {loading ? "Creating account..." : "Create an account"}
@@ -108,18 +101,19 @@ function Register() {
           </form>
 
           {/* OR Separator */}
-          <div className="flex items-center justify-center my-4">
-            <div className="border-b border-gray-300 w-1/3"></div>
-            <p className="text-md text-gray-500 mx-2">OR</p>
-            <div className="border-b border-gray-300 w-1/3"></div>
+          <div class="flex items-center w-full gap-3 mb-4">
+            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
+            <span class=" whitespace-nowrap">OR</span>
+            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
           </div>
 
-          {/* Google Sign-In Button */}
-          <button 
-            onClick={handleGoogleLogin} 
-            className="w-full flex items-center justify-center border border-gray-400 rounded-lg p-2 text-gray-700 hover:bg-gray-100">
+          {/* Google Sign-in Button */}
+          <button
+            className="w-full flex items-center justify-center py-2 bg-white border-2 border-[#d6b899] text-black text-lg rounded-lg shadow-md hover:bg-gray-100"
+            onClick={handleGoogleLogin}
+          >
             <img src="/assets/google_logo.png" alt="Google" className="w-6 mr-2" />
-            Sign up with Google
+            Sign in with Google
           </button>
         </div>
       </div>

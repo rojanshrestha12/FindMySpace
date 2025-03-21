@@ -5,7 +5,9 @@ import Register from "./pages/register";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import { auth } from "./auth/firebase"; // Import Firebase auth
+import PropertyListing from "./pages/Dashboard";
+import { auth } from "./auth/firebase"; 
+import PropertyForm from "./pages/PropertyForm.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ element }) => {
@@ -36,6 +38,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
+        <Route path="/PropertyListing" element={<PropertyListing/>} />
+        <Route path="/PropertyForm" element={<PropertyForm/>} />
       </Routes>
     </Router>
   );

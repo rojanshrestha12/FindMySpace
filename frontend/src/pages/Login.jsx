@@ -47,28 +47,21 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
-      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
+      <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-8 md:pb-4">
         {/* Left Section */}
-        <div className="flex-3 md:text-left pl-20 pr-40 mb-50">
+        <div className="flex-3 md:text-left pl-20 pr-40 ">
           <div className="flex items-center space-x-3 mb-6">
-            <img src="/assets/logo.png" alt="Logo" className="w-20 relative mb-20 max-w-md" />
-            <h1 className="text-4xl absolute mb-10 ml-20 font-bold text-[#8d6d62] italic" style={{ fontFamily: "Brush Script MT" }}>
-              Find My Space
-            </h1>
+            <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
+
           </div>
-          <h2 className="text-4xl font-bold text-[#8d6d62] mt-4 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
-          <h2 className="text-2xl font-normal text-[#8d6d62] mt-4 mb-6 max-w-md">
-            List, browse, inspect, and rent securely - all in one place.
-          </h2>
+          <h2 className="text-4xl font-bold mt-40 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
+          <img src= "/assets/illustration.jpg" className="w-150" /> 
         </div>
 
         {/* Right Section */}
-        <div className="flex-2 mt-8 mr-15">
-          <h2 className="text-2xl font-bold mb-6 flex items-center justify-left gap-10">
-            Log in to your account
-            <span className="text-lg font-bold underline">
-              <Link to="/register" className="text-[#8d6d62]">Create an account</Link>
-            </span>
+        <div className="flex-2 mr-15">
+          <h2 className="text-3xl mb-6 flex items-center justify-left">
+          Welcome Back 👋
           </h2>
 
           <form onSubmit={handleLogin}>
@@ -90,31 +83,29 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <p className="text-Md text-black mb-2">
-              By logging in, you agree to our{" "}
-              <Link to="/terms" className="text-Md text-[#8d6d62] font-bold">
-                Terms & Conditions
-              </Link>
-            </p>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-2 bg-[#e48f44] text-white text-xl rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#d67d3b]'}`}
-            >
-              {loading ? "Logging in..." : "Log in"}
-            </button>
-          </form>
-
           {/* Forgot Password */}
           <p
-            className="text-md text-[#8d6d62] font-bold cursor-pointer text-center mt-2"
+            className="text-md text-[#1E4AE9] cursor-pointer text-right mt-4 mb-4"
             onClick={() => navigate("/forgotpassword")}
           >
             Forgot Password?
           </p>
 
-          <p className="text-center text-lg my-2 text-gray-500">- OR -</p>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-2 bg-[#e48f44] text-black text-xl rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#d67d3b]'}`}
+            >
+              {loading ? "Logging in..." : "Sign in"}
+            </button>
+          </form>
+
+
+          <div class="flex items-center w-full gap-3 mt-4 mb-4">
+            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
+            <span class=" whitespace-nowrap">OR</span>
+            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
+          </div>
 
           {/* Google Sign-in Button */}
           <button
@@ -124,6 +115,13 @@ function Login() {
             <img src="/assets/google_logo.png" alt="Google" className="w-6 mr-2" />
             Sign in with Google
           </button>
+
+          <p className="text-Md text-black mb-2 mt-4 text-center">
+              Don't you have an account? {" "}
+              <Link to="/register" className="text-Md text-[#1E4AE9] font-normal ">
+                Sign up
+              </Link>
+            </p>
         </div>
       </div>
     </div>
