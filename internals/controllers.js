@@ -45,46 +45,65 @@ exports.forgotPassword = (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: "Email required" });
 
-  const token = crypto.randomBytes(32).toString("hex");
-  db.query("UPDATE users SET reset_token = ? WHERE email = ?", [token, email], (err) => {
-    if (err) return res.status(500).json({ message: "Error generating reset token" });
+  const token = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit token
+  const expiryTime = Date.now() + 15 * 60 * 1000; // Token expires in 15 minutes
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+  // Check if the user exists
+  db.query("SELECT * FROM users WHERE email = ?", [email], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (results.length === 0) return res.status(404).json({ message: "User not found" });
 
-    const mailOptions = {
-      to: email,
-      subject: "Password Reset",
-      text: `Click the link to reset your password: http://localhost:3000/resetpassword/${token}`,
-    };
+    // Store the reset token in the database
+    db.query("UPDATE users SET reset_token = ? WHERE email = ?", [token, email], (err) => {
+      if (err) return res.status(500).json({ message: "Error saving reset token" });
 
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) return res.status(500).json({ message: "Error sending email" });
-      res.json({ message: "Password reset email sent" });
+      // Send email
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      const mailOptions = {
+        to: email,
+        subject: "Password Reset",
+        text: `Your password reset code is: ${token}. This code expires in 15 minutes.`,
+      };
+
+      transporter.sendMail(mailOptions, (err) => {
+        if (err) return res.status(500).json({ message: "Error sending email" });
+        res.json({ message: "Password reset email sent" });
+      });
     });
   });
 };
 
-// Reset password
+// Reset password functionality
 exports.resetPassword = (req, res) => {
   const { token, newPassword } = req.body;
   if (!token || !newPassword) return res.status(400).json({ message: "Invalid request" });
 
-  bcrypt.hash(newPassword, 10, (err, hash) => {
-    if (err) return res.status(500).json({ message: "Error hashing password" });
+  // Check if the token is valid
+  db.query("SELECT * FROM users WHERE reset_token = ?", [token], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (results.length === 0) return res.status(400).json({ message: "Invalid or expired token" });
 
-    db.query("UPDATE users SET password = ?, reset_token = NULL WHERE reset_token = ?", [hash, token], (err) => {
-      if (err) return res.status(500).json({ message: "Error updating password" });
-      res.json({ message: "Password updated successfully" });
+    const user = results[0];
+
+    // Hash the new password
+    bcrypt.hash(newPassword, 10, (err, hash) => {
+      if (err) return res.status(500).json({ message: "Error hashing password" });
+
+      // Update the password and clear the reset token
+      db.query("UPDATE users SET password = ?, reset_token = NULL WHERE reset_token = ?", [hash, token], (err) => {
+        if (err) return res.status(500).json({ message: "Error updating password" });
+        res.json({ message: "Password updated successfully" });
+      });
     });
   });
 };
-
 
 exports.saveUser = (req, res) => {
   const { email, name, google_id } = req.body;

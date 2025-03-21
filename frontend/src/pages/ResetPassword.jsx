@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { token } = useParams();
+  const [token, setToken] = useState("");
   const navigate = useNavigate();
 
   const handleResetPassword = async (e) => {
@@ -17,7 +17,7 @@ function ResetPassword() {
     }
     setLoading(true);
     try {
-      await axios.post("http://localhost:3000/resetpassword", {
+      await axios.post("http://localhost:3000/api/resetpassword", {
         token,
         newPassword,
       });
@@ -35,6 +35,13 @@ function ResetPassword() {
       <div className="flex flex-col items-center w-full max-w-md bg-white rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-6">Reset Password</h2>
         <form onSubmit={handleResetPassword}>
+          <label className="font-bold">Token</label>
+          <input
+            type="text"
+            required
+            className="w-full p-2 mb-4 border-2 border-gray-300 rounded-lg"
+            onChange={(e) => setToken(e.target.value)}
+          />
           <label className="font-bold">New Password</label>
           <input
             type="password"

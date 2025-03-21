@@ -14,7 +14,7 @@ export const registerWithEmail = async (username, phone, email, password) => {
       username,
       phone,
       email,
-      password,
+      password
     });
 
     // Store token in local storage
