@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-function PropertyListing() {
+function Dashboard() {
   const [setProperties] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,4 +110,4 @@ function PropertyListing() {
   );
 }
 
-export default PropertyListing;
+export default Dashboard;

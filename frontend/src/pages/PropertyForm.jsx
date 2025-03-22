@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function PropertyForm() {
+  const navigate = useNavigate();
+  const [loading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -22,9 +26,26 @@ function PropertyForm() {
     setFormData({ ...formData, photos: files });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
+    try {
+      await axios.post("http://localhost:3000/api/addProperty", {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+        propertyType: formData.propertyType,
+        price: formData.price,
+        description: formData.description,  
+        photos: formData.photos
+        // Add other user information as needed
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Failed to save user information.");
+      return(error.response?.data?.message || "Error adding new property");
+    }
   };
 
   return (
@@ -132,10 +153,13 @@ function PropertyForm() {
               </div>
             )}
           </div>
-
-          <button type="submit" className="w-full bg-orange-600 text-white p-2 rounded font-bold">
-            Add New Property
-          </button>
+          <button 
+              type="submit" 
+              className="w-full bg-orange-600 text-white p-2 rounded font-bold" 
+              disabled={loading}
+            >
+              {loading ? "Adding new Property...." : "Add New Property"}
+            </button>
         </form>
       </div>
     </div>
