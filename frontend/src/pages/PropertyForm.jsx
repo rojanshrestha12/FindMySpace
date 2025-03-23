@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function PropertyForm() {
+  const navigate = useNavigate();
+  const [loading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -22,10 +26,34 @@ function PropertyForm() {
     setFormData({ ...formData, photos: files });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("phone", formData.phone);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("address", formData.address);
+    formDataToSend.append("propertyType", formData.propertyType);
+    formDataToSend.append("price", formData.price);
+    formDataToSend.append("description", formData.description);
+  
+    // Append each photo file
+    formData.photos.forEach((file) => {
+      formDataToSend.append("photos", file);
+    });
+  
+    try {
+      await axios.post("http://localhost:3000/api/addProperty", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Failed to save property.");
+      console.error(error);
+    }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -132,10 +160,13 @@ function PropertyForm() {
               </div>
             )}
           </div>
-
-          <button type="submit" className="w-full bg-orange-600 text-white p-2 rounded font-bold">
-            Add New Property
-          </button>
+          <button 
+              type="submit" 
+              className="w-full bg-orange-600 text-white p-2 rounded font-bold" 
+              disabled={loading}
+            >
+              {loading ? "Adding new Property...." : "Add New Property"}
+            </button>
         </form>
       </div>
     </div>

@@ -121,3 +121,71 @@ exports.saveUser = (req, res) => {
     res.json({ message: "User saved" });
   });
 }
+
+// Add a new property
+exports.addProperty = (req, res) => {
+  const {name, phone, email, address, propertyType, price, description } = req.body;
+  const photos = req.file ? req.file.buffer : null;
+
+  const query = `INSERT INTO properties (name, phone, email, address, property_type, price, description, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [name, phone, email, address, propertyType, price, description, photos];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error adding property:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.status(201).json({ message: "Property added successfully", propertyId: result.insertId });
+  });
+};
+
+
+// Get paginated properties for the dashboard
+exports.getProperties = (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  db.query(`SELECT id, name, phone, email, address, property_type, price, description FROM properties LIMIT ? OFFSET ?`, [parseInt(limit), offset], (err, results) => {
+    if (err) {
+      console.error("Error fetching properties:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+};
+
+
+
+// Update property (only by owner)
+exports.updateProperty = (req, res) => {
+  const { id } = req.params;
+  const { name, phone, email, address, propertyType, price, description } = req.body;
+  const userId = req.user.id; // Retrieved from authentication middleware
+
+  db.query(`UPDATE properties SET name=?, phone=?, email=?, address=?, property_type=?, price=?, description=? WHERE id=? AND user_id=?`, 
+    [name, phone, email, address, propertyType, price, description, id, userId], 
+    (err, result) => {
+      if (err) {
+        console.error("Error updating property:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      if (result.affectedRows === 0) return res.status(403).json({ error: "Unauthorized or property not found" });
+      res.json({ message: "Property updated successfully" });
+    }
+  );
+};
+
+// Delete property (only by owner)
+exports.deleteProperty = (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  db.query(`DELETE FROM properties WHERE id=? AND user_id=?`, [id, userId], (err, result) => {
+    if (err) {
+      console.error("Error deleting property:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    if (result.affectedRows === 0) return res.status(403).json({ error: "Unauthorized or property not found" });
+    res.json({ message: "Property deleted successfully" });
+  });
+};
