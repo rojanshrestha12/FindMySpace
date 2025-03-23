@@ -35,7 +35,7 @@ db.connect((err) => {
       property_type ENUM('House', 'Apartment', 'Flat', 'Room') NOT NULL,
       price DECIMAL(10,2) NOT NULL,
       description TEXT NOT NULL,
-      photos LONGBLOB,
+      photos TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
