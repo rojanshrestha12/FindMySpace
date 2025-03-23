@@ -62,4 +62,4 @@ const saveUser = (user, callback) => {
   db.query(query, [email, name, google_id], callback);
 };
 
-module.exports = { db, saveUser }; // Export db and saveUser
+module.exports = db; // Export db and saveUser

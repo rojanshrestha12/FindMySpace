@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 function Dashboard() {
-  const [setProperties] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const propertiesPerPage = 12;
+  // const propertiesPerPage = 12;
 
   useEffect(() => {
     axios.get(`http://localhost:3000/api/properties?page=${currentPage}`)
@@ -16,13 +16,13 @@ function Dashboard() {
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
-    {/* Navbar */}
-    <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
-      <div className="flex items-center space-x-3">
-        <div className="ml-85">
-        <img src="/assets/logo.png" alt="Logo" className="w-25" />
-      </div>
-      </div>
+      {/* Navbar */}
+      <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
+        <div className="flex items-center space-x-3">
+          <div className="ml-85">
+            <img src="/assets/logo.png" alt="Logo" className="w-25" />
+          </div>
+        </div>
         <div className="hidden md:flex space-x-8 text-lg">
           <Link to="/dashboard" className="text-black">Home</Link>
           <Link to="/PropertyForm" className="text-black">Add Property</Link>
@@ -39,22 +39,21 @@ function Dashboard() {
         </div>
       </nav>
 
-  {/* Filters */}
-  <div className="max-w-6xl mx-auto mt-6 px-4 border-black pb-4 flex items-center space-x-4">
-  <h2 className="text-lg font-semibold">Filter by:</h2>
-  <div className="flex space-x-4 flex-1">
-    <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-      <option>Type of property</option>
-    </select>
-    <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-      <option>Location</option>
-    </select>
-    <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-      <option>Price Range</option>
-    </select>
-  </div>
-</div>
-
+      {/* Filters */}
+      <div className="max-w-6xl mx-auto mt-6 px-4 border-black pb-4 flex items-center space-x-4">
+        <h2 className="text-lg font-semibold">Filter by:</h2>
+        <div className="flex space-x-4 flex-1">
+          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
+            <option>Type of property</option>
+          </select>
+          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
+            <option>Location</option>
+          </select>
+          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
+            <option>Price Range</option>
+          </select>
+        </div>
+      </div>
 
       {/* List of Properties */}
       <div className="max-w-6xl mx-auto mt-6 px-4">
@@ -64,14 +63,20 @@ function Dashboard() {
 
       {/* Property Grid */}
       <div className="max-w-6xl mx-auto py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
-        {Array.from({ length: propertiesPerPage }).map((_, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-lg p-6 w-full">
-            <div className="w-full h-56 bg-gray-300 rounded-md" />
-            <h2 className="text-lg font-semibold mt-2">Property Location</h2>
-            <p className="text-sm text-gray-600">Property Type</p>
-            <p className="text-md font-bold text-[#e48f44]">Price</p>
-          </div>
-        ))}
+        {properties.length > 0 ? (
+          properties.map((property, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-lg p-6 w-full">
+              <div className="w-full h-56 bg-gray-300 rounded-md">
+                <img src={property.image || "/assets/default-property.jpg"} alt="Property" className="w-full h-full object-cover rounded-md" />
+              </div>
+              <h2 className="text-lg font-semibold mt-2">{property.address}</h2>
+              <p className="text-sm text-gray-600">{property.PropertyType}</p>
+              <p className="text-md font-bold text-[#e48f44]">{property.price}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 col-span-4">No properties found.</p>
+        )}
       </div>
 
       {/* Pagination */}
