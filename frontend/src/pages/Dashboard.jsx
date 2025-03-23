@@ -10,7 +10,7 @@ function Dashboard() {
 
   useEffect(() => {
     axios.get(`http://localhost:3000/api/properties?page=${currentPage}`)
-      .then(response => setProperties(response.data))
+      .then(response => {console.log(response.data);setProperties(response.data)})
       .catch(error => console.error("Error fetching properties:", error));
   }, [currentPage]);
 
@@ -61,23 +61,36 @@ function Dashboard() {
         <hr className="border-black mt-2" />
       </div>
 
-      {/* Property Grid */}
-      <div className="max-w-6xl mx-auto py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
-        {properties.length > 0 ? (
-          properties.map((property, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg p-6 w-full">
-              <div className="w-full h-56 bg-gray-300 rounded-md">
-                <img src={property.image || "/assets/default-property.jpg"} alt="Property" className="w-full h-full object-cover rounded-md" />
-              </div>
-              <h2 className="text-lg font-semibold mt-2">{property.address}</h2>
-              <p className="text-sm text-gray-600">{property.PropertyType}</p>
-              <p className="text-md font-bold text-[#e48f44]">{property.price}</p>
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-500 col-span-4">No properties found.</p>
-        )}
-      </div>
+     {/* Property Grid */}
+<div className="max-w-6xl mx-auto py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
+  {properties.length > 0 ? (
+    properties.map((property, index) => {
+      // Parse the photos string into an array
+      const photos = JSON.parse(property.photos);
+      // Get the first image path (or fallback to a default image if none)
+      const imagePath = photos.length > 0 ? photos[0] : "/uploads/default.jpg";
+      
+      return (
+        <div key={index} className="bg-white rounded-lg shadow-lg p-6 w-full">
+          <div className="w-full h-56 bg-gray-300 rounded-md">
+            <img
+              key={index}
+              src={`http://localhost:3000${imagePath}`}
+              alt="Property"
+              className="w-full h-48 object-cover"
+            />
+          </div>
+          <h2 className="text-lg font-semibold mt-2">{property.address}</h2>
+          <p className="text-sm text-gray-600">{property.property_type}</p>
+          <p className="text-md font-bold text-[#e48f44]">{property.price}</p>
+        </div>
+      );
+    })
+  ) : (
+    <p className="text-center text-gray-500 col-span-4">No properties found.</p>
+  )}
+</div>
+
 
       {/* Pagination */}
       <div className="flex justify-center space-x-2 my-6">

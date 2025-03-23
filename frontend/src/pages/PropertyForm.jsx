@@ -28,25 +28,32 @@ function PropertyForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("phone", formData.phone);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("address", formData.address);
+    formDataToSend.append("propertyType", formData.propertyType);
+    formDataToSend.append("price", formData.price);
+    formDataToSend.append("description", formData.description);
+  
+    // Append each photo file
+    formData.photos.forEach((file) => {
+      formDataToSend.append("photos", file);
+    });
+  
     try {
-      await axios.post("http://localhost:3000/api/addProperty", {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        address: formData.address,
-        propertyType: formData.propertyType,
-        price: formData.price,
-        description: formData.description,  
-        photos: formData.photos
-        // Add other user information as needed
+      await axios.post("http://localhost:3000/api/addProperty", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       navigate("/dashboard");
     } catch (error) {
-      alert("Failed to save user information.");
-      return(error.response?.data?.message || "Error adding new property");
+      alert("Failed to save property.");
+      console.error(error);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
