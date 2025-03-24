@@ -1,12 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const routes = require("./internals/routes");
+const userRoutes = require("./internals/routes/userRoute");
+const propertyRoutes = require("./internals/routes/propertyRoutes");
 const cors = require("cors");
 const path = require("path");
-
-// const passport = require("./internals/auth");
-// const cookieSession = require("cookie-session");
-// const passportStrategy = require("./internals/passport");
 
 
 const app = express();
@@ -18,7 +15,8 @@ app.use(cors(
 ));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api", routes);
+app.use("/api", userRoutes);
+app.use("/api", propertyRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
