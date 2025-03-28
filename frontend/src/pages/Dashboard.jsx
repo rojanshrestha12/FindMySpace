@@ -12,7 +12,7 @@ function Dashboard() {
     axios.get(`http://localhost:3000/api/properties?page=${currentPage}`)
       .then(response => {console.log(response.data);setProperties(response.data)})
       .catch(error => console.error("Error fetching properties:", error));
-  }, [currentPage]);
+  }, [currentPage]); 
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
