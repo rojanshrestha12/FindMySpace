@@ -1,125 +1,138 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function Profile() {
-  const defaultUser = {
-    name: "John Doe",
-    location: "Unknown",
-    avatar: "/assets/avatar.png",
-    age: "N/A",
-    occupation: "N/A",
-    verification: "Not Verified",
-  };
-
-  const [user, setUser] = useState(defaultUser);
-  const [setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/user/profile") 
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching user profile:", error);
-        setLoading(false);
-      });
-  }, []);
-
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
-      {/* Navbar */}
       <Navbar />
 
-      {/* Main Content Wrapper */}
-      <div className="max-w-6xl mx-auto px-4 mt-6">
-        {/* Account Heading with Thin Underline */}
-        <div className="flex justify-between items-center">
+      {/* Compact Container */}
+      <div className="w-full max-w-[800px] mx-auto px-4 mt-4">
+        <h2 className="text-2xl font-bold text-orange-500 pb-2 border-b-2 border-black mb-4">
+          ACCOUNT
+        </h2>
+
+        {/* Profile Card */}
+        <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
+          {/* Profile Header */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">My Profile</h3>
+            <button className="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">
+              Edit Profile
+            </button>
+          </div>
+
+          {/* Profile Image and Basic Info */}
+          <div className="flex flex-col mb-6">
+            <img
+              src="/assets/profile.png"
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover mb-2"
+            />
+            <h2 className="text-lg font-medium">Name</h2>
+          </div>
+
+          {/* Separator Line */}
+          <hr className="border-gray-300 mb-6" />
+
+          {/* Contact Information */}
+          <div className="space-y-4 mb-6">
+            <h3 className="font-medium text-gray-700">Contact Information</h3>
+
+            {/* Email */}
+            <div className="flex items-center gap-2">
+              <label className="w-24 text-sm text-gray-600">Email:</label>
+              <input
+                type="email"
+                className="flex-1 p-2 border rounded bg-gray-50 text-sm"
+                value="user@example.com"
+                readOnly
+              />
+              <span className="text-green-600 text-xs">Verified</span>
+            </div>
+
+            {/* Phone */}
+            <div className="flex items-center gap-2">
+              <label className="w-24 text-sm text-gray-600">Phone:</label>
+              <input
+                type="tel"
+                className="flex-1 p-2 border rounded bg-gray-50 text-sm"
+                value="+977 9812345678"
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="flex items-center gap-2 mt-2">
+            <label className="w-24 text-sm text-gray-600">Address:</label>
+            <input
+              type="text"
+              className="flex-1 p-2 border rounded bg-gray-50 text-sm"
+              placeholder="Enter address"
+            />
+          </div>
+
+          {/* Basic Information */}
+          <div className="space-y-4 mb-6 mt-4">
+            <h3 className="font-medium text-gray-700">Basic Information</h3>
+
+            {/* Gender */}
+            <div className="flex items-center gap-2">
+              <label className="w-24 text-sm text-gray-600">Gender:</label>
+              <select className="flex-1 p-2 border rounded bg-gray-50 text-sm">
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            {/* Birth Date */}
+            <div className="flex items-center gap-2">
+              <label className="w-24 text-sm text-gray-600">Birth Date:</label>
+              <input
+                type="date"
+                className="flex-1 p-2 border rounded bg-gray-50 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* About Me */}
+          <div className="mb-6">
+            <h3 className="font-medium text-gray-700">About Me</h3>
+            <textarea
+              className="w-full p-2 border rounded bg-gray-50 text-sm h-16 mt-2"
+              placeholder="Brief description"
+            />
+          </div>
+
+          {/* Password Section */}
           <div>
-            <h2 className="text-2xl font-bold text-orange-500 inline-block border-b-2 border-black">
-              ACCOUNT
-            </h2>
-          </div>
-          <button className="bg-gray-200 px-4 py-1 rounded shadow-md">Edit Profile</button>
-        </div>
-
-        <div className="flex mt-6">
-          {/* Sidebar */}
-          <div className="w-1/3 bg-white rounded-lg shadow-md p-4 h-fit">
-            <nav className="flex flex-col space-y-4">
-              <Link to="/profile" className="flex items-center space-x-2 text-black font-semibold">
-                <img src="/assets/profile-icon.png" alt="Profile" className="w-6" />
-                <span>PROFILE</span>
-              </Link>
-              <Link to="/documents" className="flex items-center space-x-2 text-black font-semibold">
-                <img src="/assets/document-icon.png" alt="Documents" className="w-6" />
-                <span>DOCUMENTS</span>
-              </Link>
-              <Link to="/contact-info" className="flex items-center space-x-2 text-black font-semibold">
-                <img src="/assets/contact-icon.png" alt="Contact Info" className="w-6" />
-                <span>CONTACT INFO</span>
-              </Link>
-              <Link to="/change-password" className="flex items-center space-x-2 text-black font-semibold">
-                <img src="/assets/password-icon.png" alt="Change Password" className="w-6" />
-                <span>CHANGE PASSWORD</span>
-              </Link>
-            </nav>
-          </div>
-
-          {/* Content Section */}
-          <div className="w-2/3 space-y-6 pl-6">
-            {/* Profile Section */}
-            <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <div className="text-center">
-                <img src={user.avatar || defaultUser.avatar} alt="Profile" className="w-24 mx-auto rounded-full" />
-                <h2 className="text-xl font-semibold mt-2">{user.name || defaultUser.name}</h2>
-                <p className="text-gray-600">{user.location || defaultUser.location}</p>
-              </div>
-            </div>
-
-            {/* About Me & Age Section */}
-            <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <h3 className="text-lg font-semibold">About Me & Age</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div><strong>Age</strong><p>{user.age || defaultUser.age} years old</p></div>
-                <div><strong>Occupation</strong><p>{user.occupation || defaultUser.occupation}</p></div>
-                <div><strong>Verification</strong><p>{user.verification || defaultUser.verification}</p></div>
-              </div>
-              <textarea className="w-full p-2 border rounded h-24 mt-4" placeholder="Write something about yourself..."></textarea>
-            </div>
-
-            {/* Contact Information Section */}
-            <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <h3 className="text-lg font-semibold">Contact Information</h3>
-              <input type="text" className="w-full p-2 border rounded bg-[#d6b899]" placeholder="Enter your email" />
-              <button className="mt-2 px-4 py-2 bg-[#e48f44] text-white rounded">Save Changes</button>
-            </div>
-
-            {/* Password Settings Section */}
-            <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <h3 className="text-lg font-semibold">Password Setting</h3>
-              <div className="flex space-x-4">
+            <h3 className="font-medium text-gray-700">Password Settings</h3>
+            <div className="grid grid-cols-2 gap-4 mb-3 mt-2">
+              <div>
                 <input
                   type="password"
-                  className="w-1/2 p-2 border rounded bg-[#d6b899] mb-2"
-                  placeholder="Old Password"
+                  className="w-full p-2 border rounded bg-[#f0e6d6] text-sm"
+                  placeholder="Current Password"
                 />
+              </div>
+              <div>
                 <input
                   type="password"
-                  className="w-1/2 p-2 border rounded bg-[#d6b899] mb-2"
+                  className="w-full p-2 border rounded bg-[#f0e6d6] text-sm"
                   placeholder="New Password"
                 />
               </div>
-              <button className="mt-2 px-4 py-2 bg-[#e48f44] text-white rounded">SET NEW PASSWORD</button>
             </div>
+            <button className="w-full py-2 bg-[#e48f44] text-white rounded text-sm hover:bg-[#d87f34]">
+              UPDATE PASSWORD
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

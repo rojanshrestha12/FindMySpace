@@ -1,33 +1,28 @@
 const db = require("../config/db");
 
 exports.addProperty = (req, res) => {
-    const { name, phone, email, address, propertyType, price, description } = req.body;
-    console.log(req.body)
-    console.log(req.files)
-    // Check if files were uploaded
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: "No photos uploaded" });
-    }
-  
-    // Map uploaded files to their paths
-    const photoPaths = req.files.map((file) => `/uploads/${file.filename}`);
-    console.log(name,phone,email,photoPaths)
-  
-  
-    db.query(
-      `INSERT INTO properties (name, phone, email, address, property_type, price, description, photos) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, phone, email, address, propertyType, price, description, JSON.stringify(photoPaths)],
-      (err, result) => {
-        if (err) {
-          console.error("Error saving property:", err);
-          return res.status(500).json({ error: "Database error" });
-        }
-        res.json({ message: "Property added successfully!", id: result.insertId });
+  const { name, phone, email, address, propertyType, price, description, amenities } = req.body;
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: "No photos uploaded" });
+  }
+
+  const photoPaths = req.files.map((file) => `/uploads/${file.filename}`);
+
+  db.query(
+    `INSERT INTO properties (name, phone, email, address, property_type, price, description, photos, amenities, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available')`,
+    [name, phone, email || null, address, propertyType, price, description, JSON.stringify(photoPaths), JSON.stringify(amenities)],
+    (err, result) => {
+      if (err) {
+        console.error("❌ Error saving property:", err);
+        return res.status(500).json({ error: "Database error" });
       }
-    );
-  };
-  
+      res.json({ message: "✅ Property added successfully!", id: result.insertId });
+    }
+  );
+};
+
   
   
   

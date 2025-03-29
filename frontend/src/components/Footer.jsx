@@ -6,7 +6,7 @@ function Footer() {
     <footer className="text-center bg-white mt-6">
       <div className="relative">
         <img src="/assets/footer.png" alt="Footer Background" className="w-full object-cover" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center mb-30">
           <p className="text-black">Near Naxal, Herald College Kathmandu, Nepal</p>
           <p className="text-black">(+977) 01-44456845, 9858477538</p>
           <p className="text-black">Contact Us: info@FindMySpace.com</p>
