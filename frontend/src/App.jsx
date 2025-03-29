@@ -8,6 +8,8 @@ import ResetPassword from "./pages/ResetPassword";
 import PropertyListing from "./pages/Dashboard";
 import { auth } from "./auth/firebase"; 
 import PropertyForm from "./pages/PropertyForm.jsx";
+import Profile from "./pages/Profile.jsx"
+import About from "./pages/About";
 
 // Protected Route Component
 const ProtectedRoute = ({ element }) => {
@@ -40,6 +42,9 @@ function App() {
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/PropertyListing" element={<PropertyListing/>} />
         <Route path="/PropertyForm" element={<PropertyForm/>} />
+        <Route path="/profile" element={<Profile/>} />
+        <Route path="/about" element={<About />} />
+
       </Routes>
     </Router>
   );
