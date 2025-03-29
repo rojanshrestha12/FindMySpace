@@ -6,6 +6,10 @@ function Dashboard() {
   const [properties, setProperties] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [propertyType, setPropertyType] = useState("");
+  const [location, setLocation] = useState("");
+  const [priceRange, setPriceRange] = useState("");
+
   // const propertiesPerPage = 12;
 
   useEffect(() => {
@@ -14,6 +18,16 @@ function Dashboard() {
       .catch(error => console.error("Error fetching properties:", error));
   }, [currentPage]);
 
+  const handleFilterChange = () => {
+    const [minPrice, maxPrice] = priceRange.split("-").map(Number);
+  
+    axios.get("http://localhost:3000/api/filterProperties", {
+      params: { propertyType, location, minPrice, maxPrice }
+    })
+    .then(response => setProperties(response.data))
+    .catch(error => console.error("Error fetching filtered properties:", error));
+  };
+  
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
       {/* Navbar */}
@@ -39,22 +53,32 @@ function Dashboard() {
         </div>
       </nav>
 
-      {/* Filters */}
-      <div className="max-w-6xl mx-auto mt-6 px-4 border-black pb-4 flex items-center space-x-4">
-        <h2 className="text-lg font-semibold">Filter by:</h2>
-        <div className="flex space-x-4 flex-1">
-          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-            <option>Type of property</option>
+      {/* Filters & Property Grid Section */}
+      <div className="max-w-6xl mx-auto mt-6 px-4 flex justify-between items-center">
+        {/* Filters */}
+        <div className="flex items-center space-x-4">
+          <h2 className="text-lg font-semibold">Filter by:</h2>
+          <select onChange={(e) => setPropertyType(e.target.value)}>
+            <option value="">Type of Property</option>
+            <option value="House">House</option>
+            <option value="Apartment">Apartment</option>
           </select>
-          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-            <option>Location</option>
+
+          <select onChange={(e) => setLocation(e.target.value)}>
+            <option value="">Location</option>
+            <option value="Kathmandu">Kathmandu</option>
+            <option value="Pokhara">Pokhara</option>
           </select>
-          <select className="p-2 border border-black rounded-md bg-[#e48f44] text-black flex-1">
-            <option>Price Range</option>
+
+          <select onChange={(e) => setPriceRange(e.target.value)}>
+            <option value="">Price Range</option>
+            <option value="5000-10000">5,000 - 10,000</option>
+            <option value="10000-25000">10,000 - 25,000</option>
           </select>
+
+          <button onClick={handleFilterChange} className="bg-orange-500 text-white px-4 py-2 rounded">Apply Filters</button>
         </div>
       </div>
-
       {/* List of Properties */}
       <div className="max-w-6xl mx-auto mt-6 px-4">
         <h2 className="text-2xl font-bold">List of Properties</h2>

@@ -43,3 +43,30 @@ exports.addProperty = (req, res) => {
     });
   };
   
+
+  exports.filterProperties = (req, res) => {
+    const { propertyType, location, minPrice, maxPrice } = req.query;
+    let query = `SELECT * FROM properties WHERE 1=1`;  
+    let params = [];
+
+    if (propertyType) {
+        query += ` AND property_type = ?`;
+        params.push(propertyType);
+    }
+    if (location) {
+        query += ` AND address LIKE ?`;
+        params.push(`%${location}%`);
+    }
+    if (minPrice && maxPrice) {
+        query += ` AND price BETWEEN ? AND ?`;
+        params.push(minPrice, maxPrice);
+    }
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error("Error filtering properties:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.json(results);
+    });
+};

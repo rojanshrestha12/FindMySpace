@@ -24,6 +24,7 @@ const router = express.Router();
 router.post("/addProperty", upload.array("photos", 10), propertyController.addProperty); // Allow up to 10 files
 
 router.get("/properties", propertyController.getProperties);
+router.get("/filterProperties", propertyController.filterProperties);
 // router.put("/properties/:id", propertyController.updateProperty);
 // router.delete("/properties/:id", propertyController.deleteProperty);
 module.exports = router;
