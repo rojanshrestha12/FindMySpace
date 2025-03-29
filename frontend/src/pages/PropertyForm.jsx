@@ -164,18 +164,7 @@ function PropertyForm() {
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* Name Field */}
-          <div>
-            <input 
-              type="text" 
-              name="name" 
-              placeholder="Enter Name" 
-              value={formData.name} 
-              onChange={handleChange}
-              className={`border p-2 rounded w-full ${errors.name ? 'border-red-500' : ''}`} 
-            />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-          </div>
+
 
           {/* Phone Field */}
           <div>
@@ -188,6 +177,19 @@ function PropertyForm() {
               className={`border p-2 rounded w-full ${errors.phone ? 'border-red-500' : ''}`} 
             />
             {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+          </div>
+
+          {/* Name Field */}
+          <div>
+            <input 
+              type="text" 
+              name="address" 
+              placeholder="Enter Address" 
+              value={formData.address} 
+              onChange={handleChange}
+              className={`border p-2 rounded w-full ${errors.address ? 'border-red-500' : ''}`} 
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
           </div>
 
           {/* Email Field */}

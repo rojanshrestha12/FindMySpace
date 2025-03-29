@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 exports.addProperty = (req, res) => {
-  const { name, phone, email, address, propertyType, price, description, amenities } = req.body;
+  const {phone, address, propertyType, price, description, amenities } = req.body;
 
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: "No photos uploaded" });
@@ -10,9 +10,9 @@ exports.addProperty = (req, res) => {
   const photoPaths = req.files.map((file) => `/uploads/${file.filename}`);
 
   db.query(
-    `INSERT INTO properties (name, phone, email, address, property_type, price, description, photos, amenities, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available')`,
-    [name, phone, email || null, address, propertyType, price, description, JSON.stringify(photoPaths), JSON.stringify(amenities)],
+    `INSERT INTO properties (phone, address, property_type, price, description, photos, amenities, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'Available')`,
+    [phone, address, propertyType, price, description, JSON.stringify(photoPaths), JSON.stringify(amenities)],
     (err, result) => {
       if (err) {
         console.error("❌ Error saving property:", err);
@@ -28,10 +28,10 @@ exports.addProperty = (req, res) => {
   
   // Get paginated properties for the dashboard
   exports.getProperties = (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 12 } = req.query;
     const offset = (page - 1) * limit;
   
-    db.query(`SELECT id, name, phone, email, address, property_type, price, description,photos FROM properties LIMIT ? OFFSET ?`, [parseInt(limit), offset], (err, results) => {
+    db.query(`SELECT id, phone, address, property_type, price, description,photos FROM properties LIMIT ? OFFSET ?`, [parseInt(limit), offset], (err, results) => {
       if (err) {
         console.error("Error fetching properties:", err);
         return res.status(500).json({ error: "Database error" });
