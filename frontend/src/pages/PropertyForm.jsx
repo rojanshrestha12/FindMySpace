@@ -40,6 +40,7 @@ function PropertyForm() {
   
     // Append each photo file
     formData.photos.forEach((file) => {
+      console.log("Im triggered",file)
       formDataToSend.append("photos", file);
     });
   

@@ -18,7 +18,12 @@ exports.signup = (req, res) => {
 
     const sql = "INSERT INTO users (username, phone, email, password) VALUES (?, ?, ?, ?)";
     db.query(sql, [username, phone, email, hash], (err) => {
-      if (err) return res.status(500).json({ message: "User already exists or DB error" });
+      if (err){
+        // return res.status(500).json({ message: "User already exists or DB error" });
+
+        console.log(err);
+        return res.status(500).json({ message: "Database error" });
+      } 
       res.json({ message: "User created" });
     });
   }); 

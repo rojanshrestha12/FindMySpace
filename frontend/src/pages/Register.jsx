@@ -101,10 +101,10 @@ function Register() {
           </form>
 
           {/* OR Separator */}
-          <div class="flex items-center w-full gap-3 mb-4">
-            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
-            <span class=" whitespace-nowrap">OR</span>
-            <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
+          <div className="flex items-center w-full gap-3 mb-4">
+            <div className="flex-grow h-[2px] bg-[#cfdfe2]"></div>
+            <span className=" whitespace-nowrap">OR</span>
+            <div className="flex-grow h-[2px] bg-[#cfdfe2]"></div>
           </div>
 
           {/* Google Sign-in Button */}

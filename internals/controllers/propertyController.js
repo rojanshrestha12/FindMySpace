@@ -2,6 +2,8 @@ const db = require("../config/db");
 
 exports.addProperty = (req, res) => {
     const { name, phone, email, address, propertyType, price, description } = req.body;
+    console.log(req.body)
+    console.log(req.files)
     // Check if files were uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No photos uploaded" });
@@ -69,4 +71,4 @@ exports.addProperty = (req, res) => {
         }
         res.json(results);
     });
-};
+};  

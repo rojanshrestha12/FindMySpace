@@ -1,30 +1,24 @@
 const express = require("express");
+const router = express.Router();
 const propertyController = require("../controllers/propertyController");
-
-const multer = require("multer");
-const path = require("path");
-
-
-// Configure multer for file uploads
+const multer  = require ("multer")
+const path = require("path")
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Save files in the "uploads" folder
+    cb(null, "uploads/"); // Save files in the "uploads" directory
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unique file name
+    cb(null, Date.now() + path.extname(file.originalname)); // Rename file
   },
-});
+})
+const upload = multer({ storage: storage })
 
-const upload = multer({ storage: storage });
+// Add a new property
+router.post("/addProperty",upload.array("photos",5), propertyController.addProperty);
 
-const router = express.Router();
-
-
-// Apply multer middleware to the /addProperty route
-router.post("/addProperty", upload.array("photos", 10), propertyController.addProperty); // Allow up to 10 files
-
+// Get all properties
 router.get("/properties", propertyController.getProperties);
+// Filter properties
 router.get("/filterProperties", propertyController.filterProperties);
-// router.put("/properties/:id", propertyController.updateProperty);
-// router.delete("/properties/:id", propertyController.deleteProperty);
+
 module.exports = router;
