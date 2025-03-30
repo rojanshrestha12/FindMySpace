@@ -7,7 +7,6 @@ function PropertyForm() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
     phone: "",
     // email: "",
     address: "",
@@ -78,11 +77,11 @@ function PropertyForm() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    } else if (/\d/.test(formData.name)) {
-      newErrors.name = "Name should not contain numbers";
-    }
+    // if (!formData.name.trim()) {
+    //   newErrors.name = "Name is required";
+    // } else if (/\d/.test(formData.name)) {
+    //   newErrors.name = "Name should not contain numbers";
+    // }
 
     if (!formData.phone) {
       newErrors.phone = "Phone number is required";

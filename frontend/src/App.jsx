@@ -10,6 +10,7 @@ import { auth } from "./auth/firebase";
 import PropertyForm from "./pages/PropertyForm.jsx";
 import Profile from "./pages/Profile.jsx"
 import About from "./pages/About";
+import ProfileEdit from "./pages/ProfileEdit";
 
 // Protected Route Component
 const ProtectedRoute = ({ element }) => {
@@ -44,6 +45,7 @@ function App() {
         <Route path="/PropertyForm" element={<PropertyForm/>} />
         <Route path="/profile" element={<Profile/>} />
         <Route path="/about" element={<About />} />
+        <Route path="/ProfileEdit" element={<ProfileEdit />} />
 
       </Routes>
     </Router>
