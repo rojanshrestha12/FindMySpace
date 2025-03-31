@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from "../components/Navbar";  
+import Footer from "../components/Footer"; 
 
 function PropertyForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
+    address: "",
     phone: "",
     // email: "",
-    address: "",
+    // address: "",
     propertyType: "",
     price: "",
     description: "",
@@ -43,7 +45,7 @@ function PropertyForm() {
 
     // Real-time validation for specific fields
     if (name === 'name' && /\d/.test(value)) {
-      setErrors({...errors, name: "Name should not contain numbers"});
+      setErrors({...errors, address: "Address should not contain numbers"});
     }
     if (name === 'phone' && !/^\d*$/.test(value)) {
       setErrors({...errors, phone: "Phone number should contain only numbers"});
@@ -78,10 +80,10 @@ function PropertyForm() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
+    if (!formData.address.trim()) {
       newErrors.name = "Name is required";
-    } else if (/\d/.test(formData.name)) {
-      newErrors.name = "Name should not contain numbers";
+    } else if (/\d/.test(formData.address)) {
+      newErrors.address = "Address should not contain numbers";
     }
 
     if (!formData.phone) {
@@ -130,10 +132,10 @@ function PropertyForm() {
     }
 
     const formDataToSend = new FormData();
-    formDataToSend.append("name", formData.name);
+    formDataToSend.append("address", formData.address);
     formDataToSend.append("phone", formData.phone);
     // formDataToSend.append("email", formData.email);
-    formDataToSend.append("address", formData.address);
+    // formDataToSend.append("address", formData.address);
     formDataToSend.append("propertyType", formData.propertyType);
     formDataToSend.append("price", formData.price);
     formDataToSend.append("description", formData.description);
@@ -157,6 +159,9 @@ function PropertyForm() {
   };
 
   return (
+    <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
+      {/* Navbar */}
+      <Navbar />
     <div className="flex justify-center items-center min-h-screen bg-[#f8f1ea]">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl mx-4">
         <h2 className="text-center text-xl font-bold text-[#e48f44] mb-4">
@@ -164,12 +169,12 @@ function PropertyForm() {
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* Name Field */}
+          {/* Address Field */}
           <div>
             <input 
               type="text" 
-              name="name" 
-              placeholder="Enter Name" 
+              name="address" 
+              placeholder="Enter Address" 
               value={formData.name} 
               onChange={handleChange}
               className={`border p-2 rounded w-full ${errors.name ? 'border-red-500' : ''}`} 
@@ -294,6 +299,10 @@ function PropertyForm() {
           </button>
         </form>
       </div>
+    </div>
+
+    {/* Footer */}
+    <Footer />  {/* Use Footer component */}
     </div>
   );
 }

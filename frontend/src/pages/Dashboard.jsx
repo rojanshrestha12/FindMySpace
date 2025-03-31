@@ -49,14 +49,27 @@ function Dashboard() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center mt-8">
-          <button onClick={() => setCurrentPage(prev => prev > 1 ? prev - 1 : prev)} className="px-4 py-2 bg-[#e48f44] text-white rounded mr-4">
-            Previous
+      <div className="flex justify-center space-x-2 my-6">
+        <button 
+          className="px-4 py-2 border border-black rounded"
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}>
+          &lt;
+        </button>
+        {[...Array(3)].map((_, i) => (
+          <button 
+            key={i} 
+            className={`px-4 py-2 border border-black rounded ${currentPage === i + 1 ? 'bg-[#e48f44] text-black' : ''}`}
+            onClick={() => setCurrentPage(i + 1)}>
+            {i + 1}
           </button>
-          <button onClick={() => setCurrentPage(prev => prev + 1)} className="px-4 py-2 bg-[#e48f44] text-white rounded">
-            Next
-          </button>
-        </div>
+        ))}
+        <button 
+          className="px-4 py-2 border border-black rounded"
+          onClick={() => setCurrentPage(prev => prev + 1)}>
+          &gt;
+        </button>
+      </div>
       </div>
 
       {/* Footer */}
