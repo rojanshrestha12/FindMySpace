@@ -11,6 +11,7 @@ import PropertyForm from "./pages/PropertyForm.jsx";
 import Profile from "./pages/Profile.jsx"
 import About from "./pages/About";
 import ProfileEdit from "./pages/ProfileEdit";
+import PropertyDetail from "./pages/PropertyDetail";
 
 // Protected Route Component
 const ProtectedRoute = ({ element }) => {
@@ -46,6 +47,7 @@ function App() {
         <Route path="/profile" element={<Profile/>} />
         <Route path="/about" element={<About />} />
         <Route path="/ProfileEdit" element={<ProfileEdit />} />
+        <Route path="/PropertyDetail" element={<PropertyDetail/>}/>
 
       </Routes>
     </Router>

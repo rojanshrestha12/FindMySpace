@@ -65,7 +65,7 @@ function Navbar() {
     </Link>
     
     <Link 
-      to="/dashboard" 
+      to="/propertyDetail" 
       className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
       onClick={() => setMenuOpen(false)}
     >
