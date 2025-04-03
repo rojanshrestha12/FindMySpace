@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 // import { auth } from '../auth/firebase';
@@ -22,6 +23,25 @@ function Navbar() {
   };
 
 
+=======
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../auth/firebase';
+
+function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
   return (
     <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
       {/* Logo Section */}
@@ -33,7 +53,11 @@ function Navbar() {
 
       {/* Desktop Navigation Links */}
       <div className="hidden md:flex space-x-8 text-lg">
+<<<<<<< HEAD
         <Link to="/" className="text-black hover:text-gray-700">Home</Link>
+=======
+        <Link to="/dashboard" className="text-black hover:text-gray-700">Home</Link>
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
         <Link to="/PropertyForm" className="text-black hover:text-gray-700">Add Property</Link>
         <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
       </div>
@@ -58,7 +82,11 @@ function Navbar() {
     {/* Header */}
     <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
       <img src="assets/profile.png" alt="Profile" className="w-5 h-5 me-2"/>
+<<<<<<< HEAD
       <h2 className="text-lg font-medium">{user.fullname}</h2>
+=======
+      {auth.currentUser?.displayName || 'USER'}
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
     </div>
     
     {/* Menu Items with Emojis */}
@@ -72,7 +100,15 @@ function Navbar() {
     </Link>
     
     <Link 
+<<<<<<< HEAD
       to="/dashboard" 
+=======
+<<<<<<< HEAD
+      to="/propertyDetail" 
+=======
+      to="/dashboard" 
+>>>>>>> frontend_d_D
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
       className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
       onClick={() => setMenuOpen(false)}
     >
@@ -86,7 +122,11 @@ function Navbar() {
       onClick={() => setMenuOpen(false)}
     >
       <img src="assets/saved.png" alt="Saved" className="w-5 h-5 me-2"/>
+<<<<<<< HEAD
       Sav ed
+=======
+      Saved
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
     </Link>
     
     <Link 

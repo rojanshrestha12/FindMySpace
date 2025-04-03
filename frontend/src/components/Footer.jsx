@@ -6,7 +6,15 @@ function Footer() {
     <footer className="text-center bg-white mt-6">
       <div className="relative">
         <img src="/assets/footer.png" alt="Footer Background" className="w-full object-cover" />
+<<<<<<< HEAD
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center mb-30">
+=======
+<<<<<<< HEAD
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center mb-30">
+=======
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+>>>>>>> frontend_d_D
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
           <p className="text-black">Near Naxal, Herald College Kathmandu, Nepal</p>
           <p className="text-black">(+977) 01-44456845, 9858477538</p>
           <p className="text-black">Contact Us: info@FindMySpace.com</p>
@@ -21,4 +29,12 @@ function Footer() {
   );
 }
 
+<<<<<<< HEAD
 export default Footer;
+=======
+<<<<<<< HEAD
+export default Footer;
+=======
+export default Footer;
+>>>>>>> frontend_d_D
+>>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
