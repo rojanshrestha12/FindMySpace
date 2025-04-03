@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";  // Adjusted import path
 import Footer from "../components/Footer";  // Import Footer component
+import Navbar from "../components/Navbar";  // Adjusted import path
+import Footer from "../components/Footer";  // Import Footer component
 
 function Dashboard() {
   const [properties, setProperties] = useState([]);
@@ -122,6 +124,7 @@ function Dashboard() {
       </div>
 
       {/* Footer */}
+      <Footer />  {/* Use Footer component */}
       <Footer />  {/* Use Footer component */}
     </div>
   );

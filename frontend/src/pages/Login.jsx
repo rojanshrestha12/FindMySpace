@@ -46,22 +46,23 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
+    <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4 sm:px-0"> {/* Added sm:px-0 */}
       <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-8 md:pb-4">
-        {/* Left Section */}
-        <div className="flex-3 md:text-left pl-20 pr-40 ">
-          <div className="flex items-center space-x-3 mb-6">
-            <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
-
+        {/* Left Section - Only changed padding/margins for mobile */}
+        <div className="flex-3 md:text-left pl-4 md:pl-20 pr-4 md:pr-40"> {/* Responsive padding */}
+          <div className="flex items-center justify-center md:justify-start space-x-3 mb-6"> {/* Centered logo on mobile */}
+            <img src="/assets/logo.png" alt="Logo" className="w-32 md:w-40 absolute top-4 md:top-10" /> {/* Responsive size/position */}
           </div>
-          <h2 className="text-4xl font-bold mt-40 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
-          <img src= "/assets/illustration.jpg" className="w-150" /> 
+          <h2 className="text-2xl md:text-4xl font-bold mt-20 md:mt-40 mb-6 max-w-md"> {/* Responsive text size */}
+            SIMPLIFYING ROOM RENTALS
+          </h2>
+          <img src="/assets/illustration.jpg" className="w-full max-w-xs md:max-w-full" /> {/* Responsive image */}
         </div>
 
-        {/* Right Section */}
-        <div className="flex-2 mr-15">
-          <h2 className="text-3xl mb-6 flex items-center justify-left">
-          Welcome Back 👋
+        {/* Right Section - Only added mobile margin */}
+        <div className="flex-2 mr-0 md:mr-15 mt-8 md:mt-0"> {/* Added mt-8 for mobile spacing */}
+          <h2 className="text-2xl md:text-3xl mb-6 flex items-center justify-center md:justify-left"> {/* Centered on mobile */}
+            Welcome Back 👋
           </h2>
 
           <form onSubmit={handleLogin}>
@@ -83,13 +84,13 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-          {/* Forgot Password */}
-          <p
-            className="text-md text-[#1E4AE9] cursor-pointer text-right mt-4 mb-4"
-            onClick={() => navigate("/forgotpassword")}
-          >
-            Forgot Password?
-          </p>
+            {/* Forgot Password */}
+            <p
+              className="text-md text-[#1E4AE9] cursor-pointer text-right mt-4 mb-4"
+              onClick={() => navigate("/forgotpassword")}
+            >
+              Forgot Password?
+            </p>
 
             <button
               type="submit"
@@ -99,7 +100,6 @@ function Login() {
               {loading ? "Logging in..." : "Sign in"}
             </button>
           </form>
-
 
           <div class="flex items-center w-full gap-3 mt-4 mb-4">
             <div class="flex-grow h-[2px] bg-[#cfdfe2]"></div>
@@ -117,11 +117,11 @@ function Login() {
           </button>
 
           <p className="text-Md text-black mb-2 mt-4 text-center">
-              Don't you have an account? {" "}
-              <Link to="/register" className="text-Md text-[#1E4AE9] font-normal ">
-                Sign up
-              </Link>
-            </p>
+            Don't you have an account?{" "}
+            <Link to="/register" className="text-Md text-[#1E4AE9] font-normal">
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </div>
