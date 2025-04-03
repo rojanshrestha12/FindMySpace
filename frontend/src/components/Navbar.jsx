@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
-import {Link} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import {Link, useNavigate} from 'react-router-dom';
 // import { auth } from '../auth/firebase';
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  // const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await auth.signOut();
-  //     navigate('/login');
-  //   } catch (error) {
-  //     console.error('Error signing out:', error);
-  //   }
-  // };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userData = JSON.parse(atob(token.split('.')[1]));
+      setUser(userData);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/login");
+  };
+
 
   return (
     <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
@@ -33,7 +40,7 @@ function Navbar() {
 
       {/* Hamburger Menu */}
       <div className="relative">
-        {/* Hamburger Button */}g
+        {/* Hamburger Button */}
         <button 
           onClick={() => setMenuOpen(!menuOpen)}
           className="p-2 focus:outline-none"
@@ -51,7 +58,7 @@ function Navbar() {
     {/* Header */}
     <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
       <img src="assets/profile.png" alt="Profile" className="w-5 h-5 me-2"/>
-      {/* {auth.currentUser?.displayName || 'USER'} */}
+      <h2 className="text-lg font-medium">{user.fullname}</h2>
     </div>
     
     {/* Menu Items with Emojis */}
@@ -95,7 +102,7 @@ function Navbar() {
     <button
       onClick={() => {
         setMenuOpen(false);
-        // handleLogout();
+        handleLogout();
       }}
       className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea]"
     >

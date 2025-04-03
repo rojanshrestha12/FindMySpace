@@ -31,16 +31,7 @@ const User = sequelize.define('User', {
     reset_token: {
         type: DataTypes.STRING,
         allowNull: true,
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-        onUpdate: DataTypes.NOW,
-    },
+    }
 });
 
 export default User;

@@ -39,7 +39,9 @@ export default function Profile() {
         </h2>
         <div className="mb-4 text-center">
           <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-2" />
-          <h2 className="text-lg font-medium">{user.name}</h2>
+          <img src={user.profile_picture} alt="Profile" className="w-20 h-20 rounded-full mx-auto mb-2" />
+          
+          <h2 className="text-lg font-medium">{user.fullname}</h2>
         </div>
         <hr className="border-gray-300 mb-6" />
         <div className="mb-6">
@@ -48,9 +50,9 @@ export default function Profile() {
             <p className="text-gray-700">Email:</p>
             <p className="text-gray-700">{user.email}</p>
             <p className="text-gray-700">Phone:</p>
-            <p className="text-gray-700">{user.phone}</p>
+            <p className="text-gray-700">{user.phone_number}</p>
             <p className="text-gray-700">Address:</p>
-            <p className="text-gray-700">{user.address}</p>
+            <p className="text-gray-700">{user.location}</p>
           </div>
         </div>
         <div className="mb-6">
