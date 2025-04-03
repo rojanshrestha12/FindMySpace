@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import axios from "axios";
+import { getAuth } from "firebase/auth";
 
 function Profile() {
   const [formData, setFormData] = useState({
-    name: "",
+    fullname: "",
     email: "",
-    phone: "",
-    address: "",
+    phone_number: "",
+    location: "",
     gender: "",
     birthDate: "",
     aboutMe: "",
@@ -20,285 +21,219 @@ function Profile() {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState({ 
-    form: {}, 
-    password: {} 
-  });
-  
-  const [touched, setTouched] = useState({
-    form: {},
-    password: {}
-  });
+  const [errors, setErrors] = useState({ form: {}, password: {} });
+  const [success, setSuccess] = useState({ profile: false, password: false });
 
-  const [success, setSuccess] = useState({ 
-    profile: false, 
-    password: false 
-  });
-
-  // Validate date of birth
-  const validateBirthDate = (dateString) => {
-    if (!dateString) return "Birth date is required";
-    
-    const today = new Date();
-    const birthDate = new Date(dateString);
-    const minAgeDate = new Date();
-    minAgeDate.setFullYear(today.getFullYear() - 120); // Max age 120 years
-    const maxAgeDate = new Date();
-    maxAgeDate.setFullYear(today.getFullYear() - 13); // Min age 13 years
-
-    if (birthDate > today) {
-      return "Birth date cannot be in the future";
-    }
-    if (birthDate < minAgeDate) {
-      return "Age cannot be more than 120 years";
-    }
-    if (birthDate > maxAgeDate) {
-      return "You must be at least 13 years old";
+  // General validation helper
+  const validateField = (name, value) => {
+    switch (name) {
+      case "fullname":
+        if (!value.trim()) return "Name is required";
+        if (/\d/.test(value)) return "Name should not contain numbers";
+        break;
+      case "email":
+        if (!value.trim()) return "Email is required";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Email is invalid";
+        break;
+      case "phone_number":
+        if (!value) return "Phone number is required";
+        if (!/^\d+$/.test(value)) return "Phone number should contain only numbers";
+        if (value.length !== 10) return "Phone number must be 10 digits";
+        break;
+      case "location":
+        if (!value.trim()) return "Location is required";
+        break;
+      case "gender":
+        if (!value) return "Gender is required";
+        break;
+      case "birthDate": {
+        const birthDateError = validateBirthDate(value);
+        if (birthDateError) return birthDateError;
+        break;
+      }
+      default:
+        break;
     }
     return "";
   };
 
-  // Real-time validation for form fields
-  useEffect(() => {
-    const newErrors = { ...errors.form };
-    let hasChanges = false;
-
-    // Name validation
-    if (touched.form.name) {
-      if (!formData.name.trim()) {
-        newErrors.name = "Name is required";
-      } else if (/\d/.test(formData.name)) {
-        newErrors.name = "Name should not contain numbers";
-      } else {
-        delete newErrors.name;
-      }
-      hasChanges = true;
-    }
-
-    // Email validation
-    if (touched.form.email) {
-      if (!formData.email.trim()) {
-        newErrors.email = "Email is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = "Email is invalid";
-      } else {
-        delete newErrors.email;
-      }
-      hasChanges = true;
-    }
-
-    // Phone validation
-    if (touched.form.phone) {
-      if (!formData.phone) {
-        newErrors.phone = "Phone number is required";
-      } else if (!/^\d+$/.test(formData.phone)) {
-        newErrors.phone = "Phone number should contain only numbers";
-      } else if (formData.phone.length !== 10) {
-        newErrors.phone = "Phone number must be 10 digits";
-      } else {
-        delete newErrors.phone;
-      }
-      hasChanges = true;
-    }
-
-    // Address validation
-    if (touched.form.address) {
-      if (!formData.address.trim()) {
-        newErrors.address = "Address is required";
-      } else {
-        delete newErrors.address;
-      }
-      hasChanges = true;
-    }
-
-    // Gender validation
-    if (touched.form.gender) {
-      if (!formData.gender) {
-        newErrors.gender = "Gender is required";
-      } else {
-        delete newErrors.gender;
-      }
-      hasChanges = true;
-    }
-
-    // Birth date validation
-    if (touched.form.birthDate) {
-      const birthDateError = validateBirthDate(formData.birthDate);
-      if (birthDateError) {
-        newErrors.birthDate = birthDateError;
-      } else {
-        delete newErrors.birthDate;
-      }
-      hasChanges = true;
-    }
-
-    if (hasChanges) {
-      setErrors(prev => ({ ...prev, form: newErrors }));
-    }
-  }, [formData, touched.form]);
-
-  // Real-time validation for password fields
-  useEffect(() => {
-    const newErrors = { ...errors.password };
-    let hasChanges = false;
-
-    if (touched.password.oldPassword) {
-      if (!passwordData.oldPassword.trim()) {
-        newErrors.oldPassword = "Current password is required";
-      } else {
-        delete newErrors.oldPassword;
-      }
-      hasChanges = true;
-    }
-
-    if (touched.password.newPassword) {
-      if (!passwordData.newPassword.trim()) {
-        newErrors.newPassword = "New password is required";
-      } else if (passwordData.newPassword.length < 8) {
-        newErrors.newPassword = "Must be at least 8 characters";
-      } else {
-        delete newErrors.newPassword;
-      }
-      hasChanges = true;
-    }
-
-    if (touched.password.confirmPassword) {
-      if (!passwordData.confirmPassword.trim()) {
-        newErrors.confirmPassword = "Confirm password is required";
-      } else if (passwordData.newPassword !== passwordData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords don't match";
-      } else {
-        delete newErrors.confirmPassword;
-      }
-      hasChanges = true;
-    }
-
-    if (hasChanges) {
-      setErrors(prev => ({ ...prev, password: newErrors }));
-    }
-  }, [passwordData, touched.password, errors.password]);
+  const validateBirthDate = (dateString) => {
+    if (!dateString) return "Birth date is required";
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    const minAgeDate = new Date();
+    minAgeDate.setFullYear(today.getFullYear() - 120);
+    const maxAgeDate = new Date();
+    maxAgeDate.setFullYear(today.getFullYear() - 13);
+    if (birthDate > today) return "Birth date cannot be in the future";
+    if (birthDate < minAgeDate) return "Age cannot be more than 120 years";
+    if (birthDate > maxAgeDate) return "You must be at least 13 years old";
+    return "";
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setTouched(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      form: { ...prev.form, [name]: true }
+      form: { ...prev.form, [name]: validateField(name, value) },
     }));
   };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
-    setTouched(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      password: { ...prev.password, [name]: true }
+      password: { ...prev.password, [name]: validateField(name, value) },
     }));
   };
 
-  const validateForm = () => {
-    let newErrors = {};
+  const handleSave = async (e) => {
+    e.preventDefault();
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    } else if (/\d/.test(formData.name)) {
-      newErrors.name = "Name should not contain numbers";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\d+$/.test(formData.phone)) {
-      newErrors.phone = "Phone number should contain only numbers";
-    } else if (formData.phone.length !== 10) {
-      newErrors.phone = "Phone number must be 10 digits";
-    }
-
-    if (!formData.address.trim()) {
-      newErrors.address = "Address is required";
-    }
-
-    if (!formData.gender) {
-      newErrors.gender = "Gender is required";
-    }
-
-    const birthDateError = validateBirthDate(formData.birthDate);
-    if (birthDateError) {
-      newErrors.birthDate = birthDateError;
-    }
-
-    setErrors(prev => ({ ...prev, form: newErrors }));
-    setTouched(prev => ({
-      ...prev,
-      form: Object.keys(formData).reduce((acc, key) => {
-        acc[key] = true;
-        return acc;
-      }, {})
-    }));
-    
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validatePassword = () => {
-    let newErrors = {};
-
-    if (!passwordData.oldPassword.trim()) {
-      newErrors.oldPassword = "Current password is required";
-    }
-
-    if (!passwordData.newPassword.trim()) {
-      newErrors.newPassword = "New password is required";
-    } else if (passwordData.newPassword.length < 8) {
-      newErrors.newPassword = "Must be at least 8 characters";
-    }
-
-    if (!passwordData.confirmPassword.trim()) {
-      newErrors.confirmPassword = "Confirm password is required";
-    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords don't match";
-    }
-
-    setErrors(prev => ({ ...prev, password: newErrors }));
-    setTouched(prev => ({
-      ...prev,
-      password: {
-        oldPassword: true,
-        newPassword: true,
-        confirmPassword: true
+    const formErrors = Object.values(errors.form).some((err) => err);
+    if (!formErrors) {
+      try {
+        const auth = getAuth();
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) {
+          throw new Error("No authentication token available");
+        }
+        
+        await axios.post('http://localhost:5000/api/user/profile/update', formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setSuccess({ profile: true, password: false });
+        setFormData({
+          fullname: "",
+          email: "",
+          phone_number: "",
+          location: "",
+          gender: "",
+          birthDate: "",
+          aboutMe: "",
+        }); // Clear form after success
+      } catch (error) {
+        console.error("Profile update error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          form: { ...prev.form, update: "Failed to update profile. Try again later." },
+        }));
       }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        form: { ...prev.form, update: "Please fix the errors before submitting." },
+      }));
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      password: {
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      },
     }));
+
+    const passwordErrors = Object.values(errors.password).some((err) => err);
+    if (!passwordErrors) {
+      try {
+        const auth = getAuth();
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) {
+          throw new Error("No authentication token available");
+        }
+        
+        await axios.post('http://localhost:5000/api/user/password/update', passwordData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setSuccess({ profile: false, password: true });
+        setPasswordData({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }); // Reset password fields after success
+      } catch (error) {
+        console.error("Password update error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          password: { ...prev.password, update: "Failed to update password. Try again later." },
+        }));
+      }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        password: { ...prev.password, update: "Please fix the errors before submitting." },
+      }));
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    // Show confirmation dialog to prevent accidental deletions
+    if (typeof window !== 'undefined') {
+      const isConfirmed = window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      );
     
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    setSuccess({ profile: false, password: false });
-
-    if (validateForm()) {
-      setSuccess(prev => ({ ...prev, profile: true }));
+      if (!isConfirmed) {
+        return; // If the user cancels the deletion, do nothing
+      }
     }
-  };
+  
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        throw new Error("You must be signed in to delete your account");
+      }
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    setSuccess({ profile: false, password: false });
+      // Force token refresh to ensure we have a valid token
+      const token = await user.getIdToken(true);
+      if (!token) {
+        throw new Error("Failed to get authentication token");
+      }
 
-    if (validatePassword()) {
-      setSuccess(prev => ({ ...prev, password: true }));
-      setPasswordData({ 
-        oldPassword: "", 
-        newPassword: "", 
-        confirmPassword: "" 
+      // API call to delete the user
+      const response = await axios.delete('http://localhost:5000/api/user/delete', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+  
+      if (response.status === 200) {
+        // Handle successful user deletion
+        if (typeof window !== 'undefined') {
+          alert("Your account has been deleted successfully.");
+          // Sign out the user
+          await auth.signOut();
+          // Redirect to login page
+          window.location.href = "/login";
+        }
+      } else {
+        // Handle error response
+        if (typeof window !== 'undefined') {
+          alert("Failed to delete your account. Please try again later.");
+        }
+      }
+    } catch (error) {
+      // Handle any network or API errors
+      console.error("Delete account error:", error);
+      if (typeof window !== 'undefined') {
+        alert(error.message || "An error occurred while deleting your account. Please try again.");
+      }
     }
   };
-
+  
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
@@ -323,7 +258,16 @@ function Profile() {
         <div className="w-full bg-white rounded-lg shadow-md p-6 border border-gray-300">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Edit Profile</h3>
+
+            <button
+            type="button"
+            className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+            onClick={handleDeleteUser}
+          >
+            Delete Account
+          </button>
           </div>
+
 
           <div className="flex flex-col items-center mb-6">
             <img
@@ -344,18 +288,18 @@ function Profile() {
                 <div className="flex items-center gap-2">
                   <label className="w-24 text-sm text-gray-600">Name:</label>
                   <input
-                    name="name"
+                    name="fullname"
                     type="text"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
-                      errors.form.name ? "border-red-500" : "border-gray-300"
+                      errors.form.fullname ? "border-red-500" : "border-gray-300"
                     }`}
-                    value={formData.name}
+                    value={formData.fullname}
                     onChange={handleInputChange}
                     placeholder="Enter name"
                   />
                 </div>
-                {errors.form.name && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.name}</p>
+                {errors.form.fullname && (
+                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.fullname}</p>
                 )}
 
                 <div className="flex items-center gap-2">
@@ -381,35 +325,35 @@ function Profile() {
                 <div className="flex items-center gap-2">
                   <label className="w-24 text-sm text-gray-600">Phone:</label>
                   <input
-                    name="phone"
+                    name="phone_number"
                     type="tel"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
-                      errors.form.phone ? "border-red-500" : "border-gray-300"
+                      errors.form.phone_number ? "border-red-500" : "border-gray-300"
                     }`}
-                    value={formData.phone}
+                    value={formData.phone_number}
                     onChange={handleInputChange}
                     placeholder="Enter phone no."
                   />
                 </div>
-                {errors.form.phone && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.phone}</p>
+                {errors.form.phone_number && (
+                    <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.phone_number}</p>
                 )}
 
                 <div className="flex items-center gap-2">
-                  <label className="w-24 text-sm text-gray-600">Address:</label>
+                  <label className="w-24 text-sm text-gray-600">Location:</label>
                   <input
-                    name="address"
+                    name="location"
                     type="text"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
-                      errors.form.address ? "border-red-500" : "border-gray-300"
+                      errors.form.location ? "border-red-500" : "border-gray-300"
                     }`}
-                    value={formData.address}
+                    value={formData.location}
                     onChange={handleInputChange}
-                    placeholder="Enter address"
+                    placeholder="Enter location"
                   />
                 </div>
-                {errors.form.address && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.address}</p>
+                {errors.form.location && (
+                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.location}</p>
                 )}
               </div>
             </div>
@@ -466,7 +410,15 @@ function Profile() {
                 onChange={handleInputChange}
               />
             </div>
-
+            <div className="mt-6">
+              <button
+                type="submit"
+                className="px-3 py-1 bg-orange-500 text-white rounded flex items-center gap-1 hover:bg-orange-600"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
 
           <hr className="border-gray-300 my-6" />
 
@@ -527,15 +479,6 @@ function Profile() {
                 Change Password
               </button>
             </div>
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="px-3 py-1 bg-orange-500 text-white rounded flex items-center gap-1 hover:bg-orange-600"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
           </form>
         </div>
       </div>
