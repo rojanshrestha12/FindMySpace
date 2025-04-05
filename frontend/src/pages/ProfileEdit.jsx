@@ -11,8 +11,8 @@ function Profile() {
     phone_number: "",
     location: "",
     gender: "",
-    birthDate: "",
-    aboutMe: "",
+    birth_date: "",
+    about_me: "",
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -24,7 +24,6 @@ function Profile() {
   const [errors, setErrors] = useState({ form: {}, password: {} });
   const [success, setSuccess] = useState({ profile: false, password: false });
 
-  // General validation helper
   const validateField = (name, value) => {
     switch (name) {
       case "fullname":
@@ -46,7 +45,7 @@ function Profile() {
       case "gender":
         if (!value) return "Gender is required";
         break;
-      case "birthDate": {
+      case "birth_date": {
         const birthDateError = validateBirthDate(value);
         if (birthDateError) return birthDateError;
         break;
@@ -83,29 +82,40 @@ function Profile() {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
+
+    let error = "";
+    if (name === "confirmPassword" && value !== passwordData.newPassword) {
+      error = "Passwords do not match";
+    } else if (name === "newPassword" && value.length < 6) {
+      error = "New password must be at least 6 characters long";
+    }
+
     setErrors((prev) => ({
       ...prev,
-      password: { ...prev.password, [name]: validateField(name, value) },
+      password: { ...prev.password, [name]: error },
     }));
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
 
-    const formErrors = Object.values(errors.form).some((err) => err);
-    if (!formErrors) {
+    const newErrors = {};
+    for (const [key, value] of Object.entries(formData)) {
+      newErrors[key] = validateField(key, value);
+    }
+
+    const hasErrors = Object.values(newErrors).some((err) => err);
+
+    if (!hasErrors) {
       try {
         const auth = getAuth();
         const token = await auth.currentUser?.getIdToken();
-        if (!token) {
-          throw new Error("No authentication token available");
-        }
-        
-        await axios.post('http://localhost:5000/api/user/profile/update', formData, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        if (!token) throw new Error("No authentication token available");
+
+        await axios.post("http://localhost:5000/api/user/profile/update", formData, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+
         setSuccess({ profile: true, password: false });
         setFormData({
           fullname: "",
@@ -113,9 +123,10 @@ function Profile() {
           phone_number: "",
           location: "",
           gender: "",
-          birthDate: "",
-          aboutMe: "",
-        }); // Clear form after success
+          birth_date: "",
+          about_me: "",
+        });
+        setErrors({ form: {}, password: {} });
       } catch (error) {
         console.error("Profile update error:", error);
         setErrors((prev) => ({
@@ -126,42 +137,37 @@ function Profile() {
     } else {
       setErrors((prev) => ({
         ...prev,
-        form: { ...prev.form, update: "Please fix the errors before submitting." },
+        form: { ...prev.form, ...newErrors, update: "Please fix the errors before submitting." },
       }));
     }
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      password: {
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      },
-    }));
 
-    const passwordErrors = Object.values(errors.password).some((err) => err);
-    if (!passwordErrors) {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        password: { ...prev.password, confirmPassword: "Passwords do not match" },
+      }));
+      return;
+    }
+
+    const hasErrors = Object.values(errors.password).some((err) => err);
+
+    if (!hasErrors) {
       try {
         const auth = getAuth();
         const token = await auth.currentUser?.getIdToken();
-        if (!token) {
-          throw new Error("No authentication token available");
-        }
-        
-        await axios.post('http://localhost:5000/api/user/password/update', passwordData, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        if (!token) throw new Error("No authentication token available");
+
+        await axios.post("http://localhost:5000/api/user/password/update", passwordData, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+
         setSuccess({ profile: false, password: true });
-        setPasswordData({
-          oldPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        }); // Reset password fields after success
+        setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+        setErrors({ form: {}, password: {} });
       } catch (error) {
         console.error("Password update error:", error);
         setErrors((prev) => ({
@@ -178,57 +184,34 @@ function Profile() {
   };
 
   const handleDeleteUser = async () => {
-    // Show confirmation dialog to prevent accidental deletions
-    if (typeof window !== 'undefined') {
-      const isConfirmed = window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      );
-    
-      if (!isConfirmed) {
-        return; // If the user cancels the deletion, do nothing
-      }
+    if (typeof window !== "undefined") {
+      const isConfirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+      if (!isConfirmed) return;
     }
-  
+
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-      
-      if (!user) {
-        throw new Error("You must be signed in to delete your account");
-      }
 
-      // Force token refresh to ensure we have a valid token
+      if (!user) throw new Error("You must be signed in to delete your account");
+
       const token = await user.getIdToken(true);
-      if (!token) {
-        throw new Error("Failed to get authentication token");
-      }
+      if (!token) throw new Error("Failed to get authentication token");
 
-      // API call to delete the user
-      const response = await axios.delete('http://localhost:5000/api/user/delete', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axios.delete("http://localhost:5000/api/user/delete", {
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
-      if (response.status === 200) {
-        // Handle successful user deletion
-        if (typeof window !== 'undefined') {
-          alert("Your account has been deleted successfully.");
-          // Sign out the user
-          await auth.signOut();
-          // Redirect to login page
-          window.location.href = "/login";
-        }
+
+      if (response.status === 200 && typeof window !== "undefined") {
+        alert("Your account has been deleted successfully.");
+        await auth.signOut();
+        window.location.href = "/login";
       } else {
-        // Handle error response
-        if (typeof window !== 'undefined') {
-          alert("Failed to delete your account. Please try again later.");
-        }
+        alert("Failed to delete your account. Please try again later.");
       }
     } catch (error) {
-      // Handle any network or API errors
       console.error("Delete account error:", error);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         alert(error.message || "An error occurred while deleting your account. Please try again.");
       }
     }
@@ -385,28 +368,28 @@ function Profile() {
               <div className="flex items-center gap-2">
                 <label className="w-24 text-sm text-gray-600">Birth Date:</label>
                 <input
-                  name="birthDate"
+                  name="birth_date"
                   type="date"
                   className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
-                    errors.form.birthDate ? "border-red-500" : "border-gray-300"
+                    errors.form.birth_date ? "border-red-500" : "border-gray-300"
                   }`}
-                  value={formData.birthDate}
+                  value={formData.birth_date}
                   onChange={handleInputChange}
                   max={new Date().toISOString().split('T')[0]} // Prevent future dates
                 />
               </div>
-              {errors.form.birthDate && (
-                <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.birthDate}</p>
+              {errors.form.birth_date && (
+                <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.birth_date}</p>
               )}
             </div>
 
             <div className="mb-6">
               <h3 className="font-medium text-gray-700">About Me</h3>
               <textarea
-                name="aboutMe"
+                name="about_me"
                 className="w-full p-2 border rounded bg-gray-50 text-sm h-16 mt-2 border-gray-300"
                 placeholder="Brief description"
-                value={formData.aboutMe}
+                value={formData.about_me}
                 onChange={handleInputChange}
               />
             </div>

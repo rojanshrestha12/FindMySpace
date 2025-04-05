@@ -1,10 +1,10 @@
 // controllers/userController.js
 import bcrypt from "bcryptjs";
-import User from "../models/Users"; // Import the Sequelize model for User
+import User from "../models/Users";
 
 // Update Profile
 export const updateProfile = async (req, res) => {
-  const { fullname, email, phone_number, location, gender, birthDate, aboutMe } = req.body;
+  const { fullname, email, phone_number, location, gender, birth_date, about_me } = req.body;
   const userId = req.user.userId; // Changed from req.user.id to req.user.userId
 
   try {
@@ -20,8 +20,8 @@ export const updateProfile = async (req, res) => {
     user.phone_number = phone_number;
     user.location = location;
     user.gender = gender;
-    user.birthDate = birthDate;
-    user.aboutMe = aboutMe;
+    user.birth_date = birth_date;
+    user.about_me = about_me;
 
     await user.save(); // Save changes to the database
 
@@ -33,60 +33,51 @@ export const updateProfile = async (req, res) => {
 };
 
 // Update Password
+
 export const updatePassword = async (req, res) => {
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    const userId = req.user.userId;  // Ensure req.user is correctly populated
+    const userId = req.user?.userId;
+  
+    // Check if all fields are provided
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      console.log("All password fields are required");
+      return res.status(400).json({ error: "Old, new, and confirm passwords are required" });
+    }
   
     try {
-      const user = await User.findByPk(userId);  // Fetch user from DB
+      const user = await User.findByPk(userId);
   
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        console.log("User not found");
+        return res.status(404).json({ error: "User not found" });
       }
+      console.log(user.password);
+      console.log(oldPassword);
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
   
-      // If the user is authenticated via Google (i.e., no password stored)
-      if (!user.password) {
-        // For Google-authenticated users, we don't need to verify the old password
-        if (newPassword !== confirmPassword) {
-          return res.status(400).json({ message: "New passwords do not match" });
-        }
-  
-        // Hash and save the new password for Google-authenticated user
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
-        await user.save();
-  
-        return res.status(200).json({ message: "Password updated successfully" });
-      }
-  
-      // For regular email/password users, verify old password
-      console.log("Entered old password:", oldPassword);  // Log the entered password
-      console.log("Stored hashed password in DB:", user.password);  // Log the stored hashed password
-  
-      const isMatch = await bcrypt.compare(oldPassword.trim(), user.password);
-  
-      if (!isMatch) {
-        return res.status(400).json({ message: "Old password is incorrect" });
+      if (!isPasswordValid) {
+        console.log("Old password is incorrect");
+        return res.status(400).json({ error: "Old password is incorrect" });
       }
   
       if (newPassword !== confirmPassword) {
-        return res.status(400).json({ message: "New passwords do not match" });
+        console.log("New passwords do not match");
+        return res.status(400).json({ error: "New passwords do not match" });
       }
   
-      // Optional: Add additional password validation (e.g., min length, complexity) here
-  
-      // Hash the new password and save it
+      // Hash and update password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       user.password = hashedPassword;
       await user.save();
   
-      res.status(200).json({ message: "Password updated successfully" });
+      console.log("Password updated successfully for user:", userId);
+      return res.status(200).json({ message: "Password updated successfully" });
+  
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error while updating password" });
+      console.error("Error updating password:", err);
+      return res.status(500).json({ error: "Internal server error" });
     }
   };
-  
 
 
 
