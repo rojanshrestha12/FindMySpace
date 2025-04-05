@@ -48,7 +48,7 @@ const User = sequelize.define('User', {
         type: DataTypes.TEXT,  // Longer descriptions allowed
         allowNull: true,
     },
-    },
+    
     location: {
         type: DataTypes.STRING,
         allowNull: true,

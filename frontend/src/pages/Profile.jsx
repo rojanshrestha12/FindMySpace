@@ -67,7 +67,7 @@ export default function Profile() {
         <div>
           <h3 className="font-bold text-gray-700 mb-7">About Me</h3>
           <div className="ml-6">
-            <p className="text-gray-700">{user.about}</p>
+            <p className="text-gray-700">{user.about_me}</p>
           </div>
         </div>
         {/* Edit Profile Button */}
