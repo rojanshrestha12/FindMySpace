@@ -1,13 +1,19 @@
 import React, { useState } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import axios from "axios";
+import { getAuth } from "firebase/auth";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 function Profile() {
   const [formData, setFormData] = useState({
     fullname: "",
+    fullname: "",
     email: "",
+    phone_number: "",
+    location: "",
     phone_number: "",
     location: "",
     gender: "",
@@ -62,7 +68,12 @@ function Profile() {
     const birthDate = new Date(dateString);
     const minAgeDate = new Date();
     minAgeDate.setFullYear(today.getFullYear() - 120);
+    minAgeDate.setFullYear(today.getFullYear() - 120);
     const maxAgeDate = new Date();
+    maxAgeDate.setFullYear(today.getFullYear() - 13);
+    if (birthDate > today) return "Birth date cannot be in the future";
+    if (birthDate < minAgeDate) return "Age cannot be more than 120 years";
+    if (birthDate > maxAgeDate) return "You must be at least 13 years old";
     maxAgeDate.setFullYear(today.getFullYear() - 13);
     if (birthDate > today) return "Birth date cannot be in the future";
     if (birthDate < minAgeDate) return "Age cannot be more than 120 years";
@@ -74,7 +85,9 @@ function Profile() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({
+    setErrors((prev) => ({
       ...prev,
+      form: { ...prev.form, [name]: validateField(name, value) },
       form: { ...prev.form, [name]: validateField(name, value) },
     }));
   };
@@ -181,6 +194,12 @@ function Profile() {
         password: { ...prev.password, update: "Please fix the errors before submitting." },
       }));
     }
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        password: { ...prev.password, update: "Please fix the errors before submitting." },
+      }));
+    }
   };
 
   const handleDeleteUser = async () => {
@@ -217,6 +236,7 @@ function Profile() {
     }
   };
   
+  
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
@@ -249,7 +269,16 @@ function Profile() {
           >
             Delete Account
           </button>
+
+            <button
+            type="button"
+            className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+            onClick={handleDeleteUser}
+          >
+            Delete Account
+          </button>
           </div>
+
 
 
           <div className="flex flex-col items-center mb-6">
@@ -272,15 +301,20 @@ function Profile() {
                   <label className="w-24 text-sm text-gray-600">Name:</label>
                   <input
                     name="fullname"
+                    name="fullname"
                     type="text"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
                       errors.form.fullname ? "border-red-500" : "border-gray-300"
+                      errors.form.fullname ? "border-red-500" : "border-gray-300"
                     }`}
+                    value={formData.fullname}
                     value={formData.fullname}
                     onChange={handleInputChange}
                     placeholder="Enter name"
                   />
                 </div>
+                {errors.form.fullname && (
+                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.fullname}</p>
                 {errors.form.fullname && (
                   <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.fullname}</p>
                 )}
@@ -309,10 +343,13 @@ function Profile() {
                   <label className="w-24 text-sm text-gray-600">Phone:</label>
                   <input
                     name="phone_number"
+                    name="phone_number"
                     type="tel"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
                       errors.form.phone_number ? "border-red-500" : "border-gray-300"
+                      errors.form.phone_number ? "border-red-500" : "border-gray-300"
                     }`}
+                    value={formData.phone_number}
                     value={formData.phone_number}
                     onChange={handleInputChange}
                     placeholder="Enter phone no."
@@ -320,21 +357,30 @@ function Profile() {
                 </div>
                 {errors.form.phone_number && (
                     <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.phone_number}</p>
+                {errors.form.phone_number && (
+                    <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.phone_number}</p>
                 )}
 
                 <div className="flex items-center gap-2">
                   <label className="w-24 text-sm text-gray-600">Location:</label>
+                  <label className="w-24 text-sm text-gray-600">Location:</label>
                   <input
+                    name="location"
                     name="location"
                     type="text"
                     className={`flex-1 p-2 border rounded bg-gray-50 text-sm ${
                       errors.form.location ? "border-red-500" : "border-gray-300"
+                      errors.form.location ? "border-red-500" : "border-gray-300"
                     }`}
+                    value={formData.location}
                     value={formData.location}
                     onChange={handleInputChange}
                     placeholder="Enter location"
+                    placeholder="Enter location"
                   />
                 </div>
+                {errors.form.location && (
+                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.location}</p>
                 {errors.form.location && (
                   <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.location}</p>
                 )}
@@ -393,6 +439,15 @@ function Profile() {
                 onChange={handleInputChange}
               />
             </div>
+            <div className="mt-6">
+              <button
+                type="submit"
+                className="px-3 py-1 bg-orange-500 text-white rounded flex items-center gap-1 hover:bg-orange-600"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
             <div className="mt-6">
               <button
                 type="submit"
