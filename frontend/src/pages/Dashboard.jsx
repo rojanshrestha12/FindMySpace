@@ -107,7 +107,7 @@ function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredProperties.length > 0 ? (
             filteredProperties.map(property => (
-              <div className="bg-white rounded-lg shadow-md p-4" key={property.id}>
+              <div className="bg-white rounded-lg shadow-md p-4" key={property.property_id}>
                 {/* Render the first image from the photos array */}
                 <img 
                   src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"} 

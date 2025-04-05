@@ -1,4 +1,4 @@
-import { hash, compare } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import User from '../models/Users.js';
 import { sign } from 'jsonwebtoken';
 import admin from '../firebaseAdmin.js';
@@ -21,7 +21,7 @@ async function register(req, res) {
         }
 
         // 🔹 Hash password and create user
-        const hashedPassword = await hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({
             fullname,
             phone_number,
@@ -58,7 +58,7 @@ async function login(req, res) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        const isPasswordValid = await compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
             return res.status(400).json({ error: 'Invalid email or password' });
@@ -121,4 +121,3 @@ async function loginWithGoogle(req, res) {
 
 
 export { loginWithGoogle, login, register };
-

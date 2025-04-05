@@ -31,8 +31,24 @@ const User = sequelize.define('User', {
     reset_token: {
         type: DataTypes.STRING,
         allowNull: true,
-    }
+    },
+    location: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    gender: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    birth_date: {
+        type: DataTypes.DATEONLY,  // Ensures proper date handling
+        allowNull: true,
+    },
+    about_me: {
+        type: DataTypes.TEXT,  // Longer descriptions allowed
+        allowNull: true,
+    },
 });
 
-export default User;
 
+export default User;

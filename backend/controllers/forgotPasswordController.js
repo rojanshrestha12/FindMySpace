@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { hash } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import User from '../models/Users.js';
 
 const transporter = nodemailer.createTransport({
@@ -51,7 +51,7 @@ export const resetPassword = async (req, res) => {
         const user = await User.findOne({ where: { email, reset_token: otp } });
         if (!user) return res.status(400).json({ error: "Invalid OTP or email" });
 
-        const hashedPassword = await hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await user.update({ password: hashedPassword, reset_token: null });
 

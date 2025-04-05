@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
+// import profileImage from "../assets/profile.png";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -38,8 +39,7 @@ export default function Profile() {
           ACCOUNT
         </h2>
         <div className="mb-4 text-center">
-          <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-2" />
-          <img src={user.profile_picture} alt="Profile" className="w-20 h-20 rounded-full mx-auto mb-2" />
+          <img src={"/assets/profile.png"} alt="Profile" className="w-20 h-20 rounded-full mx-auto mb-2" />
           
           <h2 className="text-lg font-medium">{user.fullname}</h2>
         </div>
@@ -61,7 +61,7 @@ export default function Profile() {
             <p className="text-gray-700">Gender:</p>
             <p className="text-gray-700 ml-16">{user.gender}</p>
             <p className="text-gray-700">Birth Date:</p>
-            <p className="text-gray-700 ml-16">{user.birthDate}</p>
+            <p className="text-gray-700 ml-16">{user.birth_date}</p>
           </div>
         </div>
         <div>

@@ -14,15 +14,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Configure auth to use custom environment
+auth.useDeviceLanguage();
+auth.settings = {
+    ...auth.settings,
+    appVerificationDisabledForTesting: true
+};
+
 export const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    // Add custom parameters for Google sign-in
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+    
     try {
         const result = await signInWithPopup(auth, provider);
         const token = await result.user.getIdToken();
-        return token; 
+        return token;
     } catch (error) {
         console.error("Error with Google login:", error);
-        return null;
+        throw error; // Propagate the error to handle it in the UI
     }
 };
 
@@ -30,9 +42,9 @@ export const loginWithEmail = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const token = await userCredential.user.getIdToken();
-        return token; // Pass this token to your backend
+        return token;
     } catch (error) {
         console.error("Error with email login:", error);
-        return null;
+        throw error; // Propagate the error to handle it in the UI
     }
 };
