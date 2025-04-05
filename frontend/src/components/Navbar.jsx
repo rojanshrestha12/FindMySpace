@@ -35,9 +35,13 @@ function Navbar() {
 
   return (
     <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
-      <div className="flex items-center space-x-3">
-        <Link to="/dashboard" className="ml-85">
-          <img src="/assets/logo.png" alt="Logo" className="w-25" />
+      <div className="flex items-center">
+        <Link to="/dashboard" className="flex items-center">
+          <img 
+            src="/assets/logo.png" 
+            alt="Logo" 
+            className="h-10 sm:h-12 md:h-14 w-auto" 
+          />
         </Link>
       </div>
 
