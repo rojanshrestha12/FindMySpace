@@ -6,29 +6,28 @@ import Footer from "../components/Footer";
 axios.defaults.withCredentials = true;
 
 function Dashboard() {
-  const [allProperties, setAllProperties] = useState([]); // Stores all properties initially
-  const [filteredProperties, setFilteredProperties] = useState([]); // Stores filtered properties
+  const [allProperties, setAllProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [propertyType, setPropertyType] = useState("");
   const [location, setLocation] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
-  // Fetch properties from backend (sorted by latest first)
+  const itemsPerPage = 12;
+
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/properties?page=${currentPage}&sort=latest`)
-      .then(response => { 
-        console.log(response.data); 
-        setAllProperties(response.data);  // Store the original properties
-        setFilteredProperties(response.data); // Default: Show all properties first
+    axios.get(`http://localhost:5000/api/properties?sort=latest`)
+      .then(response => {
+        setAllProperties(response.data);
+        setFilteredProperties(response.data);
       })
       .catch(error => {
         console.error("Error fetching properties:", error);
         setAllProperties([]);
         setFilteredProperties([]);
       });
-  }, [currentPage]);
+  }, []);
 
-  // Function to apply filters when the button is clicked
   const applyFilters = () => {
     let filtered = allProperties;
 
@@ -46,19 +45,23 @@ function Dashboard() {
     }
 
     setFilteredProperties(filtered);
+    setCurrentPage(1);
   };
+
+  const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
+  const paginatedData = filteredProperties.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
       <Navbar />
 
-      {/* Filters & Property Grid Section */}
       <div className="max-w-8xl mx-auto mt-6 px-4 flex justify-between items-center">
-        {/* Filters */}
         <div className="flex items-center space-x-5">
           <h2 className="text-lg font-semibold">Filter by:</h2>
           
-          {/* Property Type */}
           <select onChange={(e) => setPropertyType(e.target.value)}>
             <option value="">Type of Property</option>
             <option value="House">House</option>
@@ -68,7 +71,6 @@ function Dashboard() {
             <option value="Shutter">Shutter</option>
           </select>
 
-          {/* Location */}
           <select onChange={(e) => setLocation(e.target.value)}>
             <option value="">Location</option>
             <option value="Kathmandu">Kathmandu</option>
@@ -81,7 +83,6 @@ function Dashboard() {
             <option value="Dharan">Dharan</option>
           </select>
 
-          {/* Price Range */}
           <select onChange={(e) => setPriceRange(e.target.value)}>
             <option value="">Price Range</option>
             <option value="5000-10000">5,000 - 10,000</option>
@@ -92,7 +93,6 @@ function Dashboard() {
             <option value="200000-500000">200,000 - 500,000</option>
           </select>
 
-          {/* Filter Button */}
           <button 
             onClick={applyFilters} 
             className="px-4 py-2 bg-[#e48f44] text-white rounded"
@@ -102,13 +102,11 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Properties */}
       <div className="max-w-8xl mx-auto px-4 mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredProperties.length > 0 ? (
-            filteredProperties.map(property => (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          {paginatedData.length > 0 ? (
+            paginatedData.map(property => (
               <div className="bg-white rounded-lg shadow-md p-4" key={property.property_id}>
-                {/* Render the first image from the photos array */}
                 <img 
                   src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"} 
                   alt="Property" 
@@ -124,16 +122,15 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Pagination */}
         <div className="flex justify-center mt-8">
           <button 
-            onClick={() => setCurrentPage(prev => prev > 1 ? prev - 1 : prev)} 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
             className="px-4 py-2 bg-[#e48f44] text-white rounded mr-4"
           >
             Previous
           </button>
           <button 
-            onClick={() => setCurrentPage(prev => prev + 1)} 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
             className="px-4 py-2 bg-[#e48f44] text-white rounded"
           >
             Next

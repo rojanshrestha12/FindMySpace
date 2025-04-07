@@ -1,33 +1,13 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function About() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  // const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
-      {/* Navbar */}
-      <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <div className="ml-85">
-            <img src="/assets/logo.png" alt="Logo" className="w-25" />
-          </div>
-        </div>
-        <div className="hidden md:flex space-x-8 text-lg">
-          <Link to="/dashboard" className="text-black">Home</Link>
-          <Link to="/PropertyForm" className="text-black">Add Property</Link>
-          <Link to="/about" className="text-black">About Us</Link>
-        </div>
-        <div className="relative">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="text-black">☰</button>
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md">
-              <Link to="/login" className="block px-4 py-2 hover:bg-gray-200">Login</Link>
-              <Link to="/register" className="block px-4 py-2 hover:bg-gray-200">Register</Link>
-            </div>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-16 flex-grow">
