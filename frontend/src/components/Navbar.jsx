@@ -36,7 +36,7 @@ function Navbar() {
   return (
     <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
       <div className="flex items-center space-x-3">
-        <Link to="/dashboard" className="ml-85">
+        <Link to="/" className="ml-85">
           <img src="/assets/logo.png" alt="Logo" className="w-25" />
         </Link>
       </div>
@@ -63,7 +63,7 @@ function Navbar() {
           <div className="absolute right-0 mt-2 w-56 bg-[#f8f1ea] rounded-none shadow-none py-0 z-50 border border-gray-300">
             <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
               <img src="assets/profile.png" alt="Profile" className="w-5 h-5 me-2"/>
-              <h2 className="text-lg font-medium">{user?.fullname || "Guest"}</h2>
+              <h2 className="text-lg font-medium">{user.fullname}</h2>
             </div>
             
             <Link 
@@ -76,7 +76,7 @@ function Navbar() {
             </Link>
             
             <Link 
-              to="/dashboard" 
+              to="/" 
               className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
               onClick={() => setMenuOpen(false)}
             >

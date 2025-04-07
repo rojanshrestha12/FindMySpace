@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from "../components/Navbar";    
+import Footer from "../components/Footer";
 
 function PropertyForm() {
   const navigate = useNavigate();
@@ -181,7 +183,10 @@ function PropertyForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#f8f1ea]">
+    <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
+      <Navbar />
+
+      <div className="flex justify-center items-center min-h-screen bg-[#f8f1ea]">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl mx-4">
         <h2 className="text-center text-xl font-bold text-[#e48f44] mb-4">
           Add A New Property
@@ -264,6 +269,9 @@ function PropertyForm() {
         </form>
       </div>
     </div>
+    <Footer />
+    </div>
+
   );
 }
 
