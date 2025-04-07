@@ -47,7 +47,7 @@ function Navbar() {
         <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
       </div>
 
-      <div className="relative">
+      <div className="relative right-80">
         <button 
           onClick={() => setMenuOpen(!menuOpen)}
           className="p-2 focus:outline-none"

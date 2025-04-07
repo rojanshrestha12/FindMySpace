@@ -9,19 +9,11 @@ function ForgotPassword() {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-<<<<<<< HEAD
       await axios.post("http://localhost:5000/api/auth/forgotpassword", { email });
       alert("Password reset email sent!");
       navigate("/resetPassword", { state: { email } }); // Pass email as state
     } catch (error) {
       console.error("Error sending reset email:", error);
-=======
-      await axios.post("http://localhost:3000/api/forgotpassword", { email }); // Updated URL
-      alert("Password reset email sent!");
-      navigate("/resetPassword"); // Added navigation to ResetPassword
-    } catch (error) {
-      console.error("Error sending reset email:", error); // Added error logging
->>>>>>> 7575c6bbe24f0412b22554f19831faf7083e5d6c
       alert(error.response?.data?.message || "Error sending reset email");
     }
   };

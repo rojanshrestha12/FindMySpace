@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function PropertyDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [isVisitRequested, setIsVisitRequested] = useState(false);
   const [isRentRequested, setIsRentRequested] = useState(false);
   const [activeTab, setActiveTab] = useState("General");
