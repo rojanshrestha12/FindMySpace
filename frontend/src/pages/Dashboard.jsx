@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";  
@@ -16,7 +17,7 @@ function Dashboard() {
   const itemsPerPage = 12;
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/properties?sort=latest`)
+    axios.get(`http://localhost:5000/api/properties`)
       .then(response => {
         setAllProperties(response.data);
         setFilteredProperties(response.data);
@@ -106,7 +107,11 @@ function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {paginatedData.length > 0 ? (
             paginatedData.map(property => (
-              <div className="bg-white rounded-lg shadow-md p-4" key={property.property_id}>
+              <Link 
+                to={`/property/${property.property_id}`} 
+                key={property.property_id} 
+                className="bg-white rounded-lg shadow-md p-4"
+              >
                 <img 
                   src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"} 
                   alt="Property" 
@@ -115,7 +120,7 @@ function Dashboard() {
                 <h3 className="text-xl font-semibold">{property.type}</h3>
                 <p>{property.location}</p>
                 <p className="font-bold text-xl">{property.price}</p>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-center text-gray-600">No properties found.</p>

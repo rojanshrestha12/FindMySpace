@@ -1,34 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import axios from "axios";
+axios.defaults.withCredentials = true;
 
 function PropertyDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // Get property ID from the URL
+  
+  const [property, setProperty] = useState(null);
   const [isVisitRequested, setIsVisitRequested] = useState(false);
   const [isRentRequested, setIsRentRequested] = useState(false);
   const [activeTab, setActiveTab] = useState("General");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock property data
-  const property = {
-    id,
-    name: "2-Bedroom Apartment",
-    location: "Patan",
-    price: "Rs. 5000/month",
-    phone: "9874826345",
-    landlord: "Name of landlord",
-    description:
-      "Cozy 2-bedroom apartment with modern amenities, ample natural light, and a prime location. Includes WiFi, parking, and a balcony. Perfect for comfortable living!",
-    amenities: {
-      Furnishing: "Yes",
-      "Wi-Fi": "No",
-      Pets: "No",
-      "Storage Space": "Yes",
-      Parking: "No",
-      AC: "No",
-      Balcony: "Yes",
-    },
-  };
+  // Fetch property details based on the id from URL
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/properties/${id}/details`);
+        if (response.status === 200) {
+          let data = response.data.property;
+  
+          // Parse stringified JSON fields
+          const parsedImages = JSON.parse(data.images || "[]");
+          const parsedAmenities = JSON.parse(data.amenities || "{}");
+          console.log(parsedImages)
+          setProperty({
+            ...data,
+            images: parsedImages,
+            amenities: parsedAmenities,
+            userDetails: response.data.userDetails,
+          });
+  
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error(error);
+        setError("Error fetching property details. Please try again later.");
+        setLoading(false);
+      }
+    };
+  
+    fetchPropertyDetails();
+  }, [id]);
+  
 
   const handleRequestVisit = () => {
     setIsVisitRequested(true);
@@ -40,15 +57,39 @@ function PropertyDetail() {
     alert("Rental request submitted!");
   };
 
+  if (loading) {
+    return <div>Loading...</div>; // Consider adding a spinner or animation here
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>; // Display error message if any
+  }
+
+  if (!property) {
+    return <div>No property data available.</div>; // Handle if no property data is found
+  }
+
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex-grow flex">
+      <div className="container mx-auto px-4 py-8 flex-grow flex flex-col lg:flex-row">
         {/* Left Section - Image & Buttons */}
-        <div className="w-1/3 p-4">
-          <div className="bg-white border rounded-lg p-4 flex items-center justify-center h-64">
-            <span className="text-gray-500">Photo of Property</span>
-          </div>
+        <div className="lg:w-2/4 w-full p-4">
+          {/* Conditionally render image if available */}
+          {property.images && property.images.length > 0 ? (
+            <div className="bg-white border rounded-lg p-4 flex items-center justify-center h-64">
+              <img
+                src={`http://localhost:5000${property.images[0]}`}
+                alt="Photo of Property"
+                className="text-gray-500"
+              />
+            </div>
+          ) : (
+            <div className="bg-white border rounded-lg p-4 flex items-center justify-center h-64">
+              <p>No image available</p> {/* Placeholder text if no image */}
+            </div>
+          )}
+          
           <div className="mt-4 flex space-x-2">
             <button
               onClick={handleRequestVisit}
@@ -62,7 +103,7 @@ function PropertyDetail() {
             <button
               onClick={handleRequestRent}
               disabled={isRentRequested}
-              className={`bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 ${
+              className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
                 isRentRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
               }`}
             >
@@ -72,9 +113,9 @@ function PropertyDetail() {
         </div>
 
         {/* Right Section - Property Details */}
-        <div className="w-2/3 p-4">
-          <h1 className="text-2xl font-bold text-[#e48f44]">Type of Property (name)</h1>
-          
+        <div className="lg:w-2/3 w-full p-4">
+          <h2 className="text-2xl font-bold text-[#e48f44]">{property.type}</h2>
+
           {/* Tabs */}
           <div className="flex space-x-4 mt-2 border-b">
             {['General', 'Amenities', 'Description'].map((tab) => (
@@ -90,18 +131,18 @@ function PropertyDetail() {
 
           {/* Tab Content */}
           {activeTab === "General" && (
-            <div className="bg-gray-200 p-4 mt-4 rounded-lg">
-              <p><strong>Location:</strong> {property.location}</p>
-              <p><strong>Price:</strong> {property.price}</p>
-              <p><strong>Phone number:</strong> {property.phone}</p>
-              <p><strong>Landlord:</strong> {property.landlord}</p>
+            <div className="bg-gray-200 p-6 mt-4 rounded-lg">
+              <p>Location: {property.location}</p>
+              <p>Price: {property.price}</p>
+              <p>Phone number: {property.userDetails.phone_number}</p> {/* Assuming the userDetails object includes phone_number */}
+              <p>Landlord: {property.userDetails.fullname}</p> {/* Assuming the userDetails object includes fullname */}
             </div>
           )}
 
           {activeTab === "Amenities" && (
             <div className="bg-gray-200 p-4 mt-4 rounded-lg">
-              {Object.entries(property.amenities).map(([key, value]) => (
-                <p key={key}><strong>{key}:</strong> {value}</p>
+              {property.amenities && Object.entries(property.amenities).map(([key, value]) => (
+                <p key={key}>{key}: {value}</p>
               ))}
             </div>
           )}

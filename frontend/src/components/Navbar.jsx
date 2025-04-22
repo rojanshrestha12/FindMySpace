@@ -11,7 +11,7 @@ function Navbar() {
     if (token && token.split('.').length === 3) {
       try {
         const base64 = token.split('.')[1];
-        const base64Fixed = base64.replace(/-/g, '+').replace(/_/g, '/'); // base64url → base64
+        const base64Fixed = base64.replace(/-/g, '+').replace(/_/g, '/');
         const json = atob(base64Fixed);
         const userData = JSON.parse(json);
         setUser(userData);
@@ -25,7 +25,6 @@ function Navbar() {
       setUser(null);
     }
   }, []);
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -47,71 +46,90 @@ function Navbar() {
         <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
       </div>
 
-      <div className="relative right-80">
-        <button 
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="p-2 focus:outline-none"
-        >
-          <div className="w-6 flex flex-col space-y-1.5">
-            <div className="h-[2px] w-full bg-black"></div>
-            <div className="h-[2px] w-full bg-black"></div>
-            <div className="h-[2px] w-full bg-black"></div>
+      <div className="md:flex items-center space-x-4 hidden">
+        {!user ? (
+          <div className="flex space-x-4">
+            <Link
+              to="/login"
+              className="bg-[#d6b899] text-black px-4 py-2 border border-black rounded hover:bg-[#cba67f]"
+            >
+              Log In
+            </Link>
+            <Link
+              to="/register"
+              className="bg-[#d6b899] text-black px-4 py-2 border border-black rounded hover:bg-[#cba67f]"
+            >
+              Sign Up
+            </Link>
           </div>
-        </button>
-
-        {menuOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-[#f8f1ea] rounded-none shadow-none py-0 z-50 border border-gray-300">
-            <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
-              <img src="assets/profile.png" alt="Profile" className="w-5 h-5 me-2"/>
-              <h2 className="text-lg font-medium">{user.fullname}</h2>
-            </div>
-            
-            <Link 
-              to="/profile" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
-              onClick={() => setMenuOpen(false)}
-            >
-              <img src="assets/account.png" alt="Account" className="w-5 h-5 me-2"/>
-              Account
-            </Link>
-            
-            <Link 
-              to="/" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
-              onClick={() => setMenuOpen(false)}
-            >
-              <img src="assets/home.png" alt="My Properties" className="w-5 h-5 me-2"/>
-              My Properties
-            </Link>
-            
-            <Link 
-              to="/saved" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
-              onClick={() => setMenuOpen(false)}
-            >
-              <img src="assets/saved.png" alt="Saved" className="w-5 h-5 me-2"/>
-              Saved
-            </Link>
-            
-            <Link 
-              to="/payments" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
-              onClick={() => setMenuOpen(false)}
-            >
-              <img src="assets/pay.png" alt="Payment" className="w-5 h-5 me-2"/>
-              Payments
-            </Link>
-            
+        ) : (
+          <div className="relative">
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                handleLogout();
-              }}
-              className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea]"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 focus:outline-none"
             >
-              <img src="assets/logout.png" alt="Log Out" className="w-5 h-5 me-2"/>
-              Log Out
+              <div className="w-6 flex flex-col space-y-1.5">
+                <div className="h-[2px] w-full bg-black"></div>
+                <div className="h-[2px] w-full bg-black"></div>
+                <div className="h-[2px] w-full bg-black"></div>
+              </div>
             </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-[#f8f1ea] rounded-none shadow-none py-0 z-50 border border-gray-300">
+                <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
+                  <img src="/assets/profile.png" alt="Profile" className="w-5 h-5 me-2" />
+                  <h2 className="text-lg font-medium">{user.fullname}</h2>
+                </div>
+
+                <Link
+                  to="/profile"
+                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <img src="/assets/account.png" alt="Account" className="w-5 h-5 me-2" />
+                  Account
+                </Link>
+
+                <Link
+                  to="/"
+                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <img src="/assets/home.png" alt="My Properties" className="w-5 h-5 me-2" />
+                  My Properties
+                </Link>
+
+                <Link
+                  to="/saved"
+                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <img src="/assets/saved.png" alt="Saved" className="w-5 h-5 me-2" />
+                  Saved
+                </Link>
+
+                <Link
+                  to="/payments"
+                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <img src="/assets/pay.png" alt="Payment" className="w-5 h-5 me-2" />
+                  Payments
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea]"
+                >
+                  <img src="/assets/logout.png" alt="Log Out" className="w-5 h-5 me-2" />
+                  Log Out
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

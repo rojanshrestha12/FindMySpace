@@ -1,4 +1,5 @@
 import Property from '../models/Property.js';
+import User from '../models/Users.js';
 import { getUserDetails } from './userController.js';
 
 export async function createProperty(req, res) {
@@ -47,26 +48,26 @@ export async function getPropertyDetails(req, res) {
     const propertyId = req.params.propertyId;
 
     try {
-        // Get the property based on propertyId
         const property = await Property.findOne({
             where: { property_id: propertyId },
         });
 
-        // If property not found
         if (!property) {
             return res.status(404).json({ error: 'Property not found' });
         }
+            
+        const user = await User.findOne({
+            where: { user_id: property.user_id },
+            attributes: ['fullname', 'phone_number']
+        });
 
-        // Get the user details based on the user_id in the property
-        const userDetails = await getUserDetails({ params: { userId: property.user_id } }, res);
-
-        if (userDetails.error) {
+        if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
         res.status(200).json({
             property,
-            userDetails: userDetails.body,  // Assuming userDetails returns the body in the response
+            userDetails: user,
         });
     } catch (error) {
         console.error('Error fetching property details:', error);
