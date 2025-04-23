@@ -1,7 +1,9 @@
+// Import modules
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
 import User from '../models/Users.js';
 
+// Setup email transporter
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: 587,
@@ -12,6 +14,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+// Handle forgot password - send OTP
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email is required" });
@@ -20,10 +23,10 @@ export const forgotPassword = async (req, res) => {
         const user = await User.findOne({ where: { email } });
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        // Generate a 6-digit OTP
+        // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Save OTP in database
+        // Save OTP to user record
         await user.update({ reset_token: otp });
 
         // Send OTP via email
@@ -41,18 +44,24 @@ export const forgotPassword = async (req, res) => {
     }
 };
 
+// Handle password reset using OTP
 export const resetPassword = async (req, res) => {
-    const {email, otp, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
+
+    // Check required fields
     if (!otp || !newPassword) {
         return res.status(400).json({ error: "OTP, and new password are required" });
     }
 
     try {
+        // Find user with matching email and OTP
         const user = await User.findOne({ where: { email, reset_token: otp } });
         if (!user) return res.status(400).json({ error: "Invalid OTP or email" });
 
+        // Hash new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+        // Update user password and clear OTP
         await user.update({ password: hashedPassword, reset_token: null });
 
         res.json({ message: "Password reset successful" });
@@ -61,4 +70,3 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ error: "Something went wrong" });
     }
 };
-
