@@ -11,6 +11,7 @@ import ProfileEdit from "./pages/ProfileEdit";
 import PropertyDetail from "./pages/PropertyDetail.jsx"; // Import PropertyDetail
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import PropertyList from "./pages/PropertyList.jsx"; 
+import UserList from "./pages/UserList.jsx";
 
 // ✅ Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -73,6 +74,15 @@ function App() {
           element={
             <ProtectedRoute>
               <PropertyList />
+            </ProtectedRoute>
+          }
+        />
+
+<Route
+          path="/UserList"
+          element={
+            <ProtectedRoute>
+              <UserList />
             </ProtectedRoute>
           }
         />
