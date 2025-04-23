@@ -45,7 +45,6 @@ function PropertyDetail() {
   
     fetchPropertyDetails();
   }, [id]);
-  
 
   const handleRequestVisit = () => {
     setIsVisitRequested(true);
@@ -81,7 +80,7 @@ function PropertyDetail() {
               <img
                 src={`http://localhost:5000${property.images[0]}`}
                 alt="Photo of Property"
-                className="text-gray-500"
+                className="w-full h-full object-cover"
               />
             </div>
           ) : (

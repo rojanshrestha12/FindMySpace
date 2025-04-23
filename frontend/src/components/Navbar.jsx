@@ -36,7 +36,7 @@ function Navbar() {
     <nav className="bg-[#d6b899] p-4 flex justify-between items-center">
       <div className="flex items-center space-x-3">
         <Link to="/" className="ml-85">
-          <img src="/assets/logo.png" alt="Logo" className="w-25" />
+          <img src="/assets/logo.png" alt="Logo" className="w-[100px]" />
         </Link>
       </div>
 
@@ -77,17 +77,12 @@ function Navbar() {
 
             {menuOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-[#f8f1ea] rounded-none shadow-none py-0 z-50 border border-gray-300">
-                <div className="flex items-center px-4 py-3 font-semibold text-gray-800 border-b border-gray-300 bg-[#f8f1ea]">
-                  <img src="/assets/profile.png" alt="Profile" className="w-5 h-5 me-2" />
-                  <h2 className="text-lg font-medium">{user.fullname}</h2>
-                </div>
-
                 <Link
                   to="/profile"
                   className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <img src="/assets/account.png" alt="Account" className="w-5 h-5 me-2" />
+                  <img src="/assets/account.png" alt="Account" className="w-5 h-5 mr-2" />
                   Account
                 </Link>
 
@@ -96,7 +91,7 @@ function Navbar() {
                   className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <img src="/assets/home.png" alt="My Properties" className="w-5 h-5 me-2" />
+                  <img src="/assets/home.png" alt="My Properties" className="w-5 h-5 mr-2" />
                   My Properties
                 </Link>
 
@@ -105,7 +100,7 @@ function Navbar() {
                   className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <img src="/assets/saved.png" alt="Saved" className="w-5 h-5 me-2" />
+                  <img src="/assets/saved.png" alt="Saved" className="w-5 h-5 mr-2" />
                   Saved
                 </Link>
 
@@ -114,7 +109,7 @@ function Navbar() {
                   className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea] border-b border-gray-300"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <img src="/assets/pay.png" alt="Payment" className="w-5 h-5 me-2" />
+                  <img src="/assets/pay.png" alt="Payment" className="w-5 h-5 mr-2" />
                   Payments
                 </Link>
 
@@ -125,7 +120,7 @@ function Navbar() {
                   }}
                   className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-200 bg-[#f8f1ea]"
                 >
-                  <img src="/assets/logout.png" alt="Log Out" className="w-5 h-5 me-2" />
+                  <img src="/assets/logout.png" alt="Log Out" className="w-5 h-5 mr-2" />
                   Log Out
                 </button>
               </div>
