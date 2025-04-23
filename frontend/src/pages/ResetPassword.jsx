@@ -4,13 +4,14 @@ import axios from "axios";
 
 function ResetPassword() {
   const location = useLocation();
-  const email = location.state?.email || ""; // Get email from navigation state
+  const email = location.state?.email || ""; // Get email from state
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Handle form submission for password reset
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (!email) {

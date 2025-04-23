@@ -3,12 +3,14 @@ import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
 
 function ForgotPassword() {
+    // State to store email input from user
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
+      // Send the email to the backend for processing
       await axios.post("http://localhost:5000/api/auth/forgotpassword", { email });
       alert("Password reset email sent!");
       navigate("/resetPassword", { state: { email } }); // Pass email as state
