@@ -10,6 +10,7 @@ import About from "./pages/About";
 import ProfileEdit from "./pages/ProfileEdit";
 import PropertyDetail from "./pages/PropertyDetail.jsx"; // Import PropertyDetail
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import PropertyList from "./pages/PropertyList.jsx"; 
 
 // ✅ Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +65,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/PropertyList"
+          element={
+            <ProtectedRoute>
+              <PropertyList />
             </ProtectedRoute>
           }
         />
