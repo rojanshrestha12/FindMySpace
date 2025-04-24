@@ -1,15 +1,18 @@
 import express from 'express';
 import { json } from 'body-parser';
-import { loginWithGoogle, login, register } from './controllers/authController'
-import { createProperty, getAllProperties, getPropertyDetails } from './controllers/propertyController';
-import upload from './middlewares/uploadMiddleware';
-import authenticate from './middlewares/authMiddleware';
-import { getUserDetails } from './controllers/userController';
-import { forgotPassword, resetPassword } from './controllers/forgotPasswordController';
-import { handleDeleteUser } from './controllers/profileController';
-import { updateProfile, updatePassword } from './controllers/profileController';
+import { loginWithGoogle, login, register } from './controllers/authController.js'
+import { createProperty, getAllProperties, getPropertyDetails } from './controllers/propertyController.js';
+import upload from './middlewares/uploadMiddleware.js';
+import authenticate from './middlewares/authMiddleware.js';
+import { getUserDetails } from './controllers/userController.js';
+import { forgotPassword, resetPassword } from './controllers/forgotPasswordController.js';
+import { handleDeleteUser } from './controllers/profileController.js';
+import { updateProfile, updatePassword } from './controllers/profileController.js';
 import cors from "cors";
 const app = express();
+
+import adminRouter from './router/admin.js';
+
 
 app.use(
     cors({
@@ -20,6 +23,8 @@ app.use(
   
   app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve images statically
+
+app.use("/api/admin/",adminRouter);
 
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);

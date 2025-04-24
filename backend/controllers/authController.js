@@ -3,11 +3,14 @@ import User from '../models/Users.js';
 import { sign } from 'jsonwebtoken';
 import admin from '../firebaseAdmin.js';
 
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 async function register(req, res) {
     const { fullname, phone_number, email, password } = req.body;
+    console.log(fullname,email,phone_number,email);
+    
 
     if (!fullname || !email || !password) {
         return res.status(400).json({ error: 'Fullname, email, and password are required' });
@@ -63,16 +66,25 @@ async function login(req, res) {
         if (!isPasswordValid) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
-
-        const token = sign(
+        let token;
+        if (user.role==='admin'){
+             token = sign(
+                { userId: user.user_id,"role":"admin" },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+            console.log(user.role );
+    }else{
+        token = sign(
             { userId: user.user_id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
-        );
-
+    );}
+    res.setHeader("Authorization",`Bearer ${token}`);
+    
         res.status(200).json({
             message: 'Login successful',
-            token,
+            
         });
     } catch (err) {
         console.error('Error logging in:', err);
