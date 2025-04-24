@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../db/config';
+import sequelize from '../db/config.js';
 
 const User = sequelize.define('User', {
     user_id: {
@@ -24,6 +24,11 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    role: {
+        type: DataTypes.ENUM('user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user'
+      },
     google_id: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -65,6 +70,7 @@ const User = sequelize.define('User', {
         type: DataTypes.TEXT,  // Longer descriptions allowed
         allowNull: true,
     },
+    
 });
 
 

@@ -96,27 +96,43 @@ function Profile() {
     }));
   };
 
+  const isGoogleSignIn = async () => {
+    const auth = getAuth();
+    const token = await auth.currentUser?.getIdToken();
+    return !!token;
+  };
+  
+  // ✅ Form submit handler
   const handleSave = async (e) => {
     e.preventDefault();
-
+  
     const newErrors = {};
     for (const [key, value] of Object.entries(formData)) {
       newErrors[key] = validateField(key, value);
     }
-
+  
     const hasErrors = Object.values(newErrors).some((err) => err);
-
+  
     if (!hasErrors) {
       try {
-        const token = localStorage.getItem("token"); 
-        const auth = getAuth();
-        // const token = await auth.currentUser?.getIdToken();
-        if (!token) throw new Error("No authentication token available");
-
-
+        let token;
+        const isGoogle = await isGoogleSignIn(); // ✅ Call the function properly
+  
+        if (isGoogle) {
+          const auth = getAuth();
+          token = await auth.currentUser?.getIdToken();
+          if (!token) throw new Error("No authentication token available");
+        } else {
+          token = localStorage.getItem('token');
+          if (!token) throw new Error("Token not found in localStorage");
+        }
+  
+        // ✅ Send profile update request
         await axios.post("http://localhost:5000/api/user/profile/update", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
+  
+      
 
         setSuccess({ profile: true, password: false });
         setFormData({

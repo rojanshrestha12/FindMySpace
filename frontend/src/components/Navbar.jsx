@@ -41,7 +41,7 @@ function Navbar() {
       </div>
 
       <div className="hidden md:flex space-x-8 text-lg">
-        <Link to="/" className="text-black hover:text-gray-700">Home</Link>
+        <Link to="/AdminDashboard" className="text-black hover:text-gray-700">Home</Link>
         <Link to="/PropertyForm" className="text-black hover:text-gray-700">Add Property</Link>
         <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
       </div>

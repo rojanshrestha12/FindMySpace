@@ -1,17 +1,21 @@
+// Import models and user controller
 import Property from '../models/Property.js';
 import User from '../models/Users.js';
 import { getUserDetails } from './userController.js';
 
+// Create a new property
 export async function createProperty(req, res) {
     const { amenities, type, price, location, description } = req.body;
     const user_id = req.user.userId;
     const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
 
+    // Check required fields
     if (!user_id || !type || !price || !location) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
+        // Save property to database
         const property = await Property.create({
             user_id,
             amenities: amenities ? JSON.parse(amenities) : null,
@@ -29,10 +33,12 @@ export async function createProperty(req, res) {
     }
 }
 
+// Get all properties
 export async function getAllProperties(req, res) {
     try {
         const properties = await Property.findAll();
 
+        // If no properties found
         if (properties.length === 0) {
             return res.status(404).json({ message: 'No properties found' });
         }
@@ -44,10 +50,12 @@ export async function getAllProperties(req, res) {
     }
 }
 
+// Get single property details
 export async function getPropertyDetails(req, res) {
     const propertyId = req.params.propertyId;
 
     try {
+        // Find property by ID
         const property = await Property.findOne({
             where: { property_id: propertyId },
         });
@@ -55,11 +63,9 @@ export async function getPropertyDetails(req, res) {
         if (!property) {
             return res.status(404).json({ error: 'Property not found' });
         }
-            
-        const user = await User.findOne({
-            where: { user_id: property.user_id },
-            attributes: ['fullname', 'phone_number']
-        });
+
+        // Get user info for this property
+        const userDetails = await getUserDetails({ params: { userId: property.user_id } }, res);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -67,7 +73,7 @@ export async function getPropertyDetails(req, res) {
 
         res.status(200).json({
             property,
-            userDetails: user,
+            userDetails: userDetails.body, // Assumes userDetails returns user data in body
         });
     } catch (error) {
         console.error('Error fetching property details:', error);

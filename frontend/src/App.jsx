@@ -9,6 +9,9 @@ import Profile from "./pages/Profile.jsx";
 import About from "./pages/About";
 import ProfileEdit from "./pages/ProfileEdit";
 import PropertyDetail from "./pages/PropertyDetail.jsx"; // Import PropertyDetail
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import PropertyList from "./pages/PropertyList.jsx"; 
+import UserList from "./pages/UserList.jsx";
 
 // ✅ Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -58,6 +61,31 @@ function App() {
 
         {/*  PropertyDetail Page - Add the dynamic route */}
         <Route path="/property/:id" element={<PropertyDetail />} /> {/* Dynamic route for PropertyDetail */}
+        <Route
+          path="/AdminDashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/PropertyList"
+          element={
+            <ProtectedRoute>
+              <PropertyList />
+            </ProtectedRoute>
+          }
+        />
+
+<Route
+          path="/UserList"
+          element={
+            <ProtectedRoute>
+              <UserList />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
