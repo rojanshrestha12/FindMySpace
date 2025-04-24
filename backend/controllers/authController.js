@@ -3,28 +3,28 @@ import User from '../models/Users.js';
 import { sign } from 'jsonwebtoken';
 import admin from '../firebaseAdmin.js';
 
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Register a new user
+
 async function register(req, res) {
     const { fullname, phone_number, email, password } = req.body;
+    console.log(fullname,email,phone_number,email);
+    
 
-    // Check if required fields are present
     if (!fullname || !email || !password) {
         return res.status(400).json({ error: 'Fullname, email, and password are required' });
     }
 
     try {
-        // Check if user already exists with the same email
+        // 🔹 Check if user with the same email already exists
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(409).json({ error: 'Email already in use' });
+            return res.status(409).json({ error: 'Email already in use' }); // 409 Conflict
         }
 
-        // Hash the user's password
+        // 🔹 Hash password and create user
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create a new user in the database
         const newUser = await User.create({
             fullname,
             phone_number,
@@ -32,7 +32,6 @@ async function register(req, res) {
             password: hashedPassword,
         });
 
-        // Respond with basic user info
         res.status(201).json({
             user: {
                 fullname: newUser.fullname,
@@ -46,41 +45,46 @@ async function register(req, res) {
     }
 }
 
-// User login with email and password
+
 async function login(req, res) {
     const { email, password } = req.body;
 
-    // Ensure email and password are provided
     if (!email || !password) {
+        console.log("Email and password are required");
         return res.status(400).json({ error: 'Email and password are required' });
     }
 
     try {
-        // Find user by email
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        // Compare input password with stored hashed password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
-
-        // Create JWT token
-        const token = sign(
+        let token;
+        if (user.role==='admin'){
+             token = sign(
+                { userId: user.user_id,"role":"admin" },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+            console.log(user.role );
+    }else{
+        token = sign(
             { userId: user.user_id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
-        );
-
-        // Respond with token
+    );}
+    res.setHeader("Authorization",`Bearer ${token}`);
+    
         res.status(200).json({
             message: 'Login successful',
-            token,
+            
         });
     } catch (err) {
         console.error('Error logging in:', err);
@@ -88,38 +92,37 @@ async function login(req, res) {
     }
 }
 
-// Login using Google (Firebase token)
+
+// Google Login handler
 async function loginWithGoogle(req, res) {
     const firebaseToken = req.header('Authorization')?.replace('Bearer ', '');
 
-    // Check for Firebase token
     if (!firebaseToken) {
         return res.status(400).json({ error: 'Firebase token is missing' });
     }
 
     try {
-        // Verify token using Firebase Admin SDK
+        // Step 1: Verify the Firebase token and get the Firebase UID
         const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
-        const firebaseUID = decodedToken.uid;
+        const firebaseUID = decodedToken.uid;  // This is the Firebase UID
 
-        // Find the user in your database using the email from Firebase
+        // Step 2: Find the user in your database by Firebase UID or email
         const user = await User.findOne({ where: { email: decodedToken.email } });
 
         if (!user) {
             return res.status(404).json({ error: 'User not found in database' });
         }
 
-        // Generate your own JWT using internal user ID
+        // Step 3: Generate a JWT for your system with your own userID from the database
         const jwtToken = sign(
-            { userId: user.user_id },
+            { userId: user.user_id },  // Here you use the userID from your database
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 
-        // Send JWT back to client
         res.status(200).json({
             message: 'Login successful',
-            token: jwtToken,
+            token: jwtToken,  // This is the JWT you can use in your app
         });
 
     } catch (error) {
@@ -128,5 +131,5 @@ async function loginWithGoogle(req, res) {
     }
 }
 
-// Export the authentication functions
+
 export { loginWithGoogle, login, register };
