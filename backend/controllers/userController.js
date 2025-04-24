@@ -16,3 +16,6 @@ export async function getUserDetails(req, res) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+export async function findUserById(userId) {
+    return await User.findOne({ where: { user_id: userId } });
+}

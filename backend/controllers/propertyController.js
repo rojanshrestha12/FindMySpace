@@ -1,5 +1,6 @@
 // Import models and user controller
 import Property from '../models/Property.js';
+import User from '../models/Users.js';
 import { getUserDetails } from './userController.js';
 
 // Create a new property
@@ -66,7 +67,7 @@ export async function getPropertyDetails(req, res) {
         // Get user info for this property
         const userDetails = await getUserDetails({ params: { userId: property.user_id } }, res);
 
-        if (userDetails.error) {
+        if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
