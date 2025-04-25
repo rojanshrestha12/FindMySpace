@@ -24,7 +24,7 @@ app.use(
   app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve images statically
 
-app.use("/api/admin/",adminRouter);
+app.use("/api/admin",adminRouter);
 
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);

@@ -8,14 +8,14 @@ const AdminDashboard = () => {
   const [totalProperties, setTotalProperties] = useState(0);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/properties/users/count")
+    fetch("http://localhost:5000/api/admin/users")
       .then((res) => res.json())
-      .then((data) => setTotalUsers(data.count))
+      .then((data) =>setTotalUsers(data.length))
       .catch((err) => console.error("Error fetching users count:", err));
 
-    fetch("http://localhost:5000/api/properties/properties/count")
+    fetch("http://localhost:5000/api/admin/properties")
       .then((res) => res.json())
-      .then((data) => setTotalProperties(data.count))
+      .then((data) => setTotalProperties(data.length))
       .catch((err) => console.error("Error fetching properties count:", err));
   }, []);
 

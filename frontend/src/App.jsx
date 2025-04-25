@@ -8,32 +8,37 @@ import PropertyForm from "./pages/PropertyForm.jsx";
 import Profile from "./pages/Profile.jsx";
 import About from "./pages/About";
 import ProfileEdit from "./pages/ProfileEdit";
-import PropertyDetail from "./pages/PropertyDetail.jsx"; // Import PropertyDetail
+import PropertyDetail from "./pages/PropertyDetail.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
-import PropertyList from "./pages/PropertyList.jsx"; 
+import PropertyList from "./pages/PropertyList.jsx";
 import UserList from "./pages/UserList.jsx";
 
-// ✅ Protected Route Component
+// ✅ General Protected Route
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("isAdmin");
+  console.log(role,"asdfasdf@@@@@@@@@")
+  if (role =="true" ){
+    return token ? children : <Navigate to="/AdminDashboard" replace />;
+  }else{
   return token ? children : <Navigate to="/login" replace />;
+
+  }
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/*  Public Route */}
+        {/* Public Pages */}
         <Route path="/" element={<Dashboard />} />
-
-        {/*  Auth Pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/about" element={<About />} />
 
-        {/*  Protected Pages */}
+        {/* Protected Routes */}
         <Route
           path="/PropertyForm"
           element={
@@ -58,9 +63,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/property/:id"
+          element={
+            <ProtectedRoute>
+              <PropertyDetail />
+            </ProtectedRoute>
+          }
+        />
 
-        {/*  PropertyDetail Page - Add the dynamic route */}
-        <Route path="/property/:id" element={<PropertyDetail />} /> {/* Dynamic route for PropertyDetail */}
+        {/* Admin Only Routes */}
         <Route
           path="/AdminDashboard"
           element={
@@ -77,8 +89,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-<Route
+        <Route
           path="/UserList"
           element={
             <ProtectedRoute>
@@ -86,6 +97,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

@@ -1,80 +1,3 @@
-// import React, { useState } from "react";
-// import { loginWithGoogle} from "../firebase";
-// export default function App() {
-//    const [email, setEmail] = useState("");
-//    const [password, setPassword] = useState("");
-//    const [token, setToken] = useState("");
-
-//    const handleLoginWithGoogle = async () => {
-//        const googleToken = await loginWithGoogle();
-//        if (googleToken) {
-//            console.log("Google Login Success", googleToken);
-//            // Send the Firebase token to the backend
-//            const response = await fetch("http://localhost:5000/api/login/google", {
-//                method: "POST",
-//                headers: {
-//                    "Content-Type": "application/json",
-//                    Authorization: `Bearer ${googleToken}`,
-//                },
-//            });
-//            const data = await response.json();
-//            setToken(data.token); // Store your application's JWT in the frontend state
-//        }
-//    };
-
-//    const handleLoginWithEmail = async (e) => {
-//        e.preventDefault();
-//        fetch("http://localhost:5000/api/login/email", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ email, password }),
-//         })
-//         .then(res => res.json())
-//         .then(data => {
-//             console.log("Login Response:", data); // Debug log
-//             if (data.token) {
-//                 localStorage.setItem("token", data.token); // Store token
-//                 // Redirect or update state
-//             } else {
-//                 console.error("Login failed:", data.error);
-//             }
-//         })
-//         .catch(error => console.error("Error in login request:", error));
-
-//        }
-//    return (
-//        <div>
-//            <h1>Login</h1>
-//            <button onClick={handleLoginWithGoogle}>Login with Google</button>
-
-//            <form onSubmit={handleLoginWithEmail}>
-//                <input
-//                    type="email"
-//                    value={email}
-//                    onChange={(e) => setEmail(e.target.value)}
-//                    placeholder="Email"
-//                    required
-//                />
-//                <input
-//                    type="password"
-//                    value={password}
-//                    onChange={(e) => setPassword(e.target.value)}
-//                    placeholder="Password"
-//                    required
-//                />
-//                <button type="submit">Login with Email</button>
-//            </form>
-
-//            {token && (
-//                <div>
-//                    <h2>Token</h2>
-//                    <p>{token}</p>
-//                </div>
-//            )}
-//        </div>
-//    );
-// }
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginWithGoogle } from "../firebase";
@@ -86,43 +9,70 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLoginWithGoogle = async () => {
-    const googleToken = await loginWithGoogle();
-    if (googleToken) {
-      console.log("Google Login Success", googleToken);
-      const response = await fetch("http://localhost:5000/api/login/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${googleToken}`,
-        },
-      });
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      navigate("/"); // Redirect after successful login
+    try {
+      const googleToken = await loginWithGoogle();
+      if (googleToken) {
+        const response = await fetch("http://localhost:5000/api/login/google", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${googleToken}`,
+          },
+        });
+        const data = await response.json();
+        if (data.token && data.user) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("role", data.user.role);
+        } else {
+          console.error("Google login failed: Missing token or user");
+        }
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
     }
   };
 
   const handleLoginWithEmail = async (e) => {
     e.preventDefault();
     setLoading(true);
-    fetch("http://localhost:5000/api/login/email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Login Response:", data);
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          navigate("/"); // Redirect after successful login
-        } else {
-          console.error("Login failed:", data.error);
-        }
-      })
-      .catch((error) => console.error("Error in login request:", error))
-      .finally(() => setLoading(false));
+  
+    try {
+      // Step 1: Login and get token
+      const response = await fetch("http://localhost:5000/api/login/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Email login response:", data);
+
+      if (!data.token) {
+        console.error("Login failed: No token received");
+        alert("Login failed. Please check your credentials.");
+        return;
+      }
+
+      // Step 2: Save token
+      const token = data.token;
+      const isAdmin = data.isAdmin;
+      localStorage.setItem("token", token);
+      localStorage.setItem("isAdmin", isAdmin === "Yes very much an admin"? true : false);
+
+      if (isAdmin === "Yes very much an admin") {
+          navigate('/AdminDashboard');
+      }else{
+        navigate("/"); // redirect normal users here
+      }
+    } catch (error) {
+      console.error("Error in login or admin check:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
@@ -131,11 +81,11 @@ export default function Login() {
         <div className="flex-3 md:text-left pl-20 pr-40">
           <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
           <h2 className="text-4xl font-bold mt-40 mb-6 max-w-md">SIMPLIFYING ROOM RENTALS</h2>
-          <img src="/assets/illustration.jpg" className="w-150" />
+          <img src="/assets/illustration.jpg" className="w-150" alt="Illustration" />
         </div>
 
         {/* Right Section */}
-        <div className="flex-2 mr-15">
+        <div className="flex-2 mr-15 w-full max-w-md">
           <h2 className="text-3xl mb-6">Welcome Back 👋</h2>
           <form onSubmit={handleLoginWithEmail}>
             <label htmlFor="email">Email</label>
@@ -166,7 +116,9 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 bg-[#e48f44] text-black text-xl rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#d67d3b]'}`}
+              className={`w-full py-2 bg-[#e48f44] text-black text-xl rounded-lg ${
+                loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d67d3b]"
+              }`}
             >
               {loading ? "Logging in..." : "Sign in"}
             </button>
@@ -187,7 +139,7 @@ export default function Login() {
           </button>
 
           <p className="text-md text-black mb-2 mt-4 text-center">
-            Don't have an account? {" "}
+            Don't have an account?{" "}
             <Link to="/register" className="text-md text-[#1E4AE9] font-normal">
               Sign up
             </Link>

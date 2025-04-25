@@ -67,25 +67,36 @@ async function login(req, res) {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
         let token;
+        console.log(user)
         if (user.role==='admin'){
+            console.log("claims as admin")
              token = sign(
-                { userId: user.user_id,"role":"admin" },
+                { userId: user.user_id, "role":"admin" },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
-            console.log(user.role );
+            console.log(user.role);
     }else{
         token = sign(
             { userId: user.user_id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
     );}
-    res.setHeader("Authorization",`Bearer ${token}`);
+        res.setHeader("Authorization",`Bearer ${token}`);
     
+        if (user.role=='admin'){
         res.status(200).json({
-            message: 'Login successful',
-            
+          message: "Login successful",
+          token: token,
+          isAdmin: "Yes very much an admin",
         });
+        }else{
+        res.status(200).json({
+          message: "Login successful",
+          token: token,
+          isAdmin: "Nah fuck u",
+        });
+        }
     } catch (err) {
         console.error('Error logging in:', err);
         res.status(500).json({ error: 'Internal server error' });

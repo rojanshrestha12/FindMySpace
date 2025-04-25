@@ -3,6 +3,10 @@ import admin from 'firebase-admin'; // assuming firebase admin is initialized
 import { sign } from 'jsonwebtoken';
 import User from '../models/Users.js'; // adjust path if needed
 
+async function authenticateAdmin(req,res,next){
+    const decodedToken = await admin.auth().verifyIdToken()
+}
+
 async function authenticate(req, res, next) {
     const firebaseToken = req.header('Authorization')?.replace('Bearer ', '');
     console.log("Got: ", firebaseToken);
@@ -11,6 +15,7 @@ async function authenticate(req, res, next) {
         const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
         const firebaseUID = decodedToken.uid;
         const userEmail = decodedToken.email;
+        const role = decodedToken.role;
 
         console.log("userUID firebase email: ", firebaseUID, userEmail);
         let user = await User.findOne({ where: { email: userEmail } });
@@ -19,7 +24,7 @@ async function authenticate(req, res, next) {
             return res.status(404).json({ error: 'User not found in database' });
         }
 
-        req.user = { userId: user.user_id, email: user.email, user };
+        req.user = { userId: user.user_id, email: user.email, type:role, user };
 
         const jwtToken = sign(
             { userId: user.user_id },
