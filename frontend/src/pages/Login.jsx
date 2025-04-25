@@ -97,32 +97,44 @@ export default function Login() {
         },
       });
       const data = await response.json();
-      localStorage.setItem("token", data.token);
-      navigate("/"); // Redirect after successful login
+      console.log("Google Login Response:", data);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/"); // Redirect after successful login
+      } else {
+        console.error("Google Login failed:", data.error || "No token received");
+      }
     }
   };
-
+  
   const handleLoginWithEmail = async (e) => {
     e.preventDefault();
     setLoading(true);
-    fetch("http://localhost:5000/api/login/email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Login Response:", data);
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          navigate("/"); // Redirect after successful login
-        } else {
-          console.error("Login failed:", data.error);
-        }
-      })
-      .catch((error) => console.error("Error in login request:", error))
-      .finally(() => setLoading(false));
+    try {
+      const response = await fetch("http://localhost:5000/api/login/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+
+      console.log("Email Login fdsafadsfasdjfkldsj:", data);
+  
+      // Check if the token exists in the response data
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/"); // Redirect after successful login
+      } else {
+        console.error("Email Login failed:", data.error || "No token received");
+      }
+    } catch (error) {
+      console.error("Error in email login request:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
