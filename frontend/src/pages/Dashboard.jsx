@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "../components/Navbar";  
-import Footer from "../components/Footer";  
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 axios.defaults.withCredentials = true;
 
@@ -13,6 +13,7 @@ function Dashboard() {
   const [propertyType, setPropertyType] = useState("");
   const [location, setLocation] = useState("");
   const [priceRange, setPriceRange] = useState("");
+  const [sortOption, setSortOption] = useState("");
 
   const itemsPerPage = 12;
 
@@ -45,7 +46,24 @@ function Dashboard() {
       filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
     }
 
+    if (sortOption) {
+      if (sortOption === "lowToHigh") {
+        filtered = [...filtered].sort((a, b) => a.price - b.price);
+      } else if (sortOption === "highToLow") {
+        filtered = [...filtered].sort((a, b) => b.price - a.price);
+      }
+    }
+
     setFilteredProperties(filtered);
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setPropertyType("");
+    setLocation("");
+    setPriceRange("");
+    setSortOption("");
+    setFilteredProperties(allProperties);
     setCurrentPage(1);
   };
 
@@ -56,91 +74,127 @@ function Dashboard() {
   );
 
   return (
-    <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
+    <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="max-w-8xl mx-auto mt-6 px-4 flex justify-between items-center">
-        <div className="flex items-center space-x-5">
-          <h2 className="text-lg font-semibold">Filter by:</h2>
-          
-          <select onChange={(e) => setPropertyType(e.target.value)}>
-            <option value="">Type of Property</option>
-            <option value="House">House</option>
-            <option value="Apartment">Apartment</option>
-            <option value="Room">Room</option>
-            <option value="Flat">Flat</option>
-            <option value="Shutter">Shutter</option>
-          </select>
+      {/* Add space below Navbar */}
+      <div className="pt-32 max-w-7xl mx-auto px-4">
+        
+        {/* Filter Bar */}
+        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row md:justify-between md:items-center gap-6 mb-10">
+          <div className="flex flex-wrap gap-4">
+            <select
+              value={propertyType}
+              onChange={(e) => setPropertyType(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#e48f44]"
+            >
+              <option value="">Type of Property</option>
+              <option value="House">House</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Room">Room</option>
+              <option value="Flat">Flat</option>
+              <option value="Shutter">Shutter</option>
+            </select>
 
-          <select onChange={(e) => setLocation(e.target.value)}>
-            <option value="">Location</option>
-            <option value="Kathmandu">Kathmandu</option>
-            <option value="Pokhara">Pokhara</option>
-            <option value="Bhaktapur">Bhaktapur</option>
-            <option value="Lalitpur">Lalitpur</option>
-            <option value="Biratnagar">Biratnagar</option>
-            <option value="Nepalgunj">Nepalgunj</option>
-            <option value="Butwal">Butwal</option>
-            <option value="Dharan">Dharan</option>
-          </select>
+            <select
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#e48f44]"
+            >
+              <option value="">Location</option>
+              <option value="Kathmandu">Kathmandu</option>
+              <option value="Pokhara">Pokhara</option>
+              <option value="Bhaktapur">Bhaktapur</option>
+              <option value="Lalitpur">Lalitpur</option>
+              <option value="Biratnagar">Biratnagar</option>
+              <option value="Nepalgunj">Nepalgunj</option>
+              <option value="Butwal">Butwal</option>
+              <option value="Dharan">Dharan</option>
+            </select>
 
-          <select onChange={(e) => setPriceRange(e.target.value)}>
-            <option value="">Price Range</option>
-            <option value="5000-10000">5,000 - 10,000</option>
-            <option value="10000-25000">10,000 - 25,000</option>
-            <option value="25000-50000">25,000 - 50,000</option>
-            <option value="50000-100000">50,000 - 100,000</option>
-            <option value="100000-200000">100,000 - 200,000</option>
-            <option value="200000-500000">200,000 - 500,000</option>
-          </select>
+            <select
+              value={priceRange}
+              onChange={(e) => setPriceRange(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#e48f44]"
+            >
+              <option value="">Price Range</option>
+              <option value="5000-10000">5,000 - 10,000</option>
+              <option value="10000-25000">10,000 - 25,000</option>
+              <option value="25000-50000">25,000 - 50,000</option>
+              <option value="50000-100000">50,000 - 100,000</option>
+              <option value="100000-200000">100,000 - 200,000</option>
+              <option value="200000-500000">200,000 - 500,000</option>
+            </select>
 
-          <button 
-            onClick={applyFilters} 
-            className="px-4 py-2 bg-[#e48f44] text-white rounded"
-          >
-            Filter
-          </button>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#e48f44]"
+            >
+              <option value="">Sort By</option>
+              <option value="lowToHigh">Price: Low to High</option>
+              <option value="highToLow">Price: High to Low</option>
+            </select>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              onClick={applyFilters}
+              className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white font-semibold rounded-lg"
+            >
+              Apply
+            </button>
+            <button
+              onClick={clearFilters}
+              className="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-lg"
+            >
+              Clear
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-8xl mx-auto px-4 mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        {/* Property Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {paginatedData.length > 0 ? (
-            paginatedData.map(property => (
-              <Link 
-                to={`/property/${property.property_id}`} 
-                key={property.property_id} 
-                className="bg-white rounded-lg shadow-md p-4"
+            paginatedData.map((property) => (
+              <Link
+                to={`/property/${property.property_id}`}
+                key={property.property_id}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-4 flex flex-col"
               >
-                <img 
-                  src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"} 
-                  alt="Property" 
-                  className="w-full h-48 object-cover rounded-md mb-4" 
+                <img
+                  src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"}
+                  alt="Property"
+                  className="w-full h-48 object-cover rounded-md mb-4"
                 />
-                <h3 className="text-xl font-semibold">{property.type}</h3>
-                <p>{property.location}</p>
-                <p className="font-bold text-xl">{property.price}</p>
+                <h3 className="text-lg font-bold mb-1">{property.type}</h3>
+                <p className="text-gray-600 mb-1">{property.location}</p>
+                <p className="text-[#e48f44] font-bold text-lg mt-auto">Rs {property.price}</p>
               </Link>
             ))
           ) : (
-            <p className="text-center text-gray-600">No properties found.</p>
+            <p className="text-center text-gray-600 col-span-full">No properties found.</p>
           )}
         </div>
 
-        <div className="flex justify-center mt-8">
-          <button 
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
-            className="px-4 py-2 bg-[#e48f44] text-white rounded mr-4"
+        {/* Pagination */}
+        <div className="flex justify-center mt-10 gap-4">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
           >
             Previous
           </button>
-          <button 
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
-            className="px-4 py-2 bg-[#e48f44] text-white rounded"
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
           >
             Next
           </button>
         </div>
+
       </div>
 
       <Footer />

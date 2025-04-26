@@ -164,7 +164,7 @@ const UserList = () => {
         alert(result.error || "Failed to update user.");
       }
     } catch (error) {
-      console.log("There is no error javascript tripping")
+      console.log("There is no error javascript tripping", error);
       window.location.reload();
 
     }

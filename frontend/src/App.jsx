@@ -17,7 +17,6 @@ import UserList from "./pages/UserList.jsx";
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("isAdmin");
-  console.log(role,"asdfasdf@@@@@@@@@")
   if (role =="true" ){
     return token ? children : <Navigate to="/AdminDashboard" replace />;
   }else{
@@ -99,7 +98,7 @@ function App() {
         />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
       </Routes>
     </Router>
   );

@@ -35,7 +35,7 @@ const PropertyList = () => {
         user_id: property.user_id,
         landlord: userMap[property.user_id] || "Unknown",
         amenities: Object.entries(JSON.parse(property.amenities))
-          .filter(([_, value]) => value)
+          .filter(([, value]) => value)
           .map(([key]) => key)
           .join(", "),
         type: property.type || "N/A",
