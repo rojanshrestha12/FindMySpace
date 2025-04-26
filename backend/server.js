@@ -8,6 +8,7 @@ import { getUserDetails } from './controllers/userController.js';
 import { forgotPassword, resetPassword } from './controllers/forgotPasswordController.js';
 import { handleDeleteUser } from './controllers/profileController.js';
 import { updateProfile, updatePassword } from './controllers/profileController.js';
+// import {bookingRouter} from "./Services/notificationService.js"
 import cors from "cors";
 const app = express();
 
@@ -24,7 +25,8 @@ app.use(
   app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve images statically
 
-app.use("/api/admin/",adminRouter);
+app.use("/api/admin",adminRouter);
+// app.use("/api/booking",bookingRouter);
 
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);
@@ -53,4 +55,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
