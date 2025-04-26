@@ -8,7 +8,7 @@ import { getUserDetails } from './controllers/userController.js';
 import { forgotPassword, resetPassword } from './controllers/forgotPasswordController.js';
 import { handleDeleteUser } from './controllers/profileController.js';
 import { updateProfile, updatePassword } from './controllers/profileController.js';
-// import {bookingRouter} from "./Services/notificationService.js"
+import router from "./Services/notificationService.js"
 import cors from "cors";
 const app = express();
 
@@ -26,7 +26,7 @@ app.use(
 app.use('/uploads', express.static('uploads')); // Serve images statically
 
 app.use("/api/admin",adminRouter);
-// app.use("/api/booking",bookingRouter);
+app.use("/api/booking",router);
 
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);

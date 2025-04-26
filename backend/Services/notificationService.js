@@ -32,8 +32,8 @@ router.get('/requests/incoming/:landlordId', async (req, res) => {
     try {
         const { landlordId } = req.params;
         const requests = await Request.findAll({
-            where: { landlord_id: landlordId },
-            include: ['Tenant', 'Property']
+            where: { landlord_id: landlordId }
+            // include: ['Tenant', 'Property']
         });
 
         res.json(requests);
@@ -66,7 +66,7 @@ router.get('/requests/my/:tenantId', async (req, res) => {
         const { tenantId } = req.params;
         const requests = await Request.findAll({
             where: { tenant_id: tenantId },
-            include: ['Property']
+            // include: ['Property']
         });
 
         res.json(requests);
@@ -74,6 +74,7 @@ router.get('/requests/my/:tenantId', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 
 

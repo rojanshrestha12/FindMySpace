@@ -59,21 +59,25 @@ export async function getPropertyDetails(req, res) {
         const property = await Property.findOne({
             where: { property_id: propertyId },
         });
-
+        console.log(property);
+        
         if (!property) {
             return res.status(404).json({ error: 'Property not found' });
         }
 
         // Get user info for this property
-        const userDetails = await getUserDetails({ params: { userId: property.user_id } }, res);
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        const user = property.user_id;
+        const userDetails = await User.findOne({
+            where: { user_id : user},
+        })
+        
+        // if (!user) {
+        //     return res.status(404).json({ error: 'User not found' });
+        // }
 
         res.status(200).json({
             property,
-            userDetails: userDetails.body, // Assumes userDetails returns user data in body
+            userDetails, // Assumes userDetails returns user data in body
         });
     } catch (error) {
         console.error('Error fetching property details:', error);
