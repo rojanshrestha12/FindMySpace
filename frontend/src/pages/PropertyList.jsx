@@ -16,8 +16,8 @@ const PropertyList = () => {
   const fetchData = async () => {
     try {
       const [propRes, userRes] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/getAllProperties"),
-        fetch("http://localhost:5000/api/admin/getAllUsers"),
+        fetch("http://localhost:5000/api/admin/properties"),
+        fetch("http://localhost:5000/api/admin/users"),
       ]);
 
       const [properties, users] = await Promise.all([
@@ -54,7 +54,7 @@ const PropertyList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this property?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/deleteProperty/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/admin/Property/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -74,7 +74,7 @@ const PropertyList = () => {
 
   const handleEditSubmit = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/modifyProperty", {
+      const res = await fetch("http://localhost:5000/api/admin/Property", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -155,7 +155,7 @@ const PropertyList = () => {
                     <td className="border px-3 py-2">{property.location}</td>
                     <td className="border px-3 py-2">{property.description}</td>
                     <td className="border px-3 py-2 text-blue-600 underline cursor-pointer">
-                      <a href={property.image} target="_blank" rel="noopener noreferrer">
+                      <a href={property.image} target="D:/FindMySpace" rel="noopener noreferrer">
                         View Image
                       </a>
                     </td>
