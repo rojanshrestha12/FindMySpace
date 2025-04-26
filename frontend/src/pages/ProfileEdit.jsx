@@ -175,8 +175,9 @@ function Profile() {
 
     if (!hasErrors) {
       try {
+        const token = localStorage.getItem("token"); 
         const auth = getAuth();
-        const token = await auth.currentUser?.getIdToken();
+        // const token = await auth.currentUser?.getIdToken();
         if (!token) throw new Error("No authentication token available");
 
         await axios.post("http://localhost:5000/api/user/password/update", passwordData, {

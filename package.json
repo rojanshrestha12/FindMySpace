@@ -1,0 +1,23 @@
+{
+  "name": "findmyspace",
+  "version": "1.0.0",
+  "description": "A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rojanshrestha12/FindMySpace.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rojanshrestha12/FindMySpace/issues"
+  },
+  "homepage": "https://github.com/rojanshrestha12/FindMySpace#readme",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.3.2"
+  }
+}

@@ -44,12 +44,11 @@ function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex md:space-x-8 md:items-center">
-            <Link to="/" className="text-black hover:text-gray-700 font-medium">Home</Link>
-            <Link to="/PropertyForm" className="text-black hover:text-gray-700 font-medium">Add Property</Link>
-            <Link to="/about" className="text-black hover:text-gray-700 font-medium">About Us</Link>
-          </div>
+      <div className="hidden md:flex space-x-8 text-lg">
+        <Link to="/AdminDashboard" className="text-black hover:text-gray-700">Home</Link>
+        <Link to="/PropertyForm" className="text-black hover:text-gray-700">Add Property</Link>
+        <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
+      </div>
 
           {/* Right Side */}
           <div className="hidden md:flex items-center space-x-4">

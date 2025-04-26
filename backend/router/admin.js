@@ -1,30 +1,25 @@
 import express from 'express';
 import authenticate from '../middlewares/authMiddleware.js';
 import {
-  validateAdmin,
   modifyUser,
-  modifyProperty,
+  deleteUser,
   getAllUsers,
+  modifyProperty,
+  deleteProperty,
   getAllProperties,
-  searchUsers,
-  searchProperties,
 } from '../controllers/admin.js';
 
 const router = express.Router();
 
-// Admin validation
-router.get('/validateAdmin', authenticate, validateAdmin);
+// User Routes
+// NOTE: thingy uses the register function to create a new user
+router.put('/user',  modifyUser);         // Modify user
+router.delete('/user/:user_id',  deleteUser); // Delete user
+router.get('/users',  getAllUsers);       // Get all users
 
-// Modify operations
-router.post('/modifyUser', authenticate, modifyUser);
-router.post('/modifyProperty', authenticate, modifyProperty);
-
-// Get all
-router.get('/users', authenticate, getAllUsers);
-router.get('/properties', authenticate, getAllProperties);
-
-// Search endpoints
-router.post('/search/users', authenticate, searchUsers);
-router.post('/search/properties', authenticate, searchProperties);
+// Property Routes
+router.put('/property',  modifyProperty);         // Modify property
+router.delete('/property/:property_id',  deleteProperty); // Delete property
+router.get('/properties',  getAllProperties);     // Get all properties
 
 export default router;
