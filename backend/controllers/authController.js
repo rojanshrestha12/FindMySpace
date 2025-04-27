@@ -113,34 +113,44 @@ async function loginWithGoogle(req, res) {
     }
 
     try {
-        // Step 1: Verify the Firebase token and get the Firebase UID
         const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
-        const firebaseUID = decodedToken.uid;  // This is the Firebase UID
+        const firebaseUID = decodedToken.uid;
+        
+        const userEmail = decodedToken.email;
 
-        // Step 2: Find the user in your database by Firebase UID or email
-        const user = await User.findOne({ where: { email: decodedToken.email } });
+        if (!userEmail) {
+            return res.status(400).json({ error: 'Email missing in Firebase token' });
+        }
+
+        const user = await User.findOne({ where: { email: userEmail} });
+        console.log(user);
+        
 
         if (!user) {
             return res.status(404).json({ error: 'User not found in database' });
         }
 
-        // Step 3: Generate a JWT for your system with your own userID from the database
         const jwtToken = sign(
-            { userId: user.user_id },  // Here you use the userID from your database
+            { userId: user.user_id },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
+        console.log("dsfadsf");
+        
+        console.log(jwtToken);
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Login successful',
-            token: jwtToken,  // This is the JWT you can use in your app
+            token: jwtToken,
         });
+        
 
     } catch (error) {
-        console.error('Google login error:', error);
-        res.status(400).json({ error: 'Google login failed' });
+        console.error('Error during Google login:', error);
+        return res.status(400).json({ error: 'Invalid Firebase token or user lookup failed' });
     }
 }
+
 
 
 export { loginWithGoogle, login, register };

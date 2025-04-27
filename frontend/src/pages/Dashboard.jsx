@@ -78,8 +78,11 @@ function Dashboard() {
       <Navbar />
 
       {/* Add space below Navbar */}
-      <div className="pt-32 max-w-7xl mx-auto px-4">
+      <div className="pt-32 max-w-7xl mx-auto px-4 flex-1 -mt-20">
         
+        {/* Filter Heading */}
+        <h2 className="text-2xl font-bold text-[#e48f44] mb-6">Filter Properties</h2>
+
         {/* Filter Bar */}
         <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row md:justify-between md:items-center gap-6 mb-10">
           <div className="flex flex-wrap gap-4">
@@ -153,8 +156,11 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Properties Heading */}
+        <h2 className="text-2xl font-bold text-[#e48f44] mb-6">List of Properties</h2>
+
         {/* Property Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ${paginatedData.length < 4 ? "min-h-[400px]" : ""}`}>
           {paginatedData.length > 0 ? (
             paginatedData.map((property) => (
               <Link
@@ -178,22 +184,24 @@ function Dashboard() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center mt-10 gap-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 gap-4">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
 
       </div>
 

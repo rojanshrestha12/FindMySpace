@@ -75,7 +75,6 @@ function Register() {
         {/* Left Section */}
         <div className="hidden md:block flex-2 p-8">
           <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
-          <img src="/assets/rental-banner.jpg" alt="Rental Banner" className="w-full h-60 object-cover rounded-xl mb-6" />
           <h2 className="text-6xl mb-4">SIMPLIFYING ROOM RENTALS</h2>
           <p className="text-lg font-bold mb-6 mr-40 text-[#8d6d62]">
             A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.

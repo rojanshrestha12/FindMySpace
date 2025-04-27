@@ -45,7 +45,7 @@ function Navbar() {
           </div>
 
       <div className="hidden md:flex space-x-8 text-lg">
-        <Link to="/AdminDashboard" className="text-black hover:text-gray-700">Home</Link>
+        <Link to="/" className="text-black hover:text-gray-700">Home</Link>
         <Link to="/PropertyForm" className="text-black hover:text-gray-700">Add Property</Link>
         <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
       </div>
@@ -187,8 +187,9 @@ function Navbar() {
                   Account
                 </Link>
                 <Link
-                  to="/"
-                  onClick={() => setMenuOpen(false)}
+                  to="/my_properties"
+                  onClick={() => setMenuOpen()}
+                  
                   className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]"
                 >
                   My Properties

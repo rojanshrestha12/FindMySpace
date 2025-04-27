@@ -11,27 +11,47 @@ export default function Login() {
   const handleLoginWithGoogle = async () => {
     try {
       const googleToken = await loginWithGoogle();
-      if (googleToken) {
-        const response = await fetch("http://localhost:5000/api/login/google", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${googleToken}`,
-          },
-        });
-        const data = await response.json();
-        if (data.token && data.user) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("role", data.user.role);
-        } else {
-          console.error("Google login failed: Missing token or user");
-        }
+      if (!googleToken) {
+        console.error("No Google token obtained");
+        return;
       }
-    } catch (err) {
-      console.error("Google login error:", err);
+  
+      console.log("Google Login Success", googleToken);
+  
+      const response = await fetch("http://localhost:5000/api/login/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${googleToken}`,
+        },
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        console.error("Server error during Google login:", data.error || data);
+        alert("Google login failed. Please try again.");
+        return;
+      }
+  
+      if (!data.token) {
+        console.error("No JWT token received from server.");
+        alert("Login failed: No token received.");
+        return;
+      }
+  
+      // Successfully got token
+      localStorage.setItem("token", data.token);
+      console.log("Stored token:", data.token);
+      navigate("/");
+  
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      alert("An unexpected error occurred during Google login.");
     }
   };
   
+
   const handleLoginWithEmail = async (e) => {
     e.preventDefault();
     setLoading(true);

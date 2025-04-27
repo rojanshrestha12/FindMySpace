@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect} from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
 function PropertyDetail() {
+  const navigate = useNavigate();
   const { id } = useParams(); // Get property ID from the URL
   const [property, setProperty] = useState(null);
   const [isVisitRequested, setIsVisitRequested] = useState(false);
@@ -46,14 +47,25 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-  const handleRequestVisit = () => {
+  const handleRequestVisit = async () => {
     setIsVisitRequested(true);
     alert("Visit requested successfully!");
+    const response = await axios.post("http://localhost:5000/api/booking/request",{
+      "tenant_id":2,
+      "property_id":2 ,
+    }) 
+    navigate("/my_properties");
+    console.log(response.data);
+    
   };
 
   const handleRequestRent = () => {
     setIsRentRequested(true);
     alert("Rental request submitted!");
+    axios.post("http://localhost:5000/api/booking/request",{
+      "tenant_id":2,
+       "property_id":2 ,
+    })
   };
 
   const goToNextImage = () => {
