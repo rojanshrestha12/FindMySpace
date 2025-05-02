@@ -21,6 +21,8 @@
     "vite": "^6.3.2"
   },
   "dependencies": {
-    "framer-motion": "^12.9.2"
+    "framer-motion": "^12.9.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   }
 }

@@ -16,11 +16,9 @@ function PropertyDetail() {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Extract tenant ID from token
   const token = localStorage.getItem("token");
   const tenantId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!tenantId) {
       navigate("/login");
@@ -57,26 +55,26 @@ function PropertyDetail() {
 
   const handleBookingRequest = async (type) => {
     if (!tenantId || !property?.userDetails?.user_id) return;
-
+  
     const bookingData = {
       tenant_id: tenantId,
       property_id: id,
-      landlord_id: property.userDetails.user_id,
-      type, // optional field if needed
     };
-
+  
     try {
       await axios.post("http://localhost:5000/api/booking/request", bookingData);
-      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
-      if (type === "visit") setIsVisitRequested(true);
+  
       if (type === "rent") setIsRentRequested(true);
+      if (type === "visit") setIsVisitRequested(true);
+  
+      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
       navigate("/my_properties");
     } catch (err) {
       console.error(err);
       alert("Error submitting request.");
     }
   };
-
+  
   const goToNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % property.images.length);
   };
@@ -122,25 +120,27 @@ function PropertyDetail() {
             </div>
           )}
 
-          <div className="mt-4 flex space-x-2">
-            <button
-              onClick={() => handleBookingRequest("visit")}
-              disabled={isVisitRequested}
-              className={`bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 ${
-                isVisitRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
-              }`}
-            >
-              {isVisitRequested ? "Visit Requested" : "Book a Visit"}
-            </button>
-            <button
-              onClick={() => handleBookingRequest("rent")}
-              disabled={isRentRequested}
-              className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
-                isRentRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
-              }`}
-            >
-              {isRentRequested ? "Rent Requested" : "Request to Rent"}
-            </button>
+          <div className="mt-4 flex flex-col space-y-2">
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleBookingRequest("visit")}
+                disabled={isVisitRequested}
+                className={`bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 ${
+                  isVisitRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
+                }`}
+              >
+                {isVisitRequested ? "Visit Requested" : "Book a Visit"}
+              </button>
+              <button
+                onClick={() => handleBookingRequest("rent")}
+                disabled={isRentRequested}
+                className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
+                  isRentRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
+                }`}
+              >
+                {isRentRequested ? "Rent Requested" : "Request to Rent"}
+              </button>
+            </div>
           </div>
         </div>
 

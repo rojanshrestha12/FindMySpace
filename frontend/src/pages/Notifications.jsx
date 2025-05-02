@@ -1,148 +1,138 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { ClipLoader } from 'react-spinners';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-function NotificationCard({ notification, onRespond, isLandlord }) {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-      <h3 className="text-lg font-semibold text-orange-500">{notification.title}</h3>
-      <p className="text-gray-700 mt-1 mb-4">{notification.description}</p>
-
-      {isLandlord && notification.status === "PENDING" ? (
-        <div className="flex justify-end space-x-2">
-          <button
-            onClick={() => onRespond(notification.request_id, "ACCEPTED")}
-            className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 transition"
-          >
-            Accept
-          </button>
-          <button
-            onClick={() => onRespond(notification.request_id, "REJECTED")}
-            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition"
-          >
-            Reject
-          </button>
-        </div>
-      ) : (
-        <p className="mt-2 text-sm text-orange-500 font-medium">
-          Status: {notification.status.toLowerCase()}
-        </p>
-      )}
-    </div>
-  );
-}
-
-export default function NotificationPage() {
-  const [landlordNotifs, setLandlordNotifs] = useState([]);
-  const [tenantNotifs, setTenantNotifs] = useState([]);
-
-  const token = localStorage.getItem("token");
-  const userId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
+const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    if (userId) {
-      fetchLandlordNotifications(userId);
-      fetchTenantNotifications(userId);
-    }
-  }, [userId]);
+    const token = localStorage.getItem('token');
+    const decodedToken = token ? JSON.parse(atob(token.split('.')[1])) : null;
+    const userIdFromToken = decodedToken ? decodedToken.userId : null;
 
-  const fetchLandlordNotifications = async (id) => {
-    try {
-      const res = await axios.get(`/api/requests/incoming/${id}`);
-      const notifications = res.data.map((r) => ({
-        ...r,
-        title: "Booking Request",
-        description: `${r.tenant?.fullname || "A user"} requested to book your property (${
-          r.property?.type || r.property_id
-        })`,
-      }));
-      setLandlordNotifs(notifications);
-    } catch (err) {
-      console.error("Error fetching landlord notifications", err);
-    }
-  };
+    setUserId(userIdFromToken);
 
-const fetchTenantNotifications = async (id) => {
-  try {
-    const res = await axios.get(`/api/requests/my/${id}`);
-    console.log("Tenant Notifications Response:", res.data);
+    if (userIdFromToken) {
+      const fetchNotifications = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/booking/requests/${userIdFromToken}`);
+          const data = response.data || {};
+          setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+        } catch (err) {
+          console.error(err);
+          setError('Failed to load notifications.');
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    if (Array.isArray(res.data)) {
-      const notifications = res.data.map((r) => ({
-        ...r,
-        title:
-          r.status === "ACCEPTED"
-            ? "Request Approved"
-            : r.status === "REJECTED"
-            ? "Request Rejected"
-            : "Request Pending",
-        description:
-          r.status === "PENDING"
-            ? `You requested to book property (${r.property?.type || r.property_id})`
-            : `Your request for property (${r.property?.type || r.property_id}) was ${r.status.toLowerCase()}`,
-      }));
-      setTenantNotifs(notifications);
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 100000);
+      return () => clearInterval(interval);
     } else {
-      console.error("Unexpected data format:", res.data);
+      setError('User ID is not available');
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetching tenant notifications", err);
-  }
-};
+  }, []);
 
-  const handleResponse = async (requestId, status) => {
+  const handleApproval = async (requestId, action) => {
     try {
-      await axios.put(`/api/requests/${requestId}`, { status });
-      fetchLandlordNotifications(userId);
+      const response = await axios.post('http://localhost:5000/api/booking/respond', {
+        requestId,
+        response: action === 'approve' ? 'approved' : 'rejected',
+      });
+
+      if (response.data.message) {
+        setNotifications(prev => prev.map(notification =>
+          notification.requestId === requestId
+            ? { ...notification, status: action === 'approve' ? 'ACCEPTED' : 'REJECTED' }
+            : notification
+        ));
+        toast.success(`${action === 'approve' ? 'Approved' : 'Rejected'} successfully!`);
+      } else {
+        toast.error('Error updating status');
+      }
     } catch (err) {
-      console.error("Error updating request", err);
+      toast.error('Error submitting response');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <ClipLoader color="#e48f44" size={50} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500 mt-10">{error}</p>;
+  }
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="w-full max-w-[800px] mx-auto px-4 mt-4 mb-10">
-        <h2 className="text-2xl font-bold text-orange-500 pb-2 border-b-2 border-black mb-6">
-          NOTIFICATIONS
-        </h2>
+      <div className="p-4 bg-[#f8f1ea] max-w-4xl mx-auto mt-8 w-full">
+        <h2 className="text-3xl font-bold text-[#e48f44] mb-6 text-center">Notifications</h2>
+        {notifications.length === 0 ? (
+          <p className="text-center text-gray-600">No new notifications.</p>
+        ) : (
+          <ul className="space-y-6">
+            {notifications.map((notification) => (
+              <li key={notification.requestId} className="bg-white shadow-md p-5 rounded-lg border border-gray-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold text-gray-800">{notification.message}</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="ml-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        notification.status === 'ACCEPTED'
+                          ? 'bg-green-100 text-green-600'
+                          : notification.status === 'REJECTED'
+                          ? 'bg-red-100 text-red-600'
+                          : 'bg-yellow-100 text-yellow-600'
+                      }`}
+                    >
+                      {notification.status || 'PENDING'}
+                    </span>
+                  </div>
+                </div>
 
-        {/* Landlord Section */}
-        <section className="mb-10">
-          <h3 className="font-bold text-gray-700 mb-4 text-lg">Incoming Requests</h3>
-          {landlordNotifs.length > 0 ? (
-            landlordNotifs.map((notif) => (
-              <NotificationCard
-                key={notif.request_id}
-                notification={notif}
-                onRespond={handleResponse}
-                isLandlord={true}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500 ml-2">No incoming requests.</p>
-          )}
-        </section>
-
-        {/* Tenant Section */}
-        <section>
-          <h3 className="font-bold text-gray-700 mb-4 text-lg">My Requests</h3>
-          {tenantNotifs.length > 0 ? (
-            tenantNotifs.map((notif) => (
-              <NotificationCard
-                key={notif.request_id}
-                notification={notif}
-                onRespond={handleResponse}
-                isLandlord={false}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500 ml-2">No sent requests.</p>
-          )}
-        </section>
+                {/* Buttons appear only if not already accepted/rejected */}
+                {notification.status !== 'ACCEPTED' && notification.status !== 'REJECTED' && (
+                  <div className="mt-4 flex justify-end gap-3">
+                    <button
+                      onClick={() => handleApproval(notification.requestId, 'approve')}
+                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleApproval(notification.requestId, 'reject')}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <Footer />
     </div>
   );
-}
+};
+
+export default Notifications;
