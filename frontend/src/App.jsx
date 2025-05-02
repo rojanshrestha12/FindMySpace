@@ -12,7 +12,10 @@ import PropertyDetail from "./pages/PropertyDetail.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import PropertyList from "./pages/PropertyList.jsx";
 import UserList from "./pages/UserList.jsx";
+import Notification from "./pages/Notifications.jsx";
 import MyProperties from "./pages/MyProperties.jsx";
+import Saved from "./pages/Saved.jsx";
+
 
 // ✅ General Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +41,8 @@ function App() {
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/about" element={<About />} />
         <Route path="/my_properties" element={<MyProperties />} />
+        <Route path="/notifications" element={<Notification />} />
+        <Route path="/saved" element={<Saved />} />
 
         {/* Protected Routes */}
         <Route

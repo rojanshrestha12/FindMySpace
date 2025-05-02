@@ -11,6 +11,8 @@
     "tailwind": "tailwindcss"
   },
   "dependencies": {
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
     "axios": "^1.8.4",
     "firebase": "^11.5.0",
     "react": "^19.0.0",

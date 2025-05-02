@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -7,7 +7,7 @@ axios.defaults.withCredentials = true;
 
 function PropertyDetail() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get property ID from the URL
+  const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [isVisitRequested, setIsVisitRequested] = useState(false);
   const [isRentRequested, setIsRentRequested] = useState(false);
@@ -16,15 +16,23 @@ function PropertyDetail() {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Fetch property details based on the id from URL
+  // Extract tenant ID from token
+  const token = localStorage.getItem("token");
+  const tenantId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!tenantId) {
+      navigate("/login");
+    }
+  }, [tenantId, navigate]);
+
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/properties/${id}/details`);
         if (response.status === 200) {
-          let data = response.data.property;
-
-          // Parse stringified JSON fields
+          const data = response.data.property;
           const parsedImages = JSON.parse(data.images || "[]");
           const parsedAmenities = JSON.parse(data.amenities || "{}");
 
@@ -47,25 +55,26 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-  const handleRequestVisit = async () => {
-    setIsVisitRequested(true);
-    alert("Visit requested successfully!");
-    const response = await axios.post("http://localhost:5000/api/booking/request",{
-      "tenant_id":2,
-      "property_id":2 ,
-    }) 
-    navigate("/my_properties");
-    console.log(response.data);
-    
-  };
+  const handleBookingRequest = async (type) => {
+    if (!tenantId || !property?.userDetails?.user_id) return;
 
-  const handleRequestRent = () => {
-    setIsRentRequested(true);
-    alert("Rental request submitted!");
-    axios.post("http://localhost:5000/api/booking/request",{
-      "tenant_id":2,
-       "property_id":2 ,
-    })
+    const bookingData = {
+      tenant_id: tenantId,
+      property_id: id,
+      landlord_id: property.userDetails.user_id,
+      type, // optional field if needed
+    };
+
+    try {
+      await axios.post("http://localhost:5000/api/booking/request", bookingData);
+      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
+      if (type === "visit") setIsVisitRequested(true);
+      if (type === "rent") setIsRentRequested(true);
+      navigate("/my_properties");
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting request.");
+    }
   };
 
   const goToNextImage = () => {
@@ -78,33 +87,22 @@ function PropertyDetail() {
     );
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
-  if (!property) {
-    return <div>No property data available.</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+  if (!property) return <div>No property data available.</div>;
 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
       <div className="container mx-auto px-4 py-8 flex-grow flex flex-col lg:flex-row">
-        {/* Left Section - Image Carousel & Buttons */}
         <div className="lg:w-2/4 w-full p-4">
-          {property.images && property.images.length > 0 ? (
+          {property.images?.length > 0 ? (
             <div className="bg-white border rounded-lg overflow-hidden relative flex items-center justify-center">
-              {/* Image Carousel */}
               <img
                 src={`http://localhost:5000${property.images[currentImageIndex]}`}
-                alt={property.type || "Photo of Property"}
+                alt={property.type || "Property"}
                 className="w-full h-100 object-cover rounded-lg"
               />
-              {/* Previous and Next Buttons */}
               <button
                 onClick={goToPreviousImage}
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black text-white p-2 rounded-full opacity-50 hover:opacity-100"
@@ -126,7 +124,7 @@ function PropertyDetail() {
 
           <div className="mt-4 flex space-x-2">
             <button
-              onClick={handleRequestVisit}
+              onClick={() => handleBookingRequest("visit")}
               disabled={isVisitRequested}
               className={`bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 ${
                 isVisitRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
@@ -135,7 +133,7 @@ function PropertyDetail() {
               {isVisitRequested ? "Visit Requested" : "Book a Visit"}
             </button>
             <button
-              onClick={handleRequestRent}
+              onClick={() => handleBookingRequest("rent")}
               disabled={isRentRequested}
               className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
                 isRentRequested ? "opacity-50 cursor-not-allowed" : "hover:bg-[#d87f34]"
@@ -146,22 +144,18 @@ function PropertyDetail() {
           </div>
         </div>
 
-        {/* Right Section - Property Details */}
         <div className="lg:w-2/4 w-full p-4">
           <h2 className="text-2xl font-bold text-[#e48f44]">{property.type}</h2>
-
-          {/* Title Before Tabs */}
           <h3 className="text-lg font-semibold mt-6 mb-2">Property Details:</h3>
 
-          {/* Tabs */}
           <div className="flex space-x-4 mt-2 border-b">
-            {['General', 'Amenities', 'Description'].map((tab) => (
+            {["General", "Amenities", "Description"].map((tab) => (
               <button
                 key={tab}
                 className={`px-4 py-2 font-medium ${
                   activeTab === tab
-                    ? 'text-[#e48f44] border-b-2 border-[#e48f44]'
-                    : 'text-gray-500'
+                    ? "text-[#e48f44] border-b-2 border-[#e48f44]"
+                    : "text-gray-500"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -170,7 +164,6 @@ function PropertyDetail() {
             ))}
           </div>
 
-          {/* Tab Content */}
           {activeTab === "General" && (
             <div className="bg-gray-200 p-6 mt-4 rounded-lg space-y-2">
               <p><span className="font-semibold">Location:</span> {property.location}</p>
