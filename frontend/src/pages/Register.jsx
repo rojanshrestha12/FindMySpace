@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -17,6 +17,16 @@ function Register() {
   // Password checks
   const isLengthValid = password.length >= 8;
   const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(""); // Hide the error after 5 seconds
+      }, 5000);
+      
+      return () => clearTimeout(timer); // Clean up the timer on component unmount
+    }
+  }, [error]);
 
   // Email check
   const validateEmail = (value) => {
@@ -84,12 +94,17 @@ function Register() {
         {/* Right Section */}
         <div className="flex-1 p-8">
           <h2 className="text-2xl mb-6">Create an account</h2>
-
           {error && (
-            <div className="bg-red-100 text-red-700 p-2 rounded mb-4">
-              {error}
+            <div className="absolute bottom-4 right-4 bg-transparent bg-opacity-40 flex justify-center items-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-4 max-w-sm w-full">
+                <h2 className="text-lg font-semibold mb-3 text-red-600">Error</h2>
+                <p className="mb-3 text-gray-800">Email is used or invalid</p>
+                <div className="flex justify-end">
+                </div>
+              </div>
             </div>
           )}
+
 
           <form onSubmit={handleRegister}>
             <label>Full Name</label>
@@ -115,17 +130,13 @@ function Register() {
               type="email"
               required
               value={email}
-              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#d6b899] text-black text-lg ${
-                emailError ? "border-red-500" : "border-[#8d6d62]"
-              }`}
+              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#d6b899] text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
               onChange={(e) => {
                 setEmail(e.target.value);
                 validateEmail(e.target.value);
               }}
             />
-            {emailError && (
-              <p className="text-red-600 text-sm mb-2">{emailError}</p>
-            )}
+            {emailError && <p className="text-red-600 text-sm mb-2">{emailError}</p>}
 
             <label>Password</label>
             <input
@@ -155,23 +166,19 @@ function Register() {
             {showPasswordHint && (
               <div className="text-sm text-[#5c4033] mb-4 space-y-1">
                 <div className="flex items-center">
-                  <span className="mr-2">
-                    {isLengthValid ? "✔️" : "❌"}
-                  </span>
+                  <span className="mr-2">{isLengthValid ? "✔️" : "❌"}</span>
                   Minimum 8 characters
                 </div>
                 <div className="flex items-center">
-                  <span className="mr-2">
-                    {hasSpecialChar ? "✔️" : "❌"}
-                  </span>
+                  <span className="mr-2">{hasSpecialChar ? "✔️" : "❌"}</span>
                   At least one special character
                 </div>
               </div>
             )}
 
-            <button 
-              type="submit" 
-              className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-2" 
+            <button
+              type="submit"
+              className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-2"
               disabled={loading}
             >
               {loading ? "Creating account..." : "Create an account"}

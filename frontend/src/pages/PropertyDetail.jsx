@@ -56,9 +56,15 @@ function PropertyDetail() {
   const handleBookingRequest = async (type) => {
     if (!tenantId || !property?.userDetails?.user_id) return;
   
+    if (tenantId === property.userDetails.user_id) {
+      alert("You cannot request your own property.");
+      return;
+    }
+  
     const bookingData = {
       tenant_id: tenantId,
       property_id: id,
+      request_type: type, // 'visit' or 'rent'
     };
   
     try {
@@ -74,6 +80,7 @@ function PropertyDetail() {
       alert("Error submitting request.");
     }
   };
+  
   
   const goToNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % property.images.length);

@@ -2,29 +2,76 @@ import bcrypt from 'bcryptjs';
 import User from '../models/Users.js';
 import { sign } from 'jsonwebtoken';
 import admin from '../firebaseAdmin.js';
+import mbv  from "mailboxvalidator-nodejs";
 
 import dotenv from 'dotenv';
 dotenv.config();
 
+const validateEmail = async (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        return { valid: false, reason: "Please enter a valid email format." };
+    }
+
+    mbv.MailboxValidator_init(process.env.EMAIL_VALIDATOR_API_KEY);
+
+    try {
+        const data = await mbv.MailboxValidator_single_query(email);
+
+        if (
+            data.is_smtp === true &&
+            data.is_verified === true &&
+            data.is_domain === true &&
+            data.is_disposable !== true &&
+            data.is_high_risk !== true
+        ) {
+            return { valid: true, reason: "Email is valid." };
+        }
+
+        if (data.is_disposable === true) {
+            return { valid: false, reason: "Disposable email addresses are not allowed." };
+        }
+
+        if (data.is_high_risk === true) {
+            return { valid: false, reason: "This email address appears to be high risk." };
+        }
+
+        return { valid: false, reason: "Your email looks risky or unverifiable." };
+
+    } catch (error) {
+        return { valid: false, reason: "Could not verify email. Try again later." };
+    }
+};
 
 async function register(req, res) {
     const { fullname, phone_number, email, password } = req.body;
-    console.log(fullname,email,phone_number,email);
-    
 
     if (!fullname || !email || !password) {
-        return res.status(400).json({ error: 'Fullname, email, and password are required' });
+        return res.status(400).json({
+            error: "Fullname, email, and password are required.",
+        });
+    }
+
+    // Validate email format and reputation
+    const emailValidation = await validateEmail(email);
+    if (!emailValidation.valid) {
+        return res.status(400).json({
+            error: emailValidation.reason,
+        });
     }
 
     try {
-        // 🔹 Check if user with the same email already exists
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(409).json({ error: 'Email already in use' }); // 409 Conflict
+            alert("Email already registered.");
+            return res.status(409).json({
+                error: "This email is already registered.",
+            });
         }
 
-        // 🔹 Hash password and create user
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = await User.create({
             fullname,
             phone_number,
@@ -40,8 +87,8 @@ async function register(req, res) {
             },
         });
     } catch (err) {
-        console.error('Error registering user:', err);
-        res.status(500).json({ error: 'Failed to register user' });
+        console.error("Error registering user:", err);
+        res.status(500).json({ error: "An unexpected error occurred during registration." });
     }
 }
 
@@ -149,6 +196,11 @@ async function loginWithGoogle(req, res) {
         console.error('Error during Google login:', error);
         return res.status(400).json({ error: 'Invalid Firebase token or user lookup failed' });
     }
+
+  
+
+
+    
 }
 
 

@@ -43,6 +43,14 @@ const Request = sequelize.define('Request', {
     allowNull: false,
     defaultValue: 'PENDING',
   },
+  request_type: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isIn: [["visit", "rent"]],
+    }
+  },
+  
   message: {
     type: DataTypes.TEXT,
     allowNull: true,

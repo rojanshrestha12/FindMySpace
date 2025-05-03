@@ -5,6 +5,7 @@
       "name": "findmyspace",
       "dependencies": {
         "framer-motion": "^12.9.2",
+        "mailboxvalidator-nodejs": "^2.0.0",
         "socket.io": "^4.8.1",
         "socket.io-client": "^4.8.1",
       },
@@ -216,6 +217,8 @@
     "json5": ["json5@2.2.3", "", { "bin": "lib/cli.js" }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
 
     "lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "^3.0.2" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
+
+    "mailboxvalidator-nodejs": ["mailboxvalidator-nodejs@2.0.0", "", {}, "sha512-a2ny1qPVs96XKbWjN3YSBqnjqki2IlZtbH4TQpOhAZjeiCbF9LbVOQRkBFvS2DabP7Bes5o9+7QghA3bQyrdlQ=="],
 
     "mime-db": ["mime-db@1.52.0", "", {}, "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="],
 
