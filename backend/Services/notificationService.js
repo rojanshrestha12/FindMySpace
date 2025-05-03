@@ -42,13 +42,56 @@ router.post('/request', async (req, res) => {
 
 
 // GET /api/booking/requests/:userId
-router.get('/requests/:userId', async (req, res) => {
+// router.get('/requests/:userId', async (req, res) => {
+//     try {
+//       const { userId } = req.params;
+  
+//       const requests = await Request.findAll({
+//         where: { landlord_id: userId },
+//         include: [
+//           {
+//             model: User,
+//             as: 'tenant',
+//             attributes: ['fullname', 'user_id'],
+//           },
+//           {
+//             model: Property,
+//             attributes: ['type', 'location', 'property_id'],
+//           },
+//         ],
+//         order: [['createdAt', 'DESC']],
+//       });
+  
+
+  
+//       const notifications = requests
+//         .filter(r => r.message)
+//         .map(r => ({
+//           message: r.message,
+//           requestId: r.request_id, // ✅ Corrected from r.id
+//           createdAt: r.createdAt,
+//         }));
+  
+//       res.status(200).json({
+//         requests,
+//         notifications,
+//       });
+  
+//     } catch (error) {
+//       console.error('❌ Error fetching requests/notifications:', error);
+//       res.status(500).json({ error: 'Could not fetch requests/notifications' });
+//     }
+//   });
+
+  router.get('/requests/:userId', async (req, res) => {
     try {
       const { userId } = req.params;
-      console.log(`🔍 Fetching requests for landlord ID: ${userId}`);
   
       const requests = await Request.findAll({
-        where: { landlord_id: userId },
+        where: {
+          landlord_id: userId,
+          status: ['PENDING'] // ✅ Only fetch accepted or rejected
+        },
         include: [
           {
             model: User,
@@ -63,21 +106,13 @@ router.get('/requests/:userId', async (req, res) => {
         order: [['createdAt', 'DESC']],
       });
   
-      console.log(`📦 Total requests found: ${requests.length}`);
-      console.log(`📦 Sample request:`, requests[0] ? requests[0].toJSON() : 'No requests found');
-  
       const notifications = requests
         .filter(r => r.message)
         .map(r => ({
           message: r.message,
-          requestId: r.request_id, // ✅ Corrected from r.id
+          requestId: r.request_id,
           createdAt: r.createdAt,
         }));
-  
-      console.log(`🔔 Total notifications: ${notifications.length}`);
-      if (notifications.length > 0) {
-        console.log(`🔔 Sample notification:`, notifications[0]);
-      }
   
       res.status(200).json({
         requests,
@@ -89,6 +124,7 @@ router.get('/requests/:userId', async (req, res) => {
       res.status(500).json({ error: 'Could not fetch requests/notifications' });
     }
   });
+  
 
   router.post('/respond', async (req, res) => {
     const { requestId, response } = req.body;
@@ -121,6 +157,55 @@ router.get('/requests/:userId', async (req, res) => {
       return res.status(500).json({ error: 'Server error' });
     }
   });
+
+
+  router.get('/repondMes/:userId', async (req, res) => {
+    try {
+      const tenantId = parseInt(req.params.userId);
+  
+      if (isNaN(tenantId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+      }
+  
+      const requests = await Request.findAll({
+        where: { tenant_id: tenantId },
+        include: [
+          { model: User, as: 'landlord', attributes: ['fullname'] },
+          { model: Property, attributes: ['location'] },
+        ],
+        order: [['updatedAt', 'DESC']],
+      });
+  
+      const notifications = requests.map(req => {
+        let statusMsg = '';
+        switch (req.status) {
+          case 'ACCEPTED':
+            statusMsg = `✅ Your request for '${req.Property.location}' to ${req.landlord.fullname} has been *approved*.`;
+            break;
+          case 'REJECTED':
+            statusMsg = `❌ Your request for '${req.Property.location}' to ${req.landlord.fullname} was *rejected*.`;
+            break;
+          case 'PENDING':
+            statusMsg = `⏳ Your request for '${req.Property.location}' to ${req.landlord.fullname} is still *pending*.`;
+            break;
+        }
+  
+        return {
+          request_id: req.request_id,
+          message: statusMsg,
+          status: req.status,
+          createdAt: req.createdAt,
+          updatedAt: req.updatedAt,
+        };
+      });
+  
+      res.json({ notifications });
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
   
 
 
