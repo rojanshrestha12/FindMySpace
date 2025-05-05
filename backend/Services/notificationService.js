@@ -164,4 +164,16 @@ router.get('/repondMes/:userId', async (req, res) => {
   }
 });
 
+
+
+router.get('/myproperties/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const properties = await Property.findAll({
+      where: { user_id: userId }
+  });
+
+  res.json(properties);
+});
+
 export default router;

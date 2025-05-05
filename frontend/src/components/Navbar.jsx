@@ -44,7 +44,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-[#d6b899] shadow-md w-full z-50">
+    <nav className="bg-[rgba(214,184,153,0.8)] shadow-md w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
@@ -88,7 +88,7 @@ function Navbar() {
                   <img
                     src="/assets/account.png"
                     alt="User"
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8"
                   />
                 </button>
 

@@ -152,7 +152,9 @@ function PropertyDetail() {
         </div>
 
         <div className="lg:w-2/4 w-full p-4">
-          <h2 className="text-2xl font-bold text-[#e48f44]">{property.type}</h2>
+        <h3 className="text-3xl font-bold mb-1 text-[#e48f44]">
+          {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+        </h3>
           <h3 className="text-lg font-semibold mt-6 mb-2">Property Details:</h3>
 
           <div className="flex space-x-4 mt-2 border-b">
@@ -172,28 +174,54 @@ function PropertyDetail() {
           </div>
 
           {activeTab === "General" && (
-            <div className="bg-gray-200 p-6 mt-4 rounded-lg space-y-2">
-              <p><span className="font-semibold">Location:</span> {property.location}</p>
-              <p><span className="font-semibold">Price:</span> Rs. {Number(property.price).toLocaleString()}</p>
-              <p><span className="font-semibold">Phone Number:</span> {property.userDetails.phone_number}</p>
-              <p><span className="font-semibold">Landlord:</span> {property.userDetails.fullname}</p>
-            </div>
-          )}
+              <div className="bg-white p-6 mt-4 rounded-lg">
+                <div className="grid gap-y-2">
+                  <div className="grid grid-cols-3 gap-x-4 items-start">
+                    <div className="font-semibold col-span-1">Location:</div>
+                    <div className="col-span-2">{property.location}</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-x-4 items-start">
+                    <div className="font-semibold col-span-1">Price:</div>
+                    <div className="col-span-2">Rs. {Number(property.price).toLocaleString()}</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-x-4 items-start">
+                    <div className="font-semibold col-span-1">Phone Number:</div>
+                    <div className="col-span-2">{property.userDetails.phone_number}</div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-x-4 items-start">
+                    <div className="font-semibold col-span-1">Landlord:</div>
+                    <div className="col-span-2">{property.userDetails.fullname}</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {activeTab === "Amenities" && (
-            <div className="bg-gray-200 p-6 mt-4 rounded-lg space-y-2">
-              {property.amenities && Object.entries(property.amenities).length > 0 ? (
-                Object.entries(property.amenities).map(([key, value]) => (
-                  <p key={key}><span className="font-semibold">{key}:</span> {value ? "Yes" : "No"}</p>
-                ))
-              ) : (
-                <p>No amenities listed.</p>
-              )}
+
+{activeTab === "Amenities" && (
+  <div className="bg-white p-6 mt-4 rounded-lg">
+    {property.amenities && Object.entries(property.amenities).length > 0 ? (
+      <div className="grid gap-y-2">
+        {Object.entries(property.amenities).map(([key, value]) => (
+          <div key={key} className="grid grid-cols-3 gap-x-4 items-start">
+            <div className="font-semibold col-span-1">
+              {key.charAt(0).toUpperCase() + key.slice(1) + ":"}
             </div>
-          )}
+            <div className="col-span-2">
+              {value ? "Available" : "Not Available"}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p>No amenities listed.</p>
+    )}
+  </div>
+)}
+
+
 
           {activeTab === "Description" && (
-            <div className="bg-gray-200 p-6 mt-4 rounded-lg">
+            <div className="bg-white p-6 mt-4 rounded-lg">
               <p>{property.description || "No description provided."}</p>
             </div>
           )}

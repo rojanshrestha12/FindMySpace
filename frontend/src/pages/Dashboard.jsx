@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Chatbot from "../components/ChatBot";
 
 axios.defaults.withCredentials = true;
 
@@ -14,6 +15,7 @@ function Dashboard() {
   const [location, setLocation] = useState("");
   const [priceRange, setPriceRange] = useState("");
   const [sortOption, setSortOption] = useState("");
+  const [showChatbot, setShowChatbot] = useState(false);
 
   const itemsPerPage = 12;
 
@@ -173,7 +175,9 @@ function Dashboard() {
                   alt="Property"
                   className="w-full h-48 object-cover rounded-md mb-4"
                 />
-                <h3 className="text-lg font-bold mb-1">{property.type}</h3>
+                <h3 className="text-lg font-bold mb-1">
+                  {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+                </h3>
                 <p className="text-gray-600 mb-1">{property.location}</p>
                 <p className="text-[#e48f44] font-bold text-lg mt-auto">Rs {property.price}</p>
               </Link>
@@ -203,7 +207,18 @@ function Dashboard() {
           </div>
         )}
 
+      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-40">
+        <button
+          onClick={() => setShowChatbot(!showChatbot)}  
+          className="bg-transparent-100 outline hover:bg-blue-200 text-black-800 rounded-full p-4 shadow-md"
+          title="Open Chatbot"
+        >
+          🤖
+        </button>
+        </div>
       </div>
+
+      {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
 
       <Footer />
     </div>

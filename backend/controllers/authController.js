@@ -32,7 +32,7 @@ const validateEmail = async (email) => {
         if (data.is_disposable === true) {
             return { valid: false, reason: "Disposable email addresses are not allowed." };
         }
-
+        
         if (data.is_high_risk === true) {
             return { valid: false, reason: "This email address appears to be high risk." };
         }
@@ -135,13 +135,13 @@ async function login(req, res) {
         res.status(200).json({
           message: "Login successful",
           token: token,
-          isAdmin: "Yes very much an admin",
+          isAdmin: "true",
         });
         }else{
         res.status(200).json({
           message: "Login successful",
           token: token,
-          isAdmin: "Nah fuck u",
+          isAdmin: "false",
         });
         }
     } catch (err) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default function MyListings() {
   const [listings, setListings] = useState([]);
@@ -9,7 +10,7 @@ export default function MyListings() {
   const [error, setError] = useState("");
 
   const token = localStorage.getItem("token");
-  const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
+  const userId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
 
   useEffect(() => {
     if (!userId) {
@@ -18,12 +19,13 @@ export default function MyListings() {
       return;
     }
 
-    axios.get(`http://localhost:5000/api/users/${userId}/saved-listings`)
-      .then(res => {
+    axios
+      .get(`http://localhost:5000/api/booking/myproperties/${userId}`)
+      .then((res) => {
         setListings(res.data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         setError("Failed to fetch listings.");
         setLoading(false);
@@ -33,10 +35,9 @@ export default function MyListings() {
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="w-full max-w-[1000px] mx-auto px-4 mt-6 mb-10">
-        <h2 className="text-2xl font-bold text-orange-500 pb-2 border-b-2 border-black mb-6">
-          MY SAVED LISTINGS
-        </h2>
+
+      <div className="w-full mx-auto px-4 flex-1 mt-10 mb-10 max-w-[1200px]"> 
+        <h2 className="text-2xl font-bold text-[#e48f44] mb-6">My Listings</h2>
 
         {loading && <p className="text-gray-600">Loading listings...</p>}
         {error && <p className="text-red-600">{error}</p>}
@@ -44,24 +45,32 @@ export default function MyListings() {
           <p className="text-gray-600">You have no saved listings.</p>
         )}
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {listings.map((listing) => (
-            <div key={listing._id} className="bg-white p-4 rounded-lg shadow-md">
-              <img
-                src={listing.imageUrl || "/assets/placeholder.png"}
-                alt={listing.title}
-                className="w-full h-48 object-cover rounded mb-4"
-              />
-              <h3 className="text-xl font-semibold text-orange-500 mb-2">{listing.title}</h3>
-              <p className="text-gray-700 mb-2">{listing.location}</p>
-              <p className="text-gray-700 font-medium mb-4">₹ {listing.price}</p>
-              <button className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition">
-                View Details
-              </button>
-            </div>
-          ))}
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ${listings.length < 4 ? "min-h-[400px]" : ""}`}>
+          {listings.length > 0 ? (
+            listings.map((property) => (
+              <Link
+                to={`/property/${property.property_id || property._id}`}
+                key={property.property_id || property._id}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-4 flex flex-col"
+              >
+                <img
+                  src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"}
+                  alt="Property"
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+                <h3 className="text-lg font-bold mb-1">{property.type || property.title}</h3>
+                <p className="text-gray-600 mb-1">{property.location}</p>
+                <p className="text-[#e48f44] font-bold text-lg mt-auto">Rs {property.price}</p>
+              </Link>
+            ))
+          ) : (
+            !loading && !error && (
+              <p className="text-center text-gray-600 col-span-full">No properties found.</p>
+            )
+          )}
         </div>
       </div>
+
       <Footer />
     </div>
   );
