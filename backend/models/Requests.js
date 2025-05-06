@@ -50,10 +50,13 @@ const Request = sequelize.define('Request', {
       isIn: [["visit", "rent"]],
     }
   },
-  
   message: {
     type: DataTypes.TEXT,
     allowNull: true,
+  },
+  date_time: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
 }, {
   timestamps: true,

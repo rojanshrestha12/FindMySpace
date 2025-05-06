@@ -8,13 +8,16 @@ import Request from '../models/Requests.js';
 // Create a new request (visit or rent)
 router.post('/request', async (req, res) => {
   try {
-    const { tenant_id, property_id, message, request_type } = req.body;
+    const { tenant_id, property_id, message, request_type, date_time } = req.body;
+    console.log(date_time);
 
     if (!["visit", "rent"].includes(request_type)) {
       return res.status(400).json({ error: "Invalid request type. Must be 'visit' or 'rent'." });
     }
 
     const property = await Property.findByPk(property_id);
+
+    
     if (!property) return res.status(404).json({ error: 'Property not found' });
 
     if (tenant_id === property.user_id) {
@@ -30,15 +33,15 @@ router.post('/request', async (req, res) => {
     // Dynamic message based on request_type
     const defaultMessage = `${tenant.fullname} has requested to ${request_type} the ${property.type} at ${property.location}.`;
     const dynamicMessage = message || defaultMessage;
-
     const newRequest = await Request.create({
       tenant_id,
       landlord_id: landlord.user_id,
       property_id,
       request_type,
       message: dynamicMessage,
+      date_time, // ⬅️ save the date and time
     });
-
+    
     return res.status(201).json({ message: "Request created successfully", request: newRequest });
   } catch (error) {
     console.error(error);
@@ -71,7 +74,7 @@ router.get('/requests/:userId', async (req, res) => {
     });
 
     const notifications = requests.map(r => ({
-      message: `${r.tenant.fullname} requested to ${r.request_type} your ${r.Property.type} at ${r.Property.location}.`,
+      message: `${r.tenant.fullname} requested to ${r.request_type} your ${r.Property.type} at ${r.Property.location} in ${r.date_time}.`,
       requestId: r.request_id,
       createdAt: r.createdAt,
     }));
