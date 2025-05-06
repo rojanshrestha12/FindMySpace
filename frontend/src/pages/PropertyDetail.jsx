@@ -3,14 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
+import RentRequestForm from "../components/RentRequestForm";
+
 axios.defaults.withCredentials = true;
 
 const convertTo12HourFormat = (time24) => {
   const [hours, minutes] = time24.split(":");
   let hours12 = parseInt(hours, 10);
   const ampm = hours12 >= 12 ? "PM" : "AM";
-  hours12 = hours12 % 12;
-  hours12 = hours12 ? hours12 : 12; // the hour '0' should be '12'
+  hours12 = hours12 % 12 || 12;
   return `${hours12}:${minutes} ${ampm}`;
 };
 
@@ -26,13 +27,11 @@ function PropertyDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [rentFormVisible, setRentFormVisible] = useState(false); // Track visibility of rent form
-  const [visitFormVisible, setVisitFormVisible] = useState(false); // Track visibility of visit form
+  const [rentFormVisible, setRentFormVisible] = useState(false);
+  const [visitFormVisible, setVisitFormVisible] = useState(false);
 
   const token = localStorage.getItem("token");
   const tenantId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
-
-
 
   useEffect(() => {
     if (!tenantId) {
@@ -68,7 +67,7 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-  const handleBookingRequest = async (type) => {
+  const handleBookingRequest = async (type, details = {}) => {
     if (!tenantId || !property?.userDetails?.user_id) return;
 
     if (tenantId === property.userDetails.user_id) {
@@ -76,28 +75,41 @@ function PropertyDetail() {
       return;
     }
 
-    if (!date || !time) {
-      alert("Please select a date and time.");
-      return;
-    }
-
-    const formattedTime = convertTo12HourFormat(time); // Convert time
-    const dateTime = `${date} ${formattedTime}`; // Combine date and formatted time
-    alert(dateTime); // For debugging
-    const bookingData = {
-      tenant_id: tenantId,
-      property_id: id,
-      request_type: type,
-      date_time: dateTime, // Send the formatted date_time
-    };
+    const formattedTime = convertTo12HourFormat(time);
+    const dateTime = `${date} ${formattedTime}`;
 
     try {
-      await axios.post("http://localhost:5000/api/booking/request", bookingData);
+      if (type === "visit") {
+        const bookingData = {
+          tenant_id: tenantId,
+          property_id: id,
+          request_type: type,
+          date_time: dateTime,
+        };
 
-      if (type === "rent") setIsRentRequested(true);
-      if (type === "visit") setIsVisitRequested(true);
+        await axios.post("http://localhost:5000/api/booking/request", bookingData);
+        setIsVisitRequested(true);
+        alert("Visit request submitted!");
+      }
 
-      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
+      if (type === "rent") {
+        const agreementData = {
+          tenant_id: tenantId,
+          property_id: id,
+          fullname: details.fullname,
+          email: details.email,
+          phone: details.phone,
+          move_in_date: details.moveInDate,
+          duration: details.duration,
+          message: details.message,
+          request_date: dateTime,
+        };
+
+        await axios.post("http://localhost:5000/api/agreement", agreementData);
+        setIsRentRequested(true);
+        alert("Rental request submitted!");
+      }
+
       navigate("/my_properties");
     } catch (err) {
       console.error(err);
@@ -154,8 +166,8 @@ function PropertyDetail() {
             <div className="flex space-x-2">
               <button
                 onClick={() => {
-                  setVisitFormVisible(true); // Show the visit form
-                  setRentFormVisible(false); // Hide the rent form
+                  setVisitFormVisible(true);
+                  setRentFormVisible(false);
                 }}
                 disabled={isVisitRequested}
                 className={`bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 ${
@@ -166,8 +178,8 @@ function PropertyDetail() {
               </button>
               <button
                 onClick={() => {
-                  setRentFormVisible(true); // Show the rent form
-                  setVisitFormVisible(false); // Hide the visit form
+                  setRentFormVisible(true);
+                  setVisitFormVisible(false);
                 }}
                 disabled={isRentRequested}
                 className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
@@ -178,7 +190,6 @@ function PropertyDetail() {
               </button>
             </div>
 
-            {/* Visit Request Form */}
             {visitFormVisible && !isVisitRequested && (
               <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
                 <h4 className="text-lg font-semibold mb-4">Select Date and Time</h4>
@@ -207,21 +218,10 @@ function PropertyDetail() {
               </div>
             )}
 
-            {/* Rent Request Form */}
             {rentFormVisible && !isRentRequested && (
-              <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
-                <h4 className="text-lg font-semibold mb-4">Fill Out Rent Request Form</h4>
-                <p>Provide any necessary details about your request.</p>
-                {/* You can add form fields here for rent requests */}
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleBookingRequest("rent")}
-                    className="bg-[#e48f44] text-white py-2 px-4 rounded-md w-1/2 hover:bg-[#d87f34]"
-                  >
-                    Request Rent
-                  </button>
-                </div>
-              </div>
+              <RentRequestForm
+                onSubmit={(formData) => handleBookingRequest("rent", formData)}
+              />
             )}
           </div>
         </div>
@@ -252,19 +252,19 @@ function PropertyDetail() {
             <div className="bg-white p-6 mt-4 rounded-lg">
               <div className="grid gap-y-2">
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold col-span-1">Location:</div>
+                  <div className="font-semibold">Location:</div>
                   <div className="col-span-2">{property.location}</div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold col-span-1">Price:</div>
+                  <div className="font-semibold">Price:</div>
                   <div className="col-span-2">Rs. {Number(property.price).toLocaleString()}</div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold col-span-1">Phone Number:</div>
+                  <div className="font-semibold">Phone Number:</div>
                   <div className="col-span-2">{property.userDetails.phone_number}</div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold col-span-1">Landlord:</div>
+                  <div className="font-semibold">Landlord:</div>
                   <div className="col-span-2">{property.userDetails.fullname}</div>
                 </div>
               </div>
@@ -277,12 +277,8 @@ function PropertyDetail() {
                 <div className="grid gap-y-2">
                   {Object.entries(property.amenities).map(([key, value]) => (
                     <div key={key} className="grid grid-cols-3 gap-x-4 items-start">
-                      <div className="font-semibold col-span-1">
-                        {key.charAt(0).toUpperCase() + key.slice(1) + ":"}
-                      </div>
-                      <div className="col-span-2">
-                        {value ? "Available" : "Not Available"}
-                      </div>
+                      <div className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1)}:</div>
+                      <div className="col-span-2">{value ? "Available" : "Not Available"}</div>
                     </div>
                   ))}
                 </div>

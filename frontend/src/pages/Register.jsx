@@ -8,27 +8,25 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [showPasswordHint, setShowPasswordHint] = useState(false);
   const navigate = useNavigate();
 
-  // Password checks
   const isLengthValid = password.length >= 8;
   const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => {
-        setError(""); // Hide the error after 5 seconds
-      }, 5000);
-      
-      return () => clearTimeout(timer); // Clean up the timer on component unmount
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
     }
   }, [error]);
 
-  // Email check
   const validateEmail = (value) => {
     if (!value.includes("@") || !value.includes(".")) {
       setEmailError("Email must include '@' and '.'");
@@ -37,42 +35,62 @@ function Register() {
     }
   };
 
-  const handleRegister = async (e) => {
+  const sendOtp = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match!");
-      setLoading(false);
-      return;
-    }
-
     if (!isLengthValid || !hasSpecialChar) {
       setError("Password must be at least 8 characters and contain a special character.");
-      setLoading(false);
       return;
     }
-
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
     if (emailError) {
       setError("Please enter a valid email.");
-      setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/auth/register`, {
+      setLoading(true);
+      await axios.post("http://localhost:5000/api/auth/send-otp", {
         fullname,
         phone_number,
         email,
         password,
       });
+      setOtpSent(true);
+      alert("OTP sent to your email.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      localStorage.setItem("token", response.data.token);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!otp) {
+      setError("Please enter the OTP sent to your email.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await axios.post("http://localhost:5000/api/auth/register", {
+        fullname,
+        phone_number,
+        email,
+        password,
+        notp: otp,
+      });
+
+      localStorage.setItem("token", res.data.token);
       alert("Account created successfully!");
       navigate("/login");
-    } catch (error) {
-      setError(error.response?.data?.message || error.message || "Registration failed");
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -82,31 +100,26 @@ function Register() {
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
       <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
         
-        {/* Left Section */}
         <div className="hidden md:block flex-2 p-8">
           <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
           <h2 className="text-6xl mb-4">SIMPLIFYING ROOM RENTALS</h2>
           <p className="text-lg font-bold mb-6 mr-40 text-[#8d6d62]">
-            A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.
+            A digital platform connecting landlords and tenants for easy rentals...
           </p>
         </div>
 
-        {/* Right Section */}
         <div className="flex-1 p-8">
           <h2 className="text-2xl mb-6">Create an account</h2>
           {error && (
             <div className="absolute bottom-4 right-4 bg-transparent bg-opacity-40 flex justify-center items-center z-50">
               <div className="bg-white rounded-lg shadow-lg p-4 max-w-sm w-full">
                 <h2 className="text-lg font-semibold mb-3 text-red-600">Error</h2>
-                <p className="mb-3 text-gray-800">Email is used or invalid</p>
-                <div className="flex justify-end">
-                </div>
+                <p className="mb-3 text-gray-800">{error}</p>
               </div>
             </div>
           )}
 
-
-          <form onSubmit={handleRegister}>
+          <form onSubmit={otpSent ? handleRegister : sendOtp}>
             <label>Full Name</label>
             <input
               type="text"
@@ -162,7 +175,6 @@ function Register() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            {/* Password Hints */}
             {showPasswordHint && (
               <div className="text-sm text-[#5c4033] mb-4 space-y-1">
                 <div className="flex items-center">
@@ -176,12 +188,25 @@ function Register() {
               </div>
             )}
 
+            {otpSent && (
+              <>
+                <label>OTP</label>
+                <input
+                  type="text"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+                />
+              </>
+            )}
+
             <button
               type="submit"
               className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-2"
               disabled={loading}
             >
-              {loading ? "Creating account..." : "Create an account"}
+              {loading ? "Processing..." : otpSent ? "Register" : "Send OTP"}
             </button>
           </form>
 

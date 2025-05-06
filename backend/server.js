@@ -1,6 +1,6 @@
 import express from 'express';
 import { json } from 'body-parser';
-import { loginWithGoogle, login, register } from './controllers/authController.js'
+import { loginWithGoogle, login, register, requestOtp } from './controllers/authController.js'
 import { createProperty, getAllProperties, getPropertyDetails } from './controllers/propertyController.js';
 import upload from './middlewares/uploadMiddleware.js';
 import authenticate from './middlewares/authMiddleware.js';
@@ -9,6 +9,7 @@ import { forgotPassword, resetPassword } from './controllers/forgotPasswordContr
 import { handleDeleteUser } from './controllers/profileController.js';
 import { updateProfile, updatePassword } from './controllers/profileController.js';
 import router from "./Services/notificationService.js"
+import agreement from "./Services/agreementService.js"
 import cors from "cors";
 const app = express();
 
@@ -27,12 +28,13 @@ app.use('/uploads', express.static('uploads')); // Serve images statically
 
 app.use("/api/admin",adminRouter);
 app.use("/api/booking",router);
+app.use("/api/agreement",agreement);
 
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);
 app.post('/api/login/google', loginWithGoogle);  // Handle Google login
 app.post('/api/login/email', login);   // Handle Email login
-
+app.post('/api/auth/send-otp', requestOtp); // Send OTP for email verification
 // Property Things:
 app.post('/api/properties', authenticate, upload, createProperty);
 app.get('/api/properties', getAllProperties);
