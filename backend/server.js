@@ -14,6 +14,7 @@ import cors from "cors";
 const app = express();
 
 import adminRouter from './router/admin.js';
+import Savedrouter from './controllers/SavedController.js'; // Import the save property routes
 
 
 app.use(
@@ -30,6 +31,7 @@ app.use("/api/admin",adminRouter);
 app.use("/api/booking",router);
 app.use("/api/agreement",agreement);
 
+app.use("/api", Savedrouter);
 app.post('/api/auth/register', register);
 // app.post('/api/auth/login', login);
 app.post('/api/login/google', loginWithGoogle);  // Handle Google login

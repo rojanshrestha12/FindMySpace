@@ -4,8 +4,10 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Chatbot from "../components/ChatBot";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 axios.defaults.withCredentials = true;
+
 
 function Dashboard() {
   const [allProperties, setAllProperties] = useState([]);
@@ -16,16 +18,30 @@ function Dashboard() {
   const [priceRange, setPriceRange] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [showChatbot, setShowChatbot] = useState(false);
+  const [savedIds, setSavedIds] = useState([]);
 
   const itemsPerPage = 12;
 
+  let userId = null;
+try {
+  const token = localStorage.getItem("token");
+  if (token) {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    userId = payload.userId || null;
+  }
+} catch (error) {
+  console.error("Invalid token:", error);
+}
+
+
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/properties`)
-      .then(response => {
+    axios
+      .get(`http://localhost:5000/api/properties`)
+      .then((response) => {
         setAllProperties(response.data);
         setFilteredProperties(response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching properties:", error);
         setAllProperties([]);
         setFilteredProperties([]);
@@ -36,16 +52,22 @@ function Dashboard() {
     let filtered = allProperties;
 
     if (propertyType) {
-      filtered = filtered.filter(p => p.type.toLowerCase() === propertyType.toLowerCase());
+      filtered = filtered.filter(
+        (p) => p.type.toLowerCase() === propertyType.toLowerCase()
+      );
     }
 
     if (location) {
-      filtered = filtered.filter(p => p.location.toLowerCase() === location.toLowerCase());
+      filtered = filtered.filter(
+        (p) => p.location.toLowerCase() === location.toLowerCase()
+      );
     }
 
     if (priceRange && priceRange.includes("-")) {
       const [minPrice, maxPrice] = priceRange.split("-").map(Number);
-      filtered = filtered.filter(p => p.price >= minPrice && p.price <= maxPrice);
+      filtered = filtered.filter(
+        (p) => p.price >= minPrice && p.price <= maxPrice
+      );
     }
 
     if (sortOption) {
@@ -69,23 +91,47 @@ function Dashboard() {
     setCurrentPage(1);
   };
 
+
+  const handleSaveToggle = (propertyId) => {
+    const isSaved = savedIds.includes(propertyId);
+
+    if (isSaved) {
+      axios
+        .delete("http://localhost:5000/api/save-property", {
+          data: { userId, propertyId },
+        })
+        .then(() => {
+          setSavedIds((prev) => prev.filter((id) => id !== propertyId));
+        })
+        .catch((err) => console.error("Error removing saved property", err));
+    } else {
+      axios
+        .post("http://localhost:5000/api/save-property", {
+          userId,
+          propertyId,
+        })
+        .then(() => {
+          setSavedIds((prev) => [...prev, propertyId]);
+        })
+        .catch((err) => console.error("Error saving property", err));
+    }
+  };
+
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
   const paginatedData = filteredProperties.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
+ 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-
-      {/* Add space below Navbar */}
       <div className="pt-32 max-w-7xl mx-auto px-4 flex-1 -mt-20">
-        
-        {/* Filter Heading */}
-        <h2 className="text-2xl font-bold text-[#e48f44] mb-6">Filter Properties</h2>
+        <h2 className="text-2xl font-bold text-[#e48f44] mb-6">
+          Filter Properties
+        </h2>
 
-        {/* Filter Bar */}
         <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row md:justify-between md:items-center gap-6 mb-10">
           <div className="flex flex-wrap gap-4">
             <select
@@ -158,36 +204,50 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Properties Heading */}
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">List of Properties</h2>
 
-        {/* Property Grid */}
         <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ${paginatedData.length < 4 ? "min-h-[400px]" : ""}`}>
           {paginatedData.length > 0 ? (
             paginatedData.map((property) => (
-              <Link
-                to={`/property/${property.property_id}`}
+              <div
                 key={property.property_id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-4 flex flex-col"
+                className="relative bg-white rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-4 flex flex-col"
               >
-                <img
-                  src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"}
-                  alt="Property"
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <h3 className="text-lg font-bold mb-1">
-                  {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
-                </h3>
-                <p className="text-gray-600 mb-1">{property.location}</p>
-                <p className="text-[#e48f44] font-bold text-lg mt-auto">Rs {property.price}</p>
-              </Link>
+                <Link to={`/property/${property.property_id}`}>
+                  <img
+                    src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"}
+                    alt="Property"
+                    className="w-full h-48 object-cover rounded-md mb-4"
+                  />
+                  <h3 className="text-lg font-bold mb-1">
+                    {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+                  </h3>
+                  <p className="text-gray-600 mb-1">{property.location}</p>
+                  <p className="text-[#e48f44] font-bold text-lg mt-auto">
+                    Rs {property.price}
+                  </p>
+                </Link>
+
+                <button
+                  onClick={() => handleSaveToggle(property.property_id)}
+                  className={`absolute bottom-4 right-4 text-xl hover:scale-110 transition ${
+                    savedIds.includes(property.property_id)
+                      ? "text-red-500"
+                      : "text-gray-400"
+                  }`}
+                  title={savedIds.includes(property.property_id) ? "Unsave" : "Save"}
+                >
+                  {savedIds.includes(property.property_id) ? <FaHeart /> : <FaRegHeart />}
+                </button>
+              </div>
             ))
           ) : (
-            <p className="text-center text-gray-600 col-span-full">No properties found.</p>
+            <p className="text-center text-gray-600 col-span-full">
+              No properties found.
+            </p>
           )}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 gap-4">
             <button
@@ -207,14 +267,14 @@ function Dashboard() {
           </div>
         )}
 
-      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-40">
-        <button
-          onClick={() => setShowChatbot(!showChatbot)}  
-          className="bg-transparent-100 outline hover:bg-blue-200 text-black-800 rounded-full p-4 shadow-md"
-          title="Open Chatbot"
-        >
-          🤖
-        </button>
+        <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-40">
+          <button
+            onClick={() => setShowChatbot(!showChatbot)}
+            className="bg-transparent-100 outline hover:bg-blue-200 text-black-800 rounded-full p-4 shadow-md"
+            title="Open Chatbot"
+          >
+            🤖
+          </button>
         </div>
       </div>
 
