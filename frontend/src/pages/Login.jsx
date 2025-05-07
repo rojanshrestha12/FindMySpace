@@ -113,7 +113,7 @@ export default function Login() {
               id="email"
               type="email"
               required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onChange={(e) => setEmail(e.target.value)}
             />
 
@@ -122,7 +122,7 @@ export default function Login() {
               id="password"
               type="password"
               required
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onChange={(e) => setPassword(e.target.value)}
             />
 

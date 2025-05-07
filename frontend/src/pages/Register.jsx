@@ -125,7 +125,7 @@ function Register() {
               type="text"
               required
               value={fullname}
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onChange={(e) => setfullname(e.target.value)}
             />
 
@@ -134,7 +134,7 @@ function Register() {
               type="text"
               required
               value={phone_number}
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onChange={(e) => setPhone(e.target.value)}
             />
 
@@ -143,7 +143,7 @@ function Register() {
               type="email"
               required
               value={email}
-              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#d6b899] text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
+              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#ffffff] text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
               onChange={(e) => {
                 setEmail(e.target.value);
                 validateEmail(e.target.value);
@@ -157,7 +157,7 @@ function Register() {
               required
               value={password}
               autoComplete="new-password"
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onFocus={() => setShowPasswordHint(true)}
               onBlur={() => setShowPasswordHint(false)}
               onChange={(e) => setPassword(e.target.value)}
@@ -169,7 +169,7 @@ function Register() {
               required
               value={confirmPassword}
               autoComplete="new-password"
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
               onFocus={() => setShowPasswordHint(true)}
               onBlur={() => setShowPasswordHint(false)}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -196,7 +196,7 @@ function Register() {
                   required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+                  className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
                 />
               </>
             )}
