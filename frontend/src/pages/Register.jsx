@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FiEye, FiEyeOff } from "react-icons/fi"; // Importing icons from react-icons
 
 function Register() {
   const [fullname, setfullname] = useState("");
@@ -10,15 +11,19 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [showPasswordHint, setShowPasswordHint] = useState(false);
   const navigate = useNavigate();
 
   const isLengthValid = password.length >= 8;
   const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+  const isPhoneValid = /^[9][0-9]{9}$/.test(phone_number); // Phone number starts with 9 and has exactly 10 digits
 
   useEffect(() => {
     if (error) {
@@ -35,6 +40,14 @@ function Register() {
     }
   };
 
+  const validatePhone = (value) => {
+    if (!/^[9][0-9]{9}$/.test(value)) {
+      setPhoneError("Phone number must start with 9 and be 10 digits.");
+    } else {
+      setPhoneError("");
+    }
+  };
+
   const sendOtp = async (e) => {
     e.preventDefault();
     setError("");
@@ -48,6 +61,10 @@ function Register() {
     }
     if (emailError) {
       setError("Please enter a valid email.");
+      return;
+    }
+    if (phoneError) {
+      setError("Please enter a valid phone number.");
       return;
     }
 
@@ -134,9 +151,13 @@ function Register() {
               type="text"
               required
               value={phone_number}
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
-              onChange={(e) => setPhone(e.target.value)}
+              className={`w-full p-2 mb-2 border-2 rounded-lg bg-[#d6b899] text-black text-lg ${phoneError ? "border-red-500" : "border-[#8d6d62]"}`}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                validatePhone(e.target.value);
+              }}
             />
+            {phoneError && <p className="text-red-600 text-sm mb-2">{phoneError}</p>}
 
             <label>Email</label>
             <input
@@ -152,28 +173,47 @@ function Register() {
             {emailError && <p className="text-red-600 text-sm mb-2">{emailError}</p>}
 
             <label>Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              autoComplete="new-password"
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
-              onFocus={() => setShowPasswordHint(true)}
-              onBlur={() => setShowPasswordHint(false)}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                type={passwordVisible ? "text" : "password"}
+                required
+                value={password}
+                autoComplete="new-password"
+                className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
+                onFocus={() => setShowPasswordHint(true)}
+                onBlur={() => setShowPasswordHint(false)}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-2 text-gray-500"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? <FiEyeOff /> : <FiEye />} {/* Icon toggle */}
+              </button>
+            </div>
 
             <label>Confirm Password</label>
-            <input
-              type="password"
-              required
-              value={confirmPassword}
-              autoComplete="new-password"
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
-              onFocus={() => setShowPasswordHint(true)}
-              onBlur={() => setShowPasswordHint(false)}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input
+                type={confirmPasswordVisible ? "text" : "password"}
+                required
+                value={confirmPassword}
+                autoComplete="new-password"
+                className={`w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg ${password !== confirmPassword ? "border-red-500" : "border-[#8d6d62]"}`}
+                onFocus={() => setShowPasswordHint(true)}
+                onBlur={() => setShowPasswordHint(false)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-2 text-gray-500"
+                onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+              >
+                {confirmPasswordVisible ? <FiEyeOff /> : <FiEye />} {/* Icon toggle */}
+              </button>
+            </div>
+            {password !== confirmPassword && <p className="text-red-600 text-sm mb-2">Passwords do not match</p>}
 
             {showPasswordHint && (
               <div className="text-sm text-[#5c4033] mb-4 space-y-1">
