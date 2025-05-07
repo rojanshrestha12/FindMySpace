@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FiEye, FiEyeOff } from "react-icons/fi"; // Importing icons from react-icons
 
 function Register() {
   const [fullname, setfullname] = useState("");
@@ -41,7 +42,7 @@ function Register() {
 
   const validatePhone = (value) => {
     if (!/^[9][0-9]{9}$/.test(value)) {
-      setPhoneError("Phone number must be 10 digits.");
+      setPhoneError("Phone number must start with 9 and be 10 digits.");
     } else {
       setPhoneError("");
     }
@@ -188,7 +189,7 @@ function Register() {
                 className="absolute right-2 top-2 text-gray-500"
                 onClick={() => setPasswordVisible(!passwordVisible)}
               >
-                {passwordVisible ? "Hide" : "Show"}
+                {passwordVisible ? <FiEyeOff /> : <FiEye />} {/* Icon toggle */}
               </button>
             </div>
 
@@ -209,7 +210,7 @@ function Register() {
                 className="absolute right-2 top-2 text-gray-500"
                 onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
               >
-                {confirmPasswordVisible ? "Hide" : "Show"}
+                {confirmPasswordVisible ? <FiEyeOff /> : <FiEye />} {/* Icon toggle */}
               </button>
             </div>
             {password !== confirmPassword && <p className="text-red-600 text-sm mb-2">Passwords do not match</p>}
