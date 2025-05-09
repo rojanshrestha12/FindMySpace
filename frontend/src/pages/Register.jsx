@@ -23,7 +23,7 @@ function Register() {
 
   const isLengthValid = password.length >= 8;
   const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
-  const isPhoneValid = /^[9][0-9]{9}$/.test(phone_number); // Phone number starts with 9 and has exactly 10 digits
+  // const isPhoneValid = /^[9][0-9]{9}$/.test(phone_number); // Phone number starts with 9 and has exactly 10 digits
 
   useEffect(() => {
     if (error) {
@@ -142,7 +142,7 @@ function Register() {
               type="text"
               required
               value={fullname}
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
               onChange={(e) => setfullname(e.target.value)}
             />
 
@@ -164,7 +164,7 @@ function Register() {
               type="email"
               required
               value={email}
-              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#ffffff] text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
+              className={`w-full p-2 mb-1 border-2 rounded-lg bg-[#d6b899] text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
               onChange={(e) => {
                 setEmail(e.target.value);
                 validateEmail(e.target.value);
@@ -236,7 +236,7 @@ function Register() {
                   required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#ffffff] text-black text-lg"
+                  className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-[#d6b899] text-black text-lg"
                 />
               </>
             )}

@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { AnimatePresence } from "framer-motion";
 import axios from "axios";
+
+const navLinks = [
+  { label: "Home", path: "/" },
+  { label: "Add Property", path: "/PropertyForm" },
+  { label: "About Us", path: "/about" },
+];
+
+const userLinks = [
+  { label: "Account", path: "/profile" },
+  { label: "My Properties", path: "/my_properties" },
+  { label: "Notifications", path: "/notifications" },
+  { label: "Saved", path: "/saved" },
+  { label: "Payments", path: "/payments" },
+];
+
+const decodeToken = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return payload?.userId || null;
+  } catch {
+    return null;
+  }
+};
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,27 +34,15 @@ function Navbar() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const userId = decodeToken(token);
 
-    if (token && token.split(".").length === 3) {
-      try {
-        const base64 = token.split(".")[1];
-        const base64Fixed = base64.replace(/-/g, "+").replace(/_/g, "/");
-        const json = atob(base64Fixed);
-        const userData = JSON.parse(json);
-        const userId = userData.userId;
-
-        axios.get(`http://localhost:5000/api/users/${userId}`)
-          .then((res) => setUser(res.data))
-          .catch((err) => {
-            console.error("Error fetching user:", err);
-            localStorage.removeItem("token");
-            setUser(null);
-          });
-      } catch (err) {
-        console.error("Invalid token:", err);
-        localStorage.removeItem("token");
-        setUser(null);
-      }
+    if (userId) {
+      axios.get(`http://localhost:5000/api/users/${userId}`)
+        .then((res) => setUser(res.data))
+        .catch(() => {
+          localStorage.removeItem("token");
+          setUser(null);
+        });
     } else {
       localStorage.removeItem("token");
       setUser(null);
@@ -43,173 +55,132 @@ function Navbar() {
     navigate("/login");
   };
 
+  const renderLinks = (links, onClick) =>
+    links.map(({ label, path }, i) => (
+      <Link
+        key={i}
+        to={path}
+        onClick={onClick}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+      >
+        {label}
+      </Link>
+    ));
+
   return (
-    <nav className="bg-[rgba(214,184,153,0.8)] shadow-md w-full z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/">
-              <img src="/assets/logo.png" alt="Logo" className="h-12" />
+    <nav className="sticky top-0 left-0 right-0 bg-[rgba(214,184,153,1)] shadow-lg z-50 "
+
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 0.2 } }}
+    >
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
+        <Link to="/">
+          <img src="/assets/logo.png" alt="Logo" className="h-14" />
+        </Link>
+
+        {/* Desktop Links */}
+        <div className="hidden md:flex space-x-10 text-lg font-semibold">
+          {navLinks.map(({ label, path }, i) => (
+            <Link key={i} to={path} className="text-black hover:text-gray-700">
+              {label}
             </Link>
-          </div>
+          ))}
+        </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 text-lg">
-            <Link to="/" className="text-black hover:text-gray-700">Home</Link>
-            <Link to="/PropertyForm" className="text-black hover:text-gray-700">Add Property</Link>
-            <Link to="/about" className="text-black hover:text-gray-700">About Us</Link>
-          </div>
-
-          {/* User Auth Area */}
-          <div className="hidden md:flex items-center space-x-4">
-            {!user ? (
-              <>
-                <Link
-                  to="/login"
-                  className="px-4 py-2 border border-black rounded-md text-black hover:bg-[#cba67f] transition"
-                >
-                  Log In
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4 py-2 border border-black rounded-md text-black hover:bg-[#cba67f] transition"
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : (
-              <div className="relative">
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex items-center gap-2 text-black hover:text-gray-700 focus:outline-none"
-                >
-                  {user?.fullname || "User"}
-                  <img
-                    src="/assets/account.png"
-                    alt="User"
-                    className="w-8 h-8"
-                  />
-                </button>
-
+        {/* Desktop Auth Section */}
+        <div className="hidden md:flex items-center space-x-4">
+          {!user ? (
+            <>
+              <Link to="/login" className="px-4 py-2 border border-black rounded-md hover:bg-[#cba67f]">
+                Log In
+              </Link>
+              <Link to="/register" className="px-4 py-2 border border-black rounded-md hover:bg-[#cba67f]">
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex items-center gap-2 text-black hover:text-gray-700"
+              >
+                {user.fullname}
+                <img src="/assets/account.png" alt="User" className="w-8 h-8" />
+              </button>
+              <AnimatePresence>
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50">
-                    <Link
-                      to="/profile"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Account
-                    </Link>
-                    <Link
-                      to="/my_properties"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      My Properties
-                    </Link>
-                    <Link
-                      to="/notifications"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      My Notifications
-                    </Link>
-                    <Link
-                      to="/saved"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Saved
-                    </Link>
-                    <Link
-                      to="/payments"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Payments
-                    </Link>
+                  <div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50"
+                  >
+                    {renderLinks(userLinks, () => setMenuOpen(false))}
                     <button
                       onClick={() => {
                         setMenuOpen(false);
                         handleLogout();
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                     >
                       Log Out
                     </button>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
 
-          {/* Hamburger for Mobile */}
-          <div className="flex md:hidden">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="text-black focus:outline-none"
-            >
-              {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-            </button>
-          </div>
+        {/* Mobile Menu Icon */}
+        <div className="md:hidden">
+          <button onClick={() => setMenuOpen((prev) => !prev)} className="text-black">
+            {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
-      {menuOpen && (
-        <div className="md:hidden bg-[#d6b899]">
-          <div className="flex flex-col px-2 pt-2 pb-3 space-y-1">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-              Home
-            </Link>
-            <Link to="/PropertyForm" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-              Add Property
-            </Link>
-            <Link to="/about" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-              About Us
-            </Link>
-
-            {!user ? (
-              <>
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Log In
-                </Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Sign Up
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/profile" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Account
-                </Link>
-                <Link to="/my_properties" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  My Properties
-                </Link>
-                <Link to="/notifications" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Notifications
-                </Link>
-                <Link to="/saved" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Saved
-                </Link>
-                <Link to="/payments" onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]">
-                  Payments
-                </Link>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-black hover:bg-[#cba67f]"
+      {/* Mobile Dropdown Menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden bg-[#d6b899] overflow-hidden"
+          >
+            <div className="flex flex-col px-4 pt-2 pb-4 space-y-1">
+              {navLinks.map(({ label, path }, i) => (
+                <Link
+                  key={i}
+                  to={path}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-3 py-2 text-lg text-black hover:bg-[#cba67f]"
                 >
-                  Log Out
-                </button>
-              </>
-            )}
+                  {label}
+                </Link>
+              ))}
+              {!user ? (
+                <>
+                  <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">Log In</Link>
+                  <Link to="/register" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">Sign Up</Link>
+                </>
+              ) : (
+                <>
+                  {userLinks.map(({ label, path }, i) => (
+                    <Link key={i} to={path} onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">
+                      {label}
+                    </Link>
+                  ))}
+                  <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="block w-full text-left px-3 py-2 hover:bg-[#cba67f]">
+                    Log Out
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

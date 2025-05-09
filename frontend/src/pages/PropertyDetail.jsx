@@ -67,49 +67,27 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-  const handleBookingRequest = async (type, details = {}) => {
+  const handleBookingRequest = async (type = {}, formData = {}) => {
     if (!tenantId || !property?.userDetails?.user_id) return;
-
-    if (tenantId === property.userDetails.user_id) {
-      alert("You cannot request your own property.");
-      return;
-    }
 
     const formattedTime = convertTo12HourFormat(time);
     const dateTime = `${date} ${formattedTime}`;
 
+    const bookingData = {
+      tenant_id: tenantId,
+      property_id: id,
+      request_type: type,
+      date_time: dateTime,
+      ...(type === "rent" ? formData : {})
+    };
+
     try {
-      if (type === "visit") {
-        const bookingData = {
-          tenant_id: tenantId,
-          property_id: id,
-          request_type: type,
-          date_time: dateTime,
-        };
+      await axios.post("http://localhost:5000/api/booking/request", bookingData);
 
-        await axios.post("http://localhost:5000/api/booking/request", bookingData);
-        setIsVisitRequested(true);
-        alert("Visit request submitted!");
-      }
+      if (type === "rent") setIsRentRequested(true);
+      if (type === "visit") setIsVisitRequested(true);
 
-      if (type === "rent") {
-        const agreementData = {
-          tenant_id: tenantId,
-          property_id: id,
-          fullname: details.fullname,
-          email: details.email,
-          phone: details.phone,
-          move_in_date: details.moveInDate,
-          duration: details.duration,
-          message: details.message,
-          request_date: dateTime,
-        };
-
-        await axios.post("http://localhost:5000/api/agreement", agreementData);
-        setIsRentRequested(true);
-        alert("Rental request submitted!");
-      }
-
+      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
       navigate("/my_properties");
     } catch (err) {
       console.error(err);
@@ -166,6 +144,10 @@ function PropertyDetail() {
             <div className="flex space-x-2">
               <button
                 onClick={() => {
+                  if (tenantId === property.userDetails.user_id) {
+                    alert("You cannot request your own property.");
+                    return;
+                  }
                   setVisitFormVisible(true);
                   setRentFormVisible(false);
                 }}
@@ -178,6 +160,10 @@ function PropertyDetail() {
               </button>
               <button
                 onClick={() => {
+                  if (tenantId === property.userDetails.user_id) {
+                    alert("You cannot request your own property.");
+                    return;
+                  }
                   setRentFormVisible(true);
                   setVisitFormVisible(false);
                 }}

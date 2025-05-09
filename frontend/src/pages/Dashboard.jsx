@@ -96,6 +96,11 @@ try {
     const isSaved = savedIds.includes(propertyId);
 
     if (isSaved) {
+      alert("Property is already saved.");
+      return;
+    }
+
+    if (isSaved) {
       axios
         .delete("http://localhost:5000/api/save-property", {
           data: { userId, propertyId },

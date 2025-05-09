@@ -10,6 +10,7 @@ const Notifications = () => {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [userId, setUserId] = useState(null);
 
   // Decode JWT token safely
@@ -78,7 +79,7 @@ const Notifications = () => {
         toast.error('Failed to update request.');
       }
     } catch (err) {
-      toast.error('Error submitting your response.');
+      toast.error(err,'Error submitting your response.');
     }
   };
 
