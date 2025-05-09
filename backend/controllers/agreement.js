@@ -4,19 +4,32 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import User from "../models/Users.js";
 import Property from "../models/Property.js";
+import Request from "../models/Requests.js";
 
 const agreementRouter = express.Router();
 
 agreementRouter.post("/", async (req, res) => {
   try {
-    const { tenant_id, property_id, movingDate, permanentAddress} = req.body;
-    const duration = 10; // Ensure duration is an integer
-    const dueDate = 323232; // Ensure dueDate is an integer
+    const { dueDate, requestId, movingDate, permanentAddress } = req.body;
+
+    // Check if any of the required fields are missing
+    if (!dueDate || !requestId || !movingDate || !permanentAddress) {
+      return;
+    }
+
+    // If all required fields are present, continue with the rest of the logic
+    const request = await Request.findByPk(requestId);
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    const { tenant_id, property_id, landlord_id } = request;
 
     const tenant = await User.findByPk(tenant_id);
     const property = await Property.findByPk(property_id);
-    const landlord = await User.findByPk(property?.user_id);
+    const landlord = await User.findByPk(landlord_id);
 
+    // If any of the related entities (tenant, property, landlord) are not found, return an error
     if (!tenant || !property || !landlord) {
       return res.status(404).json({ error: "Invalid tenant, property, or landlord" });
     }
@@ -52,13 +65,12 @@ agreementRouter.post("/", async (req, res) => {
 
     doc.text("2. Term of Tenancy");
     doc.text(`The tenancy will begin on ${movingDate} and will continue:`);
-    doc.text(`For a fixed period of ${duration} months`);
     doc.moveDown();
 
     doc.text("3. Rent Details");
     doc.text(`Monthly Rent: NPR ${rent}`);
     doc.text(`Due Date: ${dueDate} of each month`);
-    doc.text("Mode of Payment: [ ] Cash  [ ] Bank Transfer  [ ] Other: ___________");
+    doc.text("Mode of Payment: [ ] Cash  [ ] Bank Transfer  [ ] Others");
     doc.moveDown();
 
     doc.text("6. Maintenance and Repairs");

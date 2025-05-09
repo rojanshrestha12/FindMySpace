@@ -63,11 +63,12 @@ const Notifications = () => {
 
   const handleResponse = async (requestId, action) => {
     try {
+      // First try-catch: Handle the booking request response (approve/reject)
       const result = await axios.post('http://localhost:5000/api/booking/respond', {
         requestId,
         response: action === 'approve' ? 'approved' : 'rejected',
       });
-
+  
       if (result.data?.message) {
         setNotifications((prev) =>
           prev.map((item) =>
@@ -79,9 +80,34 @@ const Notifications = () => {
         toast.error('Failed to update request.');
       }
     } catch (err) {
-      toast.error(err,'Error submitting your response.');
+      console.error(err);
+      toast.error('Error updating request status.');
+    }
+  
+    // Only proceed to this part if the action is 'approve'
+    if (action === 'approve') {
+      try {
+        // Second try-catch: Handle the agreement creation for approved requests
+        const response = await fetch("http://localhost:5000/api/agreement", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requestId, // Send the requestId when approving
+          }),
+        });
+  
+        if (response.ok) {
+          toast.success('Agreement successfully created!');
+        } else {
+          toast.error('Failed to create agreement.');
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error('Error creating agreement.');
+      }
     }
   };
+  
 
   if (loading) {
     return (
