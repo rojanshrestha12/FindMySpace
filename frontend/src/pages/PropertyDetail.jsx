@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
@@ -18,6 +18,9 @@ const convertTo12HourFormat = (time24) => {
 function PropertyDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+  const requestId = location.state?.requestId;
+  
   const [property, setProperty] = useState(null);
   const [isVisitRequested, setIsVisitRequested] = useState(false);
   const [isRentRequested, setIsRentRequested] = useState(false);
@@ -67,33 +70,38 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-  const handleBookingRequest = async (type = {}, formData = {}) => {
-    if (!tenantId || !property?.userDetails?.user_id) return;
+const handleBookingRequest = async (type = {}, formData = {}) => {
+  if (!tenantId || !property?.userDetails?.user_id) return;
 
-    const formattedTime = convertTo12HourFormat(time);
-    const dateTime = `${date} ${formattedTime}`;
+  const formattedTime = time ? convertTo12HourFormat(time) : null;
+  const dateTime = date && formattedTime ? `${date} ${formattedTime}` : new Date().toISOString();
 
-    const bookingData = {
-      tenant_id: tenantId,
-      property_id: id,
-      request_type: type,
-      date_time: dateTime,
-      ...(type === "rent" ? formData : {})
-    };
-
-    try {
-      await axios.post("http://localhost:5000/api/booking/request", bookingData);
-
-      if (type === "rent") setIsRentRequested(true);
-      if (type === "visit") setIsVisitRequested(true);
-
-      alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
-      navigate("/my_properties");
-    } catch (err) {
-      console.error(err);
-      alert("Error submitting request.");
-    }
+  const bookingData = {
+    tenant_id: tenantId,
+    property_id: id,
+    request_type: type,
+    date_time: dateTime,
+    ...(type === "rent" ? formData : {})
   };
+
+  try {
+    const response = await axios.post("http://localhost:5000/api/booking/request", bookingData);
+
+    // Save the requestId to localStorage
+    const requestId = response.data.request.request_id;
+    localStorage.setItem("requestId", requestId);
+    alert(`Request ID: ${requestId}`);
+
+    if (type === "rent") setIsRentRequested(true);
+    if (type === "visit") setIsVisitRequested(true);
+
+    alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
+    if (type === "visit") navigate("/my_properties"); // Visit redirects immediately
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting request.");
+  }
+};
 
   const goToNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % property.images.length);
@@ -158,14 +166,20 @@ function PropertyDetail() {
               >
                 {isVisitRequested ? "Visit Requested" : "Book a Visit"}
               </button>
+
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (tenantId === property.userDetails.user_id) {
                     alert("You cannot request your own property.");
                     return;
                   }
-                  setRentFormVisible(true);
-                  setVisitFormVisible(false);
+
+                  if (!isRentRequested) {
+                    await handleBookingRequest("rent"); // ✅ Send request first
+                    setRentFormVisible(true);           // ✅ Then show form
+                    setIsRentRequested(true);
+                    setVisitFormVisible(false);
+                  }
                 }}
                 disabled={isRentRequested}
                 className={`bg-[#e48f44] text-white px-4 rounded-md w-1/2 ${
@@ -204,8 +218,9 @@ function PropertyDetail() {
               </div>
             )}
 
-            {rentFormVisible && !isRentRequested && (
+            {rentFormVisible && isRentRequested && (
               <RentRequestForm
+                requestId={requestId}
                 onSubmit={(formData) => handleBookingRequest("rent", formData)}
               />
             )}
@@ -251,7 +266,11 @@ function PropertyDetail() {
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
                   <div className="font-semibold">Landlord:</div>
-                  <div className="col-span-2">{property.userDetails.fullname}</div>
+                  <div className="col-span-2">{property.userDetails.name}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-x-4 items-start">
+                  <div className="font-semibold">Availability:</div>
+                  <div className="col-span-2">{property.availability}</div>
                 </div>
               </div>
             </div>
@@ -259,24 +278,23 @@ function PropertyDetail() {
 
           {activeTab === "Amenities" && (
             <div className="bg-white p-6 mt-4 rounded-lg">
-              {property.amenities && Object.entries(property.amenities).length > 0 ? (
-                <div className="grid gap-y-2">
-                  {Object.entries(property.amenities).map(([key, value]) => (
-                    <div key={key} className="grid grid-cols-3 gap-x-4 items-start">
-                      <div className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1)}:</div>
-                      <div className="col-span-2">{value ? "Available" : "Not Available"}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No amenities listed.</p>
-              )}
+              <div className="grid gap-y-2">
+                {Object.entries(property.amenities).map(([amenity, value]) => (
+                  <div className="grid grid-cols-3 gap-x-4 items-center" key={amenity}>
+                    <div className="font-semibold">{amenity.replace("_", " ")}</div>
+                    <div className="col-span-2">{value ? "Yes" : "No"}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {activeTab === "Description" && (
             <div className="bg-white p-6 mt-4 rounded-lg">
-              <p>{property.description}</p>
+              <div className="grid gap-y-2">
+                <div className="font-semibold">Description:</div>
+                <div>{property.description}</div>
+              </div>
             </div>
           )}
         </div>

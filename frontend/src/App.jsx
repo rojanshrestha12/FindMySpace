@@ -16,6 +16,7 @@ import Notification from "./pages/Notifications.jsx";
 import MyProperties from "./pages/MyProperties.jsx";
 import Saved from "./pages/Saved.jsx";
 import PaymentTracking from "./pages/payments.jsx";
+import TermsAndPolicy from "./components/TermsAndpolicy.jsx";
 
 
 // ✅ General Protected Route
@@ -45,6 +46,7 @@ function App() {
         <Route path="/notifications" element={<Notification />} />
         <Route path="/saved" element={<Saved />} />
         <Route path="/payments" element={<PaymentTracking />} />
+        <Route path="/terms" element={<TermsAndPolicy />} />
 
         {/* Protected Routes */}
         <Route

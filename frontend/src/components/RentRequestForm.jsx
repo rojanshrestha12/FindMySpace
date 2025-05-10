@@ -1,10 +1,16 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-function RentRequestForm({ onSubmit }) {
+function RentRequestForm() {
   const [form, setForm] = useState({
     movingDate: "",
     permanentAddress: "",
   });
+
+  const [agreed, setAgreed] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const tenantId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,31 +24,45 @@ function RentRequestForm({ onSubmit }) {
       return;
     }
 
-    // Calculate the dueDate (30 days after movingDate)
+    if (!agreed) {
+      alert("You must agree to the terms and policy before submitting.");
+      return;
+    }
+
+    const requestId = localStorage.getItem("requestId");
+
+    if (!requestId) {
+      alert("No request ID found in localStorage.");
+      return;
+    }
+
     const movingDateObj = new Date(movingDate);
     const dueDate = new Date(movingDateObj);
-    dueDate.setDate(movingDateObj.getDate() + 30); // Add 30 days
+    dueDate.setDate(movingDateObj.getDate() + 30);
 
     try {
-      const response = await fetch("http://localhost:5000/api/agreement", {
+      const response = await fetch("http://localhost:5000/api/agreement_save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           movingDate,
           permanentAddress,
-          dueDate: dueDate.toISOString().split("T")[0], // Format dueDate as YYYY-MM-DD
+          dueDate: dueDate.toISOString().split("T")[0],
+          tenantId,
+          requestId,
         }),
       });
 
       if (!response.ok) throw new Error("Submission failed");
 
-      const result = await response.json();
+      alert(`Submitted successfully for Request ID: ${requestId}`);
       setForm({ movingDate: "", permanentAddress: "" });
-
-      if (onSubmit) onSubmit(result);
+      setAgreed(false);
     } catch (err) {
       console.error(err);
       alert("Error submitting data.");
+    } finally {
+      localStorage.removeItem("requestId"); // ✅ Fixed the casing
     }
   };
 
@@ -67,6 +87,20 @@ function RentRequestForm({ onSubmit }) {
             onChange={handleChange}
             className="w-full border p-2 rounded"
           />
+          <div className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <label className="text-sm">
+              I confirm that the information I have provided is correct, and I have read the{" "}
+              <Link to="/terms" className="text-blue-600 underline">
+                Terms and Policy
+              </Link>
+              .
+            </label>
+          </div>
         </div>
 
         <div className="flex justify-end mt-6">
