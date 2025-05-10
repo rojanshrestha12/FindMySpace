@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
@@ -26,22 +26,8 @@ function EditProperty() {
       furnished: false,
       storageSpace: false,
     },
+    images: [], // Add images to the state
   });
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       const res = await axios.get(`http://localhost:5000/api/property/${id}`);
-//       const data = res.data;
-//       setFormData({
-//         location: data.location || "",
-//         type: data.type || "",
-//         price: data.price || "",
-//         description: data.description || "",
-//         amenities: data.amenities || {},
-//       });
-//     };
-//     fetchData();
-//   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +39,14 @@ function EditProperty() {
     setFormData((prev) => ({
       ...prev,
       amenities: { ...prev.amenities, [name]: checked },
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const files = e.target.files;
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...files], // Append the selected files to the state
     }));
   };
 
@@ -70,14 +64,30 @@ function EditProperty() {
     if (!validateForm()) return;
 
     setLoading(true);
+    const form = new FormData();
+
+    // Append form data to FormData object
+    form.append("location", formData.location);
+    form.append("type", formData.type);
+    form.append("price", formData.price);
+    form.append("description", formData.description);
+    form.append("amenities", JSON.stringify(formData.amenities)); // Convert amenities to a JSON string
+
+    // Append images
+    formData.images.forEach((file) => {
+      form.append("images", file);
+    });
+
     try {
-      await axios.put(`http://localhost:5000/api/propertyEdit/${id}`, {
-        ...formData,
+      await axios.put(`http://localhost:5000/api/propertyEdit/${id}`, form, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Important for file uploads
+        },
       });
       toast.success("Property updated!");
       setTimeout(() => navigate("/my-listings"), 2000);
     } catch (error) {
-        console.error("Error updating property:", error);
+      console.error("Error updating property:", error);
       toast.error("Failed to update property.");
     } finally {
       setLoading(false);
@@ -152,6 +162,17 @@ function EditProperty() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Image Upload Section */}
+            <div className="col-span-2">
+              <label className="block mt-5 mb-3 font-bold">Upload Images</label>
+              <input
+                type="file"
+                multiple
+                onChange={handleImageChange}
+                className="border p-2 rounded w-full"
+              />
             </div>
 
             <div className="col-span-2">

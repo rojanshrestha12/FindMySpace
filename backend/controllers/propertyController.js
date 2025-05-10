@@ -88,7 +88,6 @@ export async function getPropertyDetails(req, res) {
 }
 
 // To handle file paths
-
 export async function editProperty(req, res) {
     const propertyId = req.params.propertyId;
     const { amenities, type, price, location, description } = req.body;
