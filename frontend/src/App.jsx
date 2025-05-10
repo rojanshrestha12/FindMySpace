@@ -15,7 +15,7 @@ import UserList from "./pages/UserList.jsx";
 import Notification from "./pages/Notifications.jsx";
 import MyProperties from "./pages/MyProperties.jsx";
 import Saved from "./pages/Saved.jsx";
-import PaymentTracking from "./pages/payments.jsx";
+import LandlordPayments from "./pages/landlordPayments.jsx";
 import TermsAndPolicy from "./components/TermsAndpolicy.jsx";
 
 
@@ -45,7 +45,7 @@ function App() {
         <Route path="/my_properties" element={<MyProperties />} />
         <Route path="/notifications" element={<Notification />} />
         <Route path="/saved" element={<Saved />} />
-        <Route path="/payments" element={<PaymentTracking />} />
+        <Route path="/payments" element={<LandlordPayments />} />
         <Route path="/terms" element={<TermsAndPolicy />} />
 
         {/* Protected Routes */}

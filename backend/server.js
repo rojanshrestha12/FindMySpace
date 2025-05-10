@@ -16,7 +16,7 @@ const app = express();
 import adminRouter from './router/admin.js';
 import Savedrouter from './controllers/SavedController.js'; // Import the save property routes
 import agreementRouter from './controllers/agreement.js';
-
+import paymentRouter from './controllers/payments.js';
 
 app.use(
     cors({
@@ -33,6 +33,7 @@ app.use("/api/booking",router);
 // app.use("/api/agreement",agreement);
 app.use("/api", agreementRouter); // Use the agreement router for handling agreements
 app.use("/api", Savedrouter);
+app.use("/api/payments", paymentRouter); // Use the payment router for handling payments
 
 
 app.post('/api/auth/register', register);
