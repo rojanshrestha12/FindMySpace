@@ -15,7 +15,7 @@ const app = express();
 
 import adminRouter from './router/admin.js';
 import Savedrouter from './controllers/SavedController.js'; // Import the save property routes
-import agreementRouter from './controllers/Agreement.js';
+import agreementRouter from './controllers/agreement.js';
 
 
 app.use(
@@ -31,7 +31,7 @@ app.use('/uploads', express.static('uploads')); // Serve images statically
 app.use("/api/admin",adminRouter);
 app.use("/api/booking",router);
 // app.use("/api/agreement",agreement);
-app.use("/api/agreement", agreementRouter); // Use the agreement router for handling agreements
+app.use("/api", agreementRouter); // Use the agreement router for handling agreements
 app.use("/api", Savedrouter);
 
 

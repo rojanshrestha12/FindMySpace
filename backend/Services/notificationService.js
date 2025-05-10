@@ -41,7 +41,6 @@ router.post('/request', async (req, res) => {
       message: dynamicMessage,
       date_time, // ⬅️ save the date and time
     });
-    
     return res.status(201).json({ message: "Request created successfully", request: newRequest });
   } catch (error) {
     console.error(error);

@@ -10,7 +10,6 @@ const Notifications = () => {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // eslint-disable-next-line no-unused-vars
   const [userId, setUserId] = useState(null);
 
   // Decode JWT token safely
@@ -40,13 +39,11 @@ const Notifications = () => {
         const [requestsRes, responsesRes] = await Promise.all([
           axios.get(`http://localhost:5000/api/booking/requests/${userIdFromToken}`),
           axios.get(`http://localhost:5000/api/booking/repondMes/${userIdFromToken}`),
-
-          
         ]);
 
         setNotifications(Array.isArray(requestsRes.data.notifications) ? requestsRes.data.notifications : []);
         setResponses(Array.isArray(responsesRes.data.notifications) ? responsesRes.data.notifications : []);
-        console.log("notification fetched");
+        console.log("Notification fetched");
         
       } catch (err) {
         console.error(err);
@@ -75,11 +72,30 @@ const Notifications = () => {
           )
         );
         toast.success(`Request ${action === 'approve' ? 'approved' : 'rejected'}!`);
+
+        // Send additional data if the request is approved
+        if (action === 'approve') {
+          const response = await fetch("http://localhost:5000/api/agreement", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              requestId,
+            }),
+          });
+
+          if (response.ok) {
+            toast.success('Agreement successfully created!');
+          } else {
+            toast.error('Failed to create agreement.');
+          }
+        }
+
       } else {
         toast.error('Failed to update request.');
       }
-    } catch (err) {
-      toast.error(err,'Error submitting your response.');
+    } catch (error) {
+      toast.error('Error submitting your response.');
+      console.error('Error:', error);
     }
   };
 
@@ -168,13 +184,12 @@ const Notifications = () => {
               {responses.map((res) => (
                 <li
                   key={res.request_id}
-                  className={`p-4 rounded-lg border ${
-                    res.status === 'ACCEPTED'
-                      ? 'bg-green-50 border-green-300'
-                      : res.status === 'REJECTED'
-                      ? 'bg-red-50 border-red-300'
-                      : 'bg-yellow-50 border-yellow-300'
-                  }`}
+                  className={`p-4 rounded-lg border ${res.status === 'ACCEPTED'
+                    ? 'bg-green-50 border-green-300'
+                    : res.status === 'REJECTED'
+                    ? 'bg-red-50 border-red-300'
+                    : 'bg-yellow-50 border-yellow-300'
+                    }`}
                 >
                   <p className="text-gray-800">{res.message}</p>
                   <p className="text-xs text-gray-500 mt-1">

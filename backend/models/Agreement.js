@@ -1,24 +1,40 @@
-// models/Agreement.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db/config.js'); // Adjust the path as necessary
+import { DataTypes } from 'sequelize';
+import sequelize from '../db/config.js';
+import Request from './Requests.js';
 
-const Agreement = sequelize.define('Agreement', {
-    agreement_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+const Agreement = sequelize.define('agreement', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  movingDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+  },
+  dueDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+  },
+  permanentAddress: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  request_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Request,
+      key: 'request_id',
     },
-  moveInDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
+    onDelete: 'CASCADE',
   },
-  duration: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  message: {
-    type: DataTypes.TEXT,
-  },
+}, {
+  timestamps: false,
+  freezeTableName: true,
 });
 
-module.exports = Agreement;
+// ✅ Association
+Agreement.belongsTo(Request, { foreignKey: 'request_id' });
+
+export default Agreement;
