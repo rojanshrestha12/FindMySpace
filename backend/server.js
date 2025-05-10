@@ -1,7 +1,7 @@
 import express from 'express';
 import { json } from 'body-parser';
 import { loginWithGoogle, login, register, requestOtp } from './controllers/authController.js'
-import { createProperty, getAllProperties, getPropertyDetails } from './controllers/propertyController.js';
+import { createProperty, getAllProperties, getPropertyDetails, editProperty, deleteProperty } from './controllers/propertyController.js';
 import upload from './middlewares/uploadMiddleware.js';
 import authenticate from './middlewares/authMiddleware.js';
 import { getUserDetails } from './controllers/userController.js';
@@ -58,6 +58,9 @@ app.post("/api/user/profile/update", authenticate, updateProfile);
 app.post("/api/user/password/update", authenticate, updatePassword);
 
 app.delete("/api/user/delete", authenticate, handleDeleteUser);
+
+app.delete('/api/propertyDelete/:propertyId', deleteProperty);
+app.put('/api/propertyEdit/:propertyId', upload, editProperty);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

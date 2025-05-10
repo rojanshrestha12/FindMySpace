@@ -133,15 +133,19 @@ const Notifications = () => {
                   key={item.requestId}
                   className="bg-white p-5 rounded-lg shadow border border-gray-200"
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-left">
                     <div>
                       <p className="text-lg font-medium text-gray-800">{item.message}</p>
-                      <p className="text-sm text-gray-500 mt-1">
+                      {/* <p className="text-sm text-gray-500 mt-1">{item.userId}</p> */}
+                      <p className="text-bg text-black-500 mt-1">Tenant Email: {item.tenant_email}</p>
+                      <p className="text-bg text-black-500 mt-1">Tenant Phone Number: {item.tenant_number}</p>
+                      <p className="text-sm text-gray-500 mt-6">
                         {new Date(item.createdAt).toLocaleString()}
                       </p>
                     </div>
+                    <div >
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold ${
                         item.status === 'ACCEPTED'
                           ? 'bg-green-100 text-green-600'
                           : item.status === 'REJECTED'
@@ -151,6 +155,7 @@ const Notifications = () => {
                     >
                       {item.status || 'PENDING'}
                     </span>
+                    </div>
                   </div>
 
                   {item.status !== 'ACCEPTED' && item.status !== 'REJECTED' && (

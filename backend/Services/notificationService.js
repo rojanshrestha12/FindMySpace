@@ -48,7 +48,7 @@ router.post('/request', async (req, res) => {
   }
 });
 
-// GET: Fetch all requests for a landlord (PENDING only)
+// GET: Fetch all requests for a landlord 
 router.get('/requests/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -62,7 +62,7 @@ router.get('/requests/:userId', async (req, res) => {
         {
           model: User,
           as: 'tenant',
-          attributes: ['fullname', 'user_id'],
+          attributes: ['fullname', 'user_id', 'phone_number', 'email'],
         },
         {
           model: Property,
@@ -72,11 +72,21 @@ router.get('/requests/:userId', async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    const notifications = requests.map(r => ({
-      message: `${r.tenant.fullname} requested to ${r.request_type} your ${r.Property.type} at ${r.Property.location} in ${r.date_time}.`,
-      requestId: r.request_id,
-      createdAt: r.createdAt,
-    }));
+    const notifications = requests.map(r => {
+      const date = new Date(r.date_time).toISOString().split('T')[0];
+      const time = new Date(r.date_time).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      return {
+        message: `${r.tenant.fullname} requested to ${r.request_type} your ${r.Property.type} at ${r.Property.location} on ${date} at ${time}.`,
+        tenant_number: r.tenant.phone_number,
+        tenant_email: r.tenant.email,
+        requestId: r.request_id,
+        createdAt: r.createdAt,
+      };
+    });
 
     res.status(200).json({ requests, notifications });
   } catch (error) {
@@ -84,6 +94,7 @@ router.get('/requests/:userId', async (req, res) => {
     res.status(500).json({ error: 'Could not fetch requests/notifications' });
   }
 });
+
 
 // POST: Respond to a request (approve or reject)
 router.post('/respond', async (req, res) => {

@@ -48,7 +48,7 @@ function Navbar() {
       localStorage.removeItem("token");
       setUser(null);
     }
-  }, []);
+  }, [userId]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

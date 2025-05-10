@@ -86,3 +86,80 @@ export async function getPropertyDetails(req, res) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+// To handle file paths
+
+export async function editProperty(req, res) {
+    const propertyId = req.params.propertyId;
+    const { amenities, type, price, location, description } = req.body;
+
+    // If there are image uploads, process them
+    const imagePaths = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+
+    try {
+        // Find property by ID
+        const property = await Property.findOne({
+            where: { property_id: propertyId },
+        });
+
+        if (!property) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+
+        // Check if required fields are provided
+        if (!type || !price || !location) {
+            return res.status(400).json({ error: 'Type, price, and location are required' });
+        }
+
+        // Handle amenities: Parse if it's a string, otherwise use as-is if it's an object
+        let updatedAmenities = property.amenities;
+        if (amenities) {
+            try {
+                updatedAmenities = typeof amenities === "string" ? JSON.parse(amenities) : amenities;
+            } catch (err) {
+                return res.status(400).json({ error: 'Invalid amenities format' });
+            }
+        }
+
+        // Handle images: Keep existing images if no new uploads
+        const updatedImages = imagePaths.length > 0 ? imagePaths : property.images;
+
+        // Update property details
+        await Property.update(
+            {
+                amenities: updatedAmenities,
+                type,
+                price,
+                location,
+                description,
+                images: updatedImages,
+            },
+            { where: { property_id: propertyId } }
+        );
+
+        res.status(200).json({ message: 'Property updated successfully' });
+    } catch (error) {
+        console.error('Error updating property:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+export async function deleteProperty(req, res) {
+    const propertyId = req.body.property_id || req.params.propertyId;
+
+    try {
+        const property = await Property.findOne({ where: { property_id: propertyId } });
+
+        if (!property) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+
+        await Property.destroy({ where: { property_id: propertyId } });
+
+        res.status(200).json({ message: 'Property deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting property:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
