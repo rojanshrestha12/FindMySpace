@@ -48,7 +48,7 @@ const SavedProperties = () => {
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="w-full mx-auto px-4 flex-1 mt-10 mb-10 max-w-[1200px]">
+      <div className="w-full mx-auto px-55 flex-1 mt-8 mb-70  ">
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">Saved Listings</h2>
 
         {loading && <p className="text-gray-600">Loading listings...</p>}

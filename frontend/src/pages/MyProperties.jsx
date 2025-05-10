@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import axios from "axios";
-import { Link } from "react-router-dom";
+
 
 export default function MyListings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const userId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
@@ -25,18 +27,28 @@ export default function MyListings() {
         setListings(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setError("Failed to fetch listings.");
         setLoading(false);
       });
   }, [userId]);
 
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this listing?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/property/${id}`);
+        setListings(listings.filter((item) => (item.property_id || item._id) !== id));
+      } catch {
+        alert("Failed to delete listing.");
+      }
+    }
+  };
+
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="w-full mx-auto px-4 flex-1 mt-10 mb-10 max-w-[1200px]"> 
+      <main className="w-full max-w-[1250px]  mx-auto flex-1 mt-10 mb-10">
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">My Listings</h2>
 
         {loading && <p className="text-gray-600">Loading listings...</p>}
@@ -45,31 +57,38 @@ export default function MyListings() {
           <p className="text-gray-600">You have no saved listings.</p>
         )}
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ${listings.length < 4 ? "min-h-[400px]" : ""}`}>
-          {listings.length > 0 ? (
-            listings.map((property) => (
-              <Link
-                to={`/property/${property.property_id || property._id}`}
-                key={property.property_id || property._id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition transform hover:scale-105 p-4 flex flex-col"
-              >
-                <img
-                  src={property.images ? `http://localhost:5000${JSON.parse(property.images)[0]}` : "/placeholder.jpg"}
-                  alt="Property"
-                  className="w-full h-48 object-cover rounded-md mb-4"
-                />
-                <h3 className="text-lg font-bold mb-1">{property.type || property.title}</h3>
-                <p className="text-gray-600 mb-1">{property.location}</p>
-                <p className="text-[#e48f44] font-bold text-lg mt-auto">Rs {property.price}</p>
-              </Link>
-            ))
-          ) : (
-            !loading && !error && (
-              <p className="text-center text-gray-600 col-span-full">No properties found.</p>
-            )
-          )}
+        <div className={`grid gap-8 ${listings.length < 4 ? "min-h-[400px]" : ""} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4`}>
+          {listings.map((item) => {
+            const id = item.property_id || item._id;
+            const image = item.images ? `http://localhost:5000${JSON.parse(item.images)[0]}` : "/placeholder.jpg";
+
+            return (
+              <div key={id} className="bg-white rounded-lg shadow p-4 flex flex-col hover:shadow-lg transition transform hover:scale-105">
+                <Link to={`/property/${id}`}>
+                  <img src={image} alt="Property" className="w-full h-48 object-cover rounded-md mb-4" />
+                </Link>
+
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="text-lg font-bold">{item.type || item.title}</h3>
+                  <button onClick={() => navigate(`/edit-property/${id}`)} title="Edit" className="text-blue-600 hover:text-blue-800">
+                    ✏️
+                  </button>
+                </div>
+
+                <p className="text-gray-600">{item.location}</p>
+                <p className="text-[#e48f44] font-bold text-lg mb-4">Rs {item.price}</p>
+
+                <button
+                  onClick={() => handleDelete(id)}
+                  className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            );
+          })}
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

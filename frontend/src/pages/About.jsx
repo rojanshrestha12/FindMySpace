@@ -7,11 +7,11 @@ function About() {
   // const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="bg-[#f8f1ea] min-h-screen flex flex-col justify-between">
+    <div className="bg-[#f8f1ea] flex flex-col justify-between">
       <Navbar />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-16 flex-grow">
+      <div className="max-w-7xl mx-auto px-4 py-16 flex-grow h-screen">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Text Content */}
           <div className="space-y-6">

@@ -31,10 +31,11 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+      const token = localStorage.getItem("token");
+    const userId = decodeToken(token);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userId = decodeToken(token);
+
 
     if (userId) {
       axios.get(`http://localhost:5000/api/users/${userId}`)
@@ -68,11 +69,9 @@ function Navbar() {
     ));
 
   return (
-    <nav className="sticky top-0 left-0 right-0 bg-[rgba(214,184,153,1)] shadow-lg z-50 "
-
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { duration: 0.2 } }}
-    >
+<nav
+  className="sticky top-0 left-0 right-0 bg-[#cdb7a3] shadow-lg z-50"
+> 
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
         <Link to="/">
           <img src="/assets/logo.png" alt="Logo" className="h-14" />

@@ -53,19 +53,14 @@ agreementRouter.post("/agreement", async (req, res) => {
       return res.status(400).json({ error: "Request ID is required." });
     }
 
-    // Use findOne instead of findAll
     const request = await Request.findOne({ where: { request_id: requestId } });
     if (!request) {
       return res.status(404).json({ error: "Request not found." });
     }
 
-    const tenant_id = request.tenant_id;
-    const property_id = request.property_id;
-    const landlord_id = request.landlord_id;
-
-    const tenant = await User.findByPk(tenant_id);
-    const property = await Property.findByPk(property_id);
-    const landlord = await User.findByPk(landlord_id);
+    const tenant = await User.findByPk(request.tenant_id);
+    const property = await Property.findByPk(request.property_id);
+    const landlord = await User.findByPk(request.landlord_id);
     const agreement = await Agreement.findOne({ where: { request_id: requestId } });
 
     if (!tenant || !property || !landlord || !agreement) {
@@ -73,59 +68,65 @@ agreementRouter.post("/agreement", async (req, res) => {
     }
 
     const { movingDate, dueDate, permanentAddress } = agreement;
+    const rentAmount = property.price;
+    const today = new Date().toLocaleDateString();
 
-    // Generate the PDF
     const doc = new PDFDocument();
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
 
-    const today = new Date().toLocaleDateString();
-    const rent = property.price;
-
     doc.fontSize(16).text("Flat Rental Agreement", { align: "center" }).moveDown(1.5);
     doc.fontSize(12);
 
-    doc.text(`This Rental Agreement is made on this ${today} between:`);
-    doc.moveDown();
+    doc.text(`This Rental Agreement is made on ${today} between:`).moveDown();
 
     doc.text(`Landlord Name: ${landlord.fullname}`);
     doc.text(`Address: ${landlord.location || "_____________________________"}`);
-    doc.text(`Phone Number: ${landlord.phone_number || "________________"}`);
-    doc.moveDown();
+    doc.text(`Phone Number: ${landlord.phone_number || "________________"}`).moveDown();
 
     doc.text(`Tenant Name: ${tenant.fullname}`);
     doc.text(`Permanent Address: ${permanentAddress || "_____________________________"}`);
-    doc.text(`Phone Number: ${tenant.phone_number || "________________"}`);
-    doc.moveDown();
+    doc.text(`Phone Number: ${tenant.phone_number || "________________"}`).moveDown();
 
     doc.text("1. Property Details");
-    doc.text(`The Landlord agrees to rent out the ${property.type} located at:`);
-    doc.text(`${property.location}`);
-    doc.moveDown();
+    doc.text(`The Landlord agrees to rent out the ${property.type} located at ${property.location}.`).moveDown();
 
     doc.text("2. Term of Tenancy");
-    doc.text(`The tenancy will begin on ${movingDate} and will continue.`);
-    doc.moveDown();
+    doc.text(`The tenancy shall commence on ${movingDate} and shall continue on a month-to-month basis unless otherwise terminated.`).moveDown();
 
-    doc.text("3. Rent Details");
-    doc.text(`Monthly Rent: NPR ${rent}`);
-    doc.text(`Due Date: ${dueDate} of each month`);
-    doc.text("Mode of Payment: [ ] Cash  [ ] Bank Transfer  [ ] Others");
-    doc.moveDown();
+    doc.text("3. Rent and Payment");
+    doc.text(`The Tenant agrees to pay a monthly rent of NPR ${rentAmount}.`);
+    doc.text(`Rent is due on the ${dueDate} of each month.`);
+
+    doc.text("4. Security Deposit");
+    doc.text("A security deposit amounting to one month's rent shall be paid by the tenant. This will be refunded upon termination of the agreement after deducting any damage charges, if applicable.").moveDown();
+
+    doc.text("5. Utilities and Bills");
+    doc.text("The Tenant shall be responsible for payment of electricity, water, internet, and other utility bills unless agreed otherwise.").moveDown();
 
     doc.text("6. Maintenance and Repairs");
-    doc.text("The tenant shall keep the premises clean and in good condition. Any damage caused by the tenant must be repaired at the tenant's expense.");
-    doc.moveDown();
+    doc.text("Tenant shall maintain the premises in good condition. Damages beyond normal wear and tear shall be repaired at the Tenant’s cost.").moveDown();
 
-    doc.text("7. Use of Premises");
-    doc.text(`The ${property.type} shall be used for residential purposes only and not for any commercial or illegal activities.`);
-    doc.moveDown();
+    doc.text("7. Use of Property");
+    doc.text(`The ${property.type} shall only be used for residential purposes and must not be used for any illegal or commercial activities.`).moveDown();
 
-    doc.text("8. Termination");
-    doc.text("Either party must give at least 30 days written notice to terminate the tenancy. The tenant must vacate the premises and return the keys on or before the last day.");
+    doc.text("8. Alterations");
+    doc.text("Tenant shall not make any structural alterations or install fixtures without prior written consent from the Landlord.").moveDown();
+
+    doc.text("9. Visitors and Subletting");
+    doc.text("Tenant may not sublet the premises. Visitors are allowed but must not cause disturbance or damage to the property.").moveDown();
+
+    doc.text("10. Entry and Inspection");
+    doc.text("The Landlord may enter the premises for inspection or maintenance with at least 24 hours’ notice to the Tenant.").moveDown();
+
+    doc.text("12. Termination");
+    doc.text("Either party may terminate this agreement by giving a 30-day written notice. On termination, the Tenant shall vacate the property and hand over the keys.").moveDown();
+
+    doc.text("13. Legal Jurisdiction");
+    doc.text("This agreement shall be governed under the laws of Nepal. Any disputes shall be subject to the local jurisdiction.").moveDown();
+
     doc.end();
 
-    // After PDF generation
     stream.on("finish", async () => {
       try {
         const transporter = nodemailer.createTransport({
@@ -152,7 +153,7 @@ agreementRouter.post("/agreement", async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
-        fs.unlinkSync(pdfPath); // delete PDF after sending
+        fs.unlinkSync(pdfPath); // Cleanup
 
         res.status(200).json({ message: "Agreement created and emails sent!" });
       } catch (mailError) {
@@ -163,7 +164,7 @@ agreementRouter.post("/agreement", async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating rental agreement:", error);
-    if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath); // cleanup on error
+    if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

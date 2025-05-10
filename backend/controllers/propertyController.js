@@ -35,19 +35,22 @@ export async function createProperty(req, res) {
 
 // Get all properties
 export async function getAllProperties(req, res) {
-    try {
-        const properties = await Property.findAll();
+  try {
+    // Fetch properties ordered by the creation date in descending order (most recent first)
+    const properties = await Property.findAll({
+      order: [['createdAt', 'DESC']],  // Assuming 'createdAt' is the column storing the creation timestamp
+    });
 
-        // If no properties found
-        if (properties.length === 0) {
-            return res.status(404).json({ message: 'No properties found' });
-        }
-
-        res.status(200).json(properties);  // Return all properties
-    } catch (error) {
-        console.error('Error fetching properties:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    // If no properties found
+    if (properties.length === 0) {
+      return res.status(404).json({ message: 'No properties found' });
     }
+
+    res.status(200).json(properties);  // Return all properties in LIFO order
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 // Get single property details
@@ -59,7 +62,6 @@ export async function getPropertyDetails(req, res) {
         const property = await Property.findOne({
             where: { property_id: propertyId },
         });
-        console.log(property);
         
         if (!property) {
             return res.status(404).json({ error: 'Property not found' });

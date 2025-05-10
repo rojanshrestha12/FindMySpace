@@ -10,6 +10,7 @@ const Notifications = () => {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [userId, setUserId] = useState(null);
 
   // Decode JWT token safely
@@ -110,7 +111,7 @@ const Notifications = () => {
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen">
+      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen-full">
         <h1 className="text-3xl font-bold text-center text-[#e48f44] mb-8">Notifications</h1>
 
         {/* Error display */}

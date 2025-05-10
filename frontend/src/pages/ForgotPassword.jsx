@@ -1,9 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
 
 function ForgotPassword() {
-    // State to store email input from user
+  // State to store email input from user
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
@@ -12,11 +14,15 @@ function ForgotPassword() {
     try {
       // Send the email to the backend for processing
       await axios.post("http://localhost:5000/api/auth/forgotpassword", { email });
-      alert("Password reset email sent!");
+      
+      // Show success toast
+      toast.success("Password reset email sent!");
       navigate("/resetPassword", { state: { email } }); // Pass email as state
     } catch (error) {
       console.error("Error sending reset email:", error);
-      alert(error.response?.data?.message || "Error sending reset email");
+      
+      // Show error toast
+      toast.error(error.response?.data?.message || "Error sending reset email");
     }
   };
 

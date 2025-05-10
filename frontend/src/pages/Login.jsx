@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginWithGoogle } from "../firebase";
+import { toast } from "react-toastify"; // Importing the toast library
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ export default function Login() {
       const googleToken = await loginWithGoogle();
       if (!googleToken) {
         console.error("No Google token obtained");
+        toast.error("Google login failed. Please try again."); // Show error toast
         return;
       }
   
@@ -30,24 +32,25 @@ export default function Login() {
   
       if (!response.ok) {
         console.error("Server error during Google login:", data.error || data);
-        alert("Google login failed. Please try again.");
+        toast.error("Google login failed. Please try again."); // Show error toast
         return;
       }
   
       if (!data.token) {
         console.error("No JWT token received from server.");
-        alert("Login failed: No token received.");
+        toast.error("Login failed: No token received."); // Show error toast
         return;
       }
   
       // Successfully got token
       localStorage.setItem("token", data.token);
       console.log("Stored token:", data.token);
+      toast.success("Google login successful!"); // Show success toast
       navigate("/");
   
     } catch (error) {
       console.error("Error during Google login:", error);
-      alert("An unexpected error occurred during Google login.");
+      toast.error("An unexpected error occurred during Google login."); // Show error toast
     }
   };
   
@@ -69,7 +72,7 @@ export default function Login() {
 
       if (!data.token) {
         console.error("Login failed: No token received");
-        alert("Login failed. Please check your credentials.");
+        toast.error("Login failed. Please check your credentials."); // Show error toast
         return;
       }
 
@@ -77,21 +80,22 @@ export default function Login() {
       const token = data.token;
       const isAdmin = data.isAdmin;
       localStorage.setItem("token", token);
-      localStorage.setItem("isAdmin", isAdmin === "Yes very much an admin"? true : false);
+      localStorage.setItem("isAdmin", isAdmin === "Yes very much an admin" ? true : false);
 
       if (isAdmin === "Yes very much an admin") {
+          toast.success("Admin login successful!"); // Show success toast
           navigate('/AdminDashboard');
-      }else{
+      } else {
+        toast.success("Login successful!"); // Show success toast
         navigate("/"); // redirect normal users here
       }
     } catch (error) {
       console.error("Error in login or admin check:", error);
-      alert("An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred. Please try again."); // Show error toast
     } finally {
       setLoading(false);
     }
   };
-  
   
 
   return (

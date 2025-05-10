@@ -34,7 +34,7 @@ export default function Profile() {
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="w-full max-w-[800px] mx-auto px-4 mt-4">
+      <div className="w-full max-w-[800px] mx-auto px-4 mt-4 h-screen">
         <h2 className="text-2xl font-bold text-orange-500 pb-2 border-b-2 border-black mb-4">
           ACCOUNT
         </h2>
@@ -45,8 +45,8 @@ export default function Profile() {
         </div>
         <hr className="border-gray-300 mb-6" />
         <div className="mb-6">
-          <h3 className="font-bold text-gray-700 mb-7">Contact Information</h3>
-          <div className="grid grid-cols-2 ml-6 pr-80">
+          <h3 className="font-bold text-gray-700 mb-5">Contact Information</h3>
+          <div className="grid grid-cols-2 ml-6 pr-80 gap-4">
             <p className="text-gray-700">Email:</p>
             <p className="text-gray-700">{user.email}</p>
             <p className="text-gray-700">Phone:</p>
@@ -56,16 +56,16 @@ export default function Profile() {
           </div>
         </div>
         <div className="mb-6">
-          <h3 className="font-bold text-gray-700 mb-7">Basic Information</h3>
-          <div className="grid grid-cols-2 ml-6 pr-110">
+          <h3 className="font-bold text-gray-700 mb-5">Basic Information</h3>
+          <div className="grid grid-cols-2 ml-6 pr-80 gap-4">
             <p className="text-gray-700">Gender:</p>
-            <p className="text-gray-700 ml-16">{user.gender}</p>
+            <p className="text-gray-700">{user.gender}</p>
             <p className="text-gray-700">Birth Date:</p>
-            <p className="text-gray-700 ml-16">{user.birth_date}</p>
+            <p className="text-gray-700">{user.birth_date}</p>
           </div>
         </div>
         <div>
-          <h3 className="font-bold text-gray-700 mb-7">About Me</h3>
+          <h3 className="font-bold text-gray-700 mb-5">About Me</h3>
           <div className="ml-6">
             <p className="text-gray-700">{user.about_me}</p>
           </div>

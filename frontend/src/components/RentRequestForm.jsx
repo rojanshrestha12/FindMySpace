@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function RentRequestForm() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     movingDate: "",
     permanentAddress: "",
@@ -20,19 +24,19 @@ function RentRequestForm() {
     const { movingDate, permanentAddress } = form;
 
     if (!movingDate || !permanentAddress) {
-      alert("Please fill in all fields.");
+      toast.warning("Please fill in all fields.");
       return;
     }
 
     if (!agreed) {
-      alert("You must agree to the terms and policy before submitting.");
+      toast.warning("You must agree to the terms and policy.");
       return;
     }
 
     const requestId = localStorage.getItem("requestId");
 
     if (!requestId) {
-      alert("No request ID found in localStorage.");
+      toast.error("No request ID found.");
       return;
     }
 
@@ -55,14 +59,15 @@ function RentRequestForm() {
 
       if (!response.ok) throw new Error("Submission failed");
 
-      alert(`Submitted successfully for Request ID: ${requestId}`);
+      toast.success(`Submitted successfully for Request ID: ${requestId}`);
       setForm({ movingDate: "", permanentAddress: "" });
       setAgreed(false);
+      navigate("/notifications");
     } catch (err) {
       console.error(err);
-      alert("Error submitting data.");
+      toast.error("Error submitting data.");
     } finally {
-      localStorage.removeItem("requestId"); // ✅ Fixed the casing
+      localStorage.removeItem("requestId");
     }
   };
 
@@ -112,6 +117,7 @@ function RentRequestForm() {
           </button>
         </div>
       </div>
+      <ToastContainer autoClose={3000} />
     </div>
   );
 }

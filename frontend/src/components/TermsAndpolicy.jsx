@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function TermsAndPolicy() {
+  const navigate = useNavigate();
   const lastUpdated = new Date().toLocaleDateString("en-GB", {
     year: "numeric",
     month: "long",
@@ -9,6 +11,14 @@ function TermsAndPolicy() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 text-blue-600 hover:underline text-sm"
+      >
+        ← Back
+      </button>
+
       <h1 className="text-3xl font-bold mb-6 text-center">Terms and Privacy Policy</h1>
 
       <section className="mb-6">

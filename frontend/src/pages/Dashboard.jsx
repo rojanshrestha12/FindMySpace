@@ -4,10 +4,11 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Chatbot from "../components/ChatBot";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaBookmark , FaArrowLeft, FaArrowRight} from "react-icons/fa";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 axios.defaults.withCredentials = true;
-
 
 function Dashboard() {
   const [allProperties, setAllProperties] = useState([]);
@@ -23,16 +24,15 @@ function Dashboard() {
   const itemsPerPage = 12;
 
   let userId = null;
-try {
-  const token = localStorage.getItem("token");
-  if (token) {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    userId = payload.userId || null;
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      userId = payload.userId || null;
+    }
+  } catch (error) {
+    console.error("Invalid token:", error);
   }
-} catch (error) {
-  console.error("Invalid token:", error);
-}
-
 
   useEffect(() => {
     axios
@@ -91,36 +91,43 @@ try {
     setCurrentPage(1);
   };
 
+const handleSaveToggle = (propertyId) => {
+  const isSaved = savedIds.includes(propertyId);
 
-  const handleSaveToggle = (propertyId) => {
-    const isSaved = savedIds.includes(propertyId);
+  if (isSaved) {
+    axios
+      .delete("http://localhost:5000/api/save-property", {
+        data: { userId, propertyId },
+      })
+      .then(() => {
+        setSavedIds((prev) => prev.filter((id) => id !== propertyId));
+        toast.info("Property removed from saved list");
+      })
+      .catch((err) => {
+        console.error("Error removing saved property", err);
+        toast.error("Failed to remove property");
+      });
+  } else {
+    axios
+      .post("http://localhost:5000/api/save-property", {
+        userId,
+        propertyId,
+      })
+      .then(() => {
+        setSavedIds((prev) => [...prev, propertyId]);
+        toast.success("Property saved successfully");
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 409) {
+          toast.warning("Property already saved");
+        } else {
+          console.error("Error saving property", err);
+          toast.error("Something went wrong");
+        }
+      });
+  }
+};
 
-    if (isSaved) {
-      alert("Property is already saved.");
-      return;
-    }
-
-    if (isSaved) {
-      axios
-        .delete("http://localhost:5000/api/save-property", {
-          data: { userId, propertyId },
-        })
-        .then(() => {
-          setSavedIds((prev) => prev.filter((id) => id !== propertyId));
-        })
-        .catch((err) => console.error("Error removing saved property", err));
-    } else {
-      axios
-        .post("http://localhost:5000/api/save-property", {
-          userId,
-          propertyId,
-        })
-        .then(() => {
-          setSavedIds((prev) => [...prev, propertyId]);
-        })
-        .catch((err) => console.error("Error saving property", err));
-    }
-  };
 
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
   const paginatedData = filteredProperties.slice(
@@ -128,11 +135,11 @@ try {
     currentPage * itemsPerPage
   );
 
- 
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="pt-32 max-w-7xl mx-auto px-4 flex-1 -mt-20">
+      <ToastContainer position="top-right" autoClose={2000} />
+      <div className=" w-7xl mx-auto px-4 flex-1 mt-10">
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">
           Filter Properties
         </h2>
@@ -211,7 +218,7 @@ try {
 
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">List of Properties</h2>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ${paginatedData.length < 4 ? "min-h-[400px]" : ""}`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8`}>
           {paginatedData.length > 0 ? (
             paginatedData.map((property) => (
               <div
@@ -235,14 +242,10 @@ try {
 
                 <button
                   onClick={() => handleSaveToggle(property.property_id)}
-                  className={`absolute bottom-4 right-4 text-xl hover:scale-110 transition ${
-                    savedIds.includes(property.property_id)
-                      ? "text-red-500"
-                      : "text-gray-400"
-                  }`}
-                  title={savedIds.includes(property.property_id) ? "Unsave" : "Save"}
+                  className= "absolute text-gray-400 bottom-4 right-4 text-xl hover:scale-110 transition"
+            
                 >
-                  {savedIds.includes(property.property_id) ? <FaHeart /> : <FaRegHeart />}
+                  <FaBookmark />
                 </button>
               </div>
             ))
@@ -260,14 +263,27 @@ try {
               disabled={currentPage === 1}
               className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
             >
-              Previous
+              <FaArrowLeft></FaArrowLeft>
             </button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-4 py-2 rounded ${
+                  currentPage === index + 1
+                    ? "bg-[#e48f44] text-white"
+                    : "bg-gray-300 hover:bg-gray-400 text-black"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
             <button
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="px-5 py-2 bg-[#e48f44] hover:bg-[#cc7733] text-white rounded disabled:opacity-50"
             >
-              Next
+              <FaArrowRight></FaArrowRight>
             </button>
           </div>
         )}
@@ -277,13 +293,18 @@ try {
             onClick={() => setShowChatbot(!showChatbot)}
             className="bg-transparent-100 outline hover:bg-blue-200 text-black-800 rounded-full p-4 shadow-md"
             title="Open Chatbot"
+         
           >
-            🤖
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/chat.png"
+              alt="Chatbot Icon"
+              className="w-12 h-12"
+            />
           </button>
+
+          {showChatbot && <Chatbot />}
         </div>
       </div>
-
-      {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
 
       <Footer />
     </div>

@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
 import RentRequestForm from "../components/RentRequestForm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 axios.defaults.withCredentials = true;
 
@@ -20,7 +22,7 @@ function PropertyDetail() {
   const { id } = useParams();
   const location = useLocation();
   const requestId = location.state?.requestId;
-  
+
   const [property, setProperty] = useState(null);
   const [isVisitRequested, setIsVisitRequested] = useState(false);
   const [isRentRequested, setIsRentRequested] = useState(false);
@@ -38,7 +40,7 @@ function PropertyDetail() {
 
   useEffect(() => {
     if (!tenantId) {
-      navigate("/login");
+      navigate("/");
     }
   }, [tenantId, navigate]);
 
@@ -57,12 +59,11 @@ function PropertyDetail() {
             amenities: parsedAmenities,
             userDetails: response.data.userDetails,
           });
-
-          setLoading(false);
         }
       } catch (error) {
         console.error(error);
         setError("Error fetching property details. Please try again later.");
+      } finally {
         setLoading(false);
       }
     };
@@ -70,38 +71,44 @@ function PropertyDetail() {
     fetchPropertyDetails();
   }, [id]);
 
-const handleBookingRequest = async (type = {}, formData = {}) => {
-  if (!tenantId || !property?.userDetails?.user_id) return;
+  const handleBookingRequest = async (type = {}, formData = {}) => {
+    if (!tenantId || !property?.userDetails?.user_id) return;
 
-  const formattedTime = time ? convertTo12HourFormat(time) : null;
-  const dateTime = date && formattedTime ? `${date} ${formattedTime}` : new Date().toISOString();
+    const formattedTime = time ? convertTo12HourFormat(time) : null;
+    const dateTime = date && formattedTime ? `${date} ${formattedTime}` : new Date().toISOString();
 
-  const bookingData = {
-    tenant_id: tenantId,
-    property_id: id,
-    request_type: type,
-    date_time: dateTime,
-    ...(type === "rent" ? formData : {})
+    const bookingData = {
+      tenant_id: tenantId,
+      property_id: id,
+      request_type: type,
+      date_time: dateTime,
+      ...(type === "rent" ? formData : {}),
+    };
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/booking/request", bookingData);
+      const requestId = response.data.request.request_id;
+      localStorage.setItem("requestId", requestId);
+
+      toast.success(`${type === "rent" ? "Rental" : "Visit"} request submitted!`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      if (type === "rent") {
+        setIsRentRequested(true);
+      } else if (type === "visit") {
+        setIsVisitRequested(true);
+     
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error submitting request. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
-
-  try {
-    const response = await axios.post("http://localhost:5000/api/booking/request", bookingData);
-
-    // Save the requestId to localStorage
-    const requestId = response.data.request.request_id;
-    localStorage.setItem("requestId", requestId);
-    alert(`Request ID: ${requestId}`);
-
-    if (type === "rent") setIsRentRequested(true);
-    if (type === "visit") setIsVisitRequested(true);
-
-    alert(`${type === "rent" ? "Rental" : "Visit"} request submitted!`);
-    if (type === "visit") navigate("/my_properties"); // Visit redirects immediately
-  } catch (err) {
-    console.error(err);
-    alert("Error submitting request.");
-  }
-};
 
   const goToNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % property.images.length);
@@ -120,8 +127,10 @@ const handleBookingRequest = async (type = {}, formData = {}) => {
   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex-grow flex flex-col lg:flex-row">
+      <ToastContainer />
+      <div className="container mx-auto px-4 py-8 flex-grow flex flex-col lg:flex-row h-screen">
         <div className="lg:w-2/4 w-full p-4">
+          {/* Property Image Section */}
           {property.images?.length > 0 ? (
             <div className="bg-white border rounded-lg overflow-hidden relative flex items-center justify-center">
               <img
@@ -153,7 +162,7 @@ const handleBookingRequest = async (type = {}, formData = {}) => {
               <button
                 onClick={() => {
                   if (tenantId === property.userDetails.user_id) {
-                    alert("You cannot request your own property.");
+                    toast.warning("You book your own property.");
                     return;
                   }
                   setVisitFormVisible(true);
@@ -170,14 +179,13 @@ const handleBookingRequest = async (type = {}, formData = {}) => {
               <button
                 onClick={async () => {
                   if (tenantId === property.userDetails.user_id) {
-                    alert("You cannot request your own property.");
+                    toast.warning("You cannot request your own property.");
                     return;
                   }
 
                   if (!isRentRequested) {
-                    await handleBookingRequest("rent"); // ✅ Send request first
-                    setRentFormVisible(true);           // ✅ Then show form
-                    setIsRentRequested(true);
+                    await handleBookingRequest("rent");
+                    setRentFormVisible(true);
                     setVisitFormVisible(false);
                   }
                 }}
@@ -227,6 +235,7 @@ const handleBookingRequest = async (type = {}, formData = {}) => {
           </div>
         </div>
 
+        {/* Right Section */}
         <div className="lg:w-2/4 w-full p-4">
           <h3 className="text-3xl font-bold mb-1 text-[#e48f44]">
             {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
@@ -265,36 +274,32 @@ const handleBookingRequest = async (type = {}, formData = {}) => {
                   <div className="col-span-2">{property.userDetails.phone_number}</div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold">Landlord:</div>
-                  <div className="col-span-2">{property.userDetails.name}</div>
+                  <div className="font-semibold">Owner Name:</div>
+                  <div className="col-span-2">{property.userDetails.fullname}</div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-4 items-start">
-                  <div className="font-semibold">Availability:</div>
-                  <div className="col-span-2">{property.availability}</div>
+                  <div className="font-semibold">Owner Email:</div>
+                  <div className="col-span-2">{property.userDetails.email}</div>
                 </div>
+
               </div>
             </div>
           )}
 
           {activeTab === "Amenities" && (
             <div className="bg-white p-6 mt-4 rounded-lg">
-              <div className="grid gap-y-2">
-                {Object.entries(property.amenities).map(([amenity, value]) => (
-                  <div className="grid grid-cols-3 gap-x-4 items-center" key={amenity}>
-                    <div className="font-semibold">{amenity.replace("_", " ")}</div>
-                    <div className="col-span-2">{value ? "Yes" : "No"}</div>
-                  </div>
-                ))}
-              </div>
+              {Object.entries(property.amenities).map(([key, value]) => (
+                <div key={key} className="flex justify-between py-1">
+                  <span className="capitalize">{key.replace(/_/g, " ")}</span>
+                  <span>{value ? "✔️" : "❌"}</span>
+                </div>
+              ))}
             </div>
           )}
 
           {activeTab === "Description" && (
             <div className="bg-white p-6 mt-4 rounded-lg">
-              <div className="grid gap-y-2">
-                <div className="font-semibold">Description:</div>
-                <div>{property.description}</div>
-              </div>
+              <p>{property.description}</p>
             </div>
           )}
         </div>
