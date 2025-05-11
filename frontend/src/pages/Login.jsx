@@ -80,9 +80,9 @@ export default function Login() {
       const token = data.token;
       const isAdmin = data.isAdmin;
       localStorage.setItem("token", token);
-      localStorage.setItem("isAdmin", isAdmin === "Yes very much an admin" ? true : false);
+      localStorage.setItem("isAdmin", isAdmin === "true" ? true : false);
 
-      if (isAdmin === "Yes very much an admin") {
+      if (isAdmin === "true") {
           toast.success("Admin login successful!"); // Show success toast
           navigate('/AdminDashboard');
       } else {

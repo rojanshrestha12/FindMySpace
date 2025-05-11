@@ -135,6 +135,7 @@ const Notifications = () => {
                 >
                   <div className="flex justify-between items-left">
                     <div>
+                      
                       <p className="text-lg font-medium text-gray-800">{item.message}</p>
                       {/* <p className="text-sm text-gray-500 mt-1">{item.userId}</p> */}
                       <p className="text-bg text-black-500 mt-1">Tenant Email: {item.tenant_email}</p>
@@ -198,6 +199,18 @@ const Notifications = () => {
                     }`}
                 >
                   <p className="text-gray-800">{res.message}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    <strong>Status:</strong> {res.status}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    <strong>Landlord Name:</strong> {res.landlord_name}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    <strong>Landlord Email:</strong> {res.landlord_email}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    <strong>Landlord Phone Number:</strong> {res.landlord_Phone_number}
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Last updated: {new Date(res.updatedAt).toLocaleString()}
                   </p>

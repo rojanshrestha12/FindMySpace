@@ -16,7 +16,7 @@ const app = express();
 import adminRouter from './router/admin.js';
 import Savedrouter from './controllers/SavedController.js'; // Import the save property routes
 import agreementRouter from './controllers/agreement.js';
-import paymentRouter from './controllers/payments.js';
+import paymentRouter from './controllers/payment.js';
 
 app.use(
     cors({

@@ -28,6 +28,15 @@ function RentRequestForm() {
       return;
     }
 
+    const selectedDate = new Date(movingDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate <= today) {
+      toast.warning("Moving date must be in the future.");
+      return;
+    }
+
     if (!agreed) {
       toast.warning("You must agree to the terms and policy.");
       return;

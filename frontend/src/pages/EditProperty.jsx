@@ -77,7 +77,6 @@ function EditProperty() {
     formData.images.forEach((file) => {
       form.append("images", file);
     });
-
     try {
       await axios.put(`http://localhost:5000/api/propertyEdit/${id}`, form, {
         headers: {
@@ -85,7 +84,7 @@ function EditProperty() {
         },
       });
       toast.success("Property updated!");
-      setTimeout(() => navigate("/my-listings"), 2000);
+      setTimeout(() => navigate("/my_properties"), 2000);
     } catch (error) {
       console.error("Error updating property:", error);
       toast.error("Failed to update property.");

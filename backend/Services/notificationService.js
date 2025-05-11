@@ -162,6 +162,11 @@ router.get('/repondMes/:userId', async (req, res) => {
       }
 
       return {
+        landlord_name: req.landlord.fullname,
+        property_location: req.Property.location,
+        request_type: req.request_type,
+        landlord_email: req.landlord.email,
+        landlord_number: req.landlord.phone_number, 
         request_id: req.request_id,
         message: statusMsg,
         status: req.status,

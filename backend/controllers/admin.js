@@ -57,8 +57,6 @@ export const modifyProperty = async (req, res) => {
 
     const property = await Property.findByPk(property_id);
     if (!property) return res.status(404).send('Property not found');
-
-    console.log("I HAVE BEEN SUMMONED!!")
     // Update only if values are provided
     if (amenities !== undefined) property.amenities = amenities;
     if (type !== undefined) property.type = type;

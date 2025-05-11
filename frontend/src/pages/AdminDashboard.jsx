@@ -1,22 +1,40 @@
-import { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Siderbar";
 import Footer from "../components/Footer";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalProperties, setTotalProperties] = useState(0);
+  const [totalLandlords, setTotalLandlords] = useState(0);
+  const [totalTenants, setTotalTenants] = useState(0);
+  // const [pendingRequests, setPendingRequests] = useState(0);
+  // const [activeAgreements, setActiveAgreements] = useState(0);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/users")
       .then((res) => res.json())
-      .then((data) =>setTotalUsers(data.length))
-      .catch((err) => console.error("Error fetching users count:", err));
+      .then((data) => {
+        setTotalUsers(data.length);
+        setTotalLandlords(data.filter(u => u.role === "landlord").length);
+        setTotalTenants(data.filter(u => u.role === "tenant").length);
+        setRecentUsers(data.slice(-5).reverse());
+      });
 
     fetch("http://localhost:5000/api/admin/properties")
       .then((res) => res.json())
-      .then((data) => setTotalProperties(data.length))
-      .catch((err) => console.error("Error fetching properties count:", err));
+      .then((data) => setTotalProperties(data.length));
+
+  //   fetch("http://localhost:5000/api/admin/requests")
+  //     .then((res) => res.json())
+  //     .then((data) => setPendingRequests(data.filter(r => r.status === "pending").length));
+
+  //   fetch("http://localhost:5000/api/admin/agreements")
+  //     .then((res) => res.json())
+  //     .then((data) => setActiveAgreements(data.filter(a => a.status === "active").length));
   }, []);
 
   const handleLogout = () => {
@@ -24,109 +42,97 @@ const AdminDashboard = () => {
     navigate("/login");
   };
 
+  const infoCards = [
+    { title: "Total Users", value: totalUsers },
+    { title: "Total Properties", value: totalProperties },
+    // { title: "Registered Landlords", value: totalLandlords },
+    // { title: "Registered Tenants", value: totalTenants },
+    // { title: "Pending Requests", value: pendingRequests },
+    // { title: "Active Agreements", value: activeAgreements },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navbar */}
-      <nav className="bg-[#d6b899] py-2 flex justify-between items-center px-4">
-        {/* Logo section */}
-        <div className="flex items-center px-95">
-          <img
-            src="/assets/logo.png"
-            alt="Logo"
-            className="h-8 sm:h-10 md:h-12 w-auto"
-          />
+    <div className="h-screen flex flex-col">
+      <nav className="bg-[#d6b899] py-3 px-6 flex justify-between items-center shadow">
+        <div className="flex items-center px-42">
+        <img src="/assets/logo.png" alt="Logo" className="h-8 sm:h-10 md:h-12 w-auto" />
         </div>
-        {/* Logout button */}
         <button
           onClick={handleLogout}
-          className="bg-[#e48f44] text-white px-3 py-1 rounded text-sm mr-98 "
+          className="bg-[#e48f44] text-white px-4 py-1.5 rounded text-sm hover:bg-[#d97c2e] transition"
         >
           Logout
         </button>
       </nav>
 
-      {/* Main Content */}
-      <main className="flex-grow flex flex-col items-center justify-center bg-[#ede9df]">
-        <div
-          className="bg-[#f6f8f3] border border-[#e3e3db] rounded-lg shadow-sm w-[700px] max-w-full min-h-[500px] flex flex-col justify-start mt-8 mb-8"
-        >
-          {/* Heading with thin line */}
-          <div className="border-b border-[#bdbdbd] px-8 py-4">
-            <h1 className="text-center text-lg font-medium">
-              Welcome to Admin Dashboard!
+      <div className="flex flex-grow">
+        <Sidebar />
+
+        <main className="flex-grow bg-[#ede9df] p-6">
+          <div className="max-w-6xl mx-auto bg-white shadow rounded-lg p-6">
+            <h1 className="text-2xl font-bold text-center text-[#333] mb-6">
+              Admin Dashboard
             </h1>
-          </div>
+            <p className="text-center text-sm mb-8 text-gray-600">
+              Overview of platform activity as of {new Date().toLocaleString()}
+            </p>
 
-          {/* Cards */}
-          <div className="flex flex-col gap-4 px-8 py-8">
-            {/* Users Card */}
-            <div className="bg-white rounded-md shadow-sm border border-[#e3e3db]">
-              <div
-                className="bg-[#d6b899] rounded-t-md flex items-center justify-between px-4 py-2"
-              >
-                <div>
-                  <div className="text-base font-semibold">{totalUsers}</div>
-                  <div className="text-sm">Total Users</div>
+            {/* Info Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 mb-10">
+              {infoCards.map((card, idx) => (
+                <div key={idx} className="bg-[#f8f8f4] border border-[#e3e3db] rounded-lg p-4 shadow">
+                  <h2 className="text-lg font-semibold text-[#444] mb-1">{card.title}</h2>
+                  <p className="text-2xl font-bold text-[#e48f44]">{card.value}</p>
                 </div>
-                <svg
-                  className="w-5 h-5 text-black/70"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05C17.16 13.66 20 14.84 20 16.5V19h4v-2.5c0-2.33-4.67-3.5-8-3.5z"
-                  />
-                </svg>
-              </div>
-              <div className="flex justify-end p-2">
-                <button
-                  className="bg-white border border-[#d6b899] rounded px-4 py-1 text-sm font-medium hover:bg-gray-100 transition flex items-center"
-                  onClick={() => navigate("/UserList")}
-                >
-                  View list{" "}
-                  <span className="ml-1">
-                    {">"}
-                  </span>
-                </button>
-              </div>
+              ))}
             </div>
 
-            {/* Properties Card */}
-            <div className="bg-white rounded-md shadow-sm border border-[#e3e3db]">
-              <div
-                className="bg-[#d6b899] rounded-t-md flex items-center justify-between px-4 py-2"
-              >
-                <div>
-                  <div className="text-base font-semibold">{totalProperties}</div>
-                  <div className="text-sm">Total Properties</div>
-                </div>
-                <svg
-                  className="w-5 h-5 text-black/70"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13zm0-15H5V5h14v1z"
-                  />
-                </svg>
-              </div>
-              <div className="flex justify-end p-2">
-                <button
-                  className="bg-white border border-[#d6b899] rounded px-4 py-1 text-sm font-medium hover:bg-gray-100 transition flex items-center"
-                  onClick={() => navigate("/PropertyList")}
-                >
-                  View list{" "}
-                  <span className="ml-1">
-                    {">"}
-                  </span>
-                </button>
-              </div>
+            {/* Quick Actions */}
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
+              <button onClick={() => navigate("/UserList")} className="bg-[#e48f44] text-white px-4 py-2 rounded hover:bg-[#d97c2e]">
+                View Users
+              </button>
+              <button onClick={() => navigate("/propertyList")} className="bg-[#e48f44] text-white px-4 py-2 rounded hover:bg-[#d97c2e]">
+                View Properties
+              </button>
+
+      
+            </div>
+
+            {/* Recent Users Table */}
+            <div className="bg-[#f9f9f6] border border-[#e3e3db] rounded-lg p-4">
+              <h2 className="text-lg font-semibold mb-4">Recent Registrations</h2>
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="border-b border-[#ccc]">
+                    <th className="p-2">Name</th>
+                    <th className="p-2">Email</th>
+                    <th className="p-2">Role</th>
+                    <th className="p-2">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="p-4 text-center text-gray-500">No recent users found</td>
+                    </tr>
+                  ) : (
+                    recentUsers.map((u, i) => (
+                      <tr key={i} className="border-t border-[#ddd] hover:bg-[#f2f2ec]">
+                        <td className="p-2">{u.fullname}</td>
+                        <td className="p-2">{u.email}</td>
+                        <td className="p-2 capitalize">{u.role}</td>
+                        <td className="p-2">{new Date(u.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

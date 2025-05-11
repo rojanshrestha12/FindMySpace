@@ -74,6 +74,21 @@ function PropertyDetail() {
   const handleBookingRequest = async (type = {}, formData = {}) => {
     if (!tenantId || !property?.userDetails?.user_id) return;
 
+    if (type === "visit") {
+      if (!date || !time) {
+        toast.error("Please select both date and time.", { autoClose: 3000 });
+        return;
+      }
+
+      const selectedDateTime = new Date(`${date}T${time}`);
+      const now = new Date();
+
+      if (selectedDateTime <= now) {
+        toast.error("Selected date and time must be in the future.", { autoClose: 3000 });
+        return;
+      }
+    }
+
     const formattedTime = time ? convertTo12HourFormat(time) : null;
     const dateTime = date && formattedTime ? `${date} ${formattedTime}` : new Date().toISOString();
 
@@ -89,17 +104,19 @@ function PropertyDetail() {
       const response = await axios.post("http://localhost:5000/api/booking/request", bookingData);
       const requestId = response.data.request.request_id;
       localStorage.setItem("requestId", requestId);
-
-      toast.success(`${type === "rent" ? "Rental" : "Visit"} request submitted!`, {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      if (type === "visit") {
+        toast.success(`Visit request submitted!`, {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        
+      }
+ 
 
       if (type === "rent") {
         setIsRentRequested(true);
       } else if (type === "visit") {
         setIsVisitRequested(true);
-     
       }
     } catch (err) {
       console.error(err);
@@ -130,7 +147,6 @@ function PropertyDetail() {
       <ToastContainer />
       <div className="container mx-auto px-4 py-8 flex-grow flex flex-col lg:flex-row h-screen">
         <div className="lg:w-2/4 w-full p-4">
-          {/* Property Image Section */}
           {property.images?.length > 0 ? (
             <div className="bg-white border rounded-lg overflow-hidden relative flex items-center justify-center">
               <img
@@ -235,7 +251,6 @@ function PropertyDetail() {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="lg:w-2/4 w-full p-4">
           <h3 className="text-3xl font-bold mb-1 text-[#e48f44]">
             {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
@@ -281,7 +296,6 @@ function PropertyDetail() {
                   <div className="font-semibold">Owner Email:</div>
                   <div className="col-span-2">{property.userDetails.email}</div>
                 </div>
-
               </div>
             </div>
           )}

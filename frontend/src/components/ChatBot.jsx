@@ -40,36 +40,45 @@ const Chatbot = ({ onClose }) => {
   const generateBotReply = (msg) => {
     const lower = msg.toLowerCase();
 
-    // Predefined smart answers
     if (lower.includes("hello") || lower.includes("hi")) return "Hello! 👋";
-    if (lower.includes("room") && lower.includes("book")) return "You can easily book a room by browsing our listings.";
-    if (lower.includes("discount")) return "Yes! We offer special discounts. Check our Offers section!";
-    if (lower.includes("location")) return "📍 We are located at Top Floor, Hilton, Kathmandu, Nepal.";
-    if (lower.includes("hours") || lower.includes("timing")) return "We are open Monday to Friday, 9 AM to 6 PM.";
-    if (lower.includes("cancel")) return "To cancel your booking, visit your Dashboard > Bookings > Cancel.";
-    if (lower.includes("support")) return "Reach us via email or call (+997) 9828988214.";
+    if (lower.includes("property") && lower.includes("book"))
+      return "You can easily book a property by browsing our listings.";
+    if (lower.includes("location"))
+      return "📍 You can choose location where you need from the location available in our rental system";
+   if (lower.includes("agreement"))
+      return "You have to agree with the property agreement for living there.";
+    if (lower.includes("support"))
+      return "Reach us via email or call (+997) 9828988214.";
     if (lower.includes("parking")) return "🅿️ Yes! Free parking is available.";
-    if (lower.includes("pet")) return "🐶 Pets are allowed in selected rooms. Check details.";
+    if (lower.includes("pet") || lower.includes("pets"))
+      return "🐶 Pets are allowed in selected rooms. Check the property details before booking.";
     if (lower.includes("payment")) return "We accept cards, mobile wallets, and cash.";
     if (lower.includes("wifi")) return "Free high-speed Wi-Fi is available for all guests.";
-    if (lower.includes("monthly")) return "We offer monthly rental plans. Contact support!";
-    if (lower.includes("reservation change")) return "Modify your booking anytime from your dashboard.";
-    if (lower.includes("password")) return "Forgot your password? Reset it from the login page.";
-    if (lower.includes("recommend") || lower.includes("nearby")) return "🏞️ Visit Thamel, Swayambhu, or Boudhanath nearby!";
-    if (lower.includes("breakfast")) return "🍳 Breakfast is included in most of our packages.";
-    if (lower.includes("check in")) return "Check-in starts from 2 PM onward.";
-    if (lower.includes("late checkout")) return "Late checkout is possible on request (extra charges may apply).";
-    if (lower.includes("book for someone")) return "Yes, you can book for others using their details.";
-    if (lower.includes("group discount")) return "We offer group discounts! Contact support for info.";
-    if (lower.includes("wheelchair")) return "♿ We have wheelchair accessible rooms.";
+    if (lower.includes("monthly"))
+      return "We offer monthly rental plans. Contact support!";
+    if (lower.includes("renting"))
+      return "You can rent anytime from your dashboard.";
+    if (lower.includes("password"))
+      return "Forgot your password? Reset it from the login page.";
+    // if (lower.includes("recommend") || lower.includes("nearby"))
+    //   return "🏞️ Visit Thamel, Swayambhu, or Boudhanath nearby!";
+    if (lower.includes("book for someone"))
+      return "Yes, you can book for others using their details.";
+
+    // 
+    if (lower.includes("add property") || lower.includes("list my space"))
+      return "To add a property, click on the 'Add Property' button in the top navigation.";
+    if (lower.includes("type of property") || lower.includes("what properties"))
+      return "We offer Houses, Apartments, Rooms, Flats, and Shutters. Use the filters to browse.";
 
     // Dynamic parsed responses
     const parsed = parseQuery(msg);
     if (parsed) return parsed;
 
-    // If nothing matched => suggest topics
-    return "❓ Sorry, I didn't understand that. You can ask about:\n" +
-      "👉 Booking a room\n👉 Discounts\n👉 Location\n👉 Support\n👉 Parking\n👉 Pets\n👉 Payments\n👉 Wi-Fi\n👉 Breakfast\n👉 Group discounts, etc.";
+    return (
+      "❓ Sorry, I didn't understand that. You can ask about:\n" +
+      "👉 Property\n👉 Location\n👉 Price\n👉 Support\n👉 Parking\n👉 Pets\n👉 Payments\n👉 Wi-Fi etc."
+    );
   };
 
   useEffect(() => {

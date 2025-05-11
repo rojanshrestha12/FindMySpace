@@ -298,7 +298,7 @@ const handleSaveToggle = (propertyId) => {
             <img
               src="https://img.icons8.com/ios-filled/50/000000/chat.png"
               alt="Chatbot Icon"
-              className="w-12 h-12"
+              className="w-8 h-8"
             />
           </button>
 

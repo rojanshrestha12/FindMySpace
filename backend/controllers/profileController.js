@@ -51,8 +51,6 @@ export const updatePassword = async (req, res) => {
         console.log("User not found");
         return res.status(404).json({ error: "User not found" });
       }
-      console.log(user.password);
-      console.log(oldPassword);
       const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
   
       if (!isPasswordValid) {

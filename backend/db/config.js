@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'mysql',
@@ -7,7 +8,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 
-// // WARNING: This deletes all the data, forcefully creates new tables; just dont mess shit up lol
+// // WARNING: This deletes all the data, forcefully creates new tables;
 //  sequelize.sync({ force: true }) 
 //      .then(() => console.log("Database & tables created!"))
 //     .catch(err => console.error("Error syncing database:", err));
