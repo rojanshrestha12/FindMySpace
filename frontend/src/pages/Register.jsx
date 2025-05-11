@@ -2,11 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { toast } from "react-toastify";  // Import toast
-import "react-toastify/dist/ReactToastify.css";  // Import toast styles
-
-// Initialize toast container
-// toast.configure();
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Register() {
   const [fullname, setfullname] = useState("");
@@ -23,7 +20,7 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [showPasswordHint, setShowPasswordHint] = useState("");
+  const [showPasswordHint, setShowPasswordHint] = useState(false);
 
   const navigate = useNavigate();
 
@@ -58,20 +55,22 @@ function Register() {
   const sendOtp = async (e) => {
     e.preventDefault();
     setError("");
+
     if (!isLengthValid || !hasSpecialChar || !hasNumber || !hasUpperCase) {
-      setError("Password must be at least 8 characters and contain a special character.");
+      setError("Password must meet all requirements.");
+      toast.error("Password must meet all requirements.");
       return;
     }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
-    if (emailError) {
-      setError("Please enter a valid email.");
-      return;
-    }
-    if (phoneError) {
-      setError("Please enter a valid phone number.");
+
+    if (emailError || phoneError) {
+      setError("Please correct the errors before proceeding.");
+      toast.error("Please correct the errors before proceeding.");
       return;
     }
 
@@ -96,25 +95,25 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+
     if (!otp) {
-      setError("Please enter the OTP sent to your email.");
       toast.error("Please enter the OTP sent to your email.");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post("http://localhost:5000/api/auth/register", {
         fullname,
         phone_number,
         email,
         password,
         notp: otp,
       });
-      toast.success("Registration successful!");
-      localStorage.setItem("token", res.data.token);
-
-      navigate("/login");
+      toast.success("Registration successful! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       toast.error(err.response?.data?.message || "Registration failed");
@@ -125,13 +124,13 @@ function Register() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f8f1ea] px-4">
+      <ToastContainer />
       <div className="flex flex-col md:flex-row items-center w-full max-w-full bg-[#f8f1ea] rounded-lg p-8 md:px-20 md:pb-4">
         <div className="hidden md:block flex-2 p-8">
           <img src="/assets/logo.png" alt="Logo" className="w-40 absolute top-10" />
           <h2 className="text-6xl mb-4">SIMPLIFYING ROOM RENTALS</h2>
           <p className="text-lg font-bold mb-6 mr-40 text-[#8d6d62]">
-            A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.
-          </p>
+   A digital platform connecting landlords and tenants for easy rentals. Owners list properties with details like price, location, and amenities. Renters can search, filter, and book visits online. The system includes rental agreements and payment tracking for transparency. Admins manage listings for hassle-free property management.          </p>
         </div>
 
         <div className="flex-1 p-8">
@@ -143,8 +142,8 @@ function Register() {
               type="text"
               required
               value={fullname}
-              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-white text-black text-lg"
               onChange={(e) => setfullname(e.target.value)}
+              className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-white text-black text-lg"
             />
 
             <label>Phone Number</label>
@@ -152,11 +151,13 @@ function Register() {
               type="text"
               required
               value={phone_number}
-              className={`w-full p-2 mb-2 border-2 rounded-lg bg-white text-black text-lg ${phoneError ? "border-red-500" : "border-[#8d6d62]"}`}
               onChange={(e) => {
                 setPhone(e.target.value);
                 validatePhone(e.target.value);
               }}
+              className={`w-full p-2 mb-2 border-2 rounded-lg bg-white text-black text-lg ${
+                phoneError ? "border-red-500" : "border-[#8d6d62]"
+              }`}
             />
             {phoneError && <p className="text-red-600 text-sm mb-2">{phoneError}</p>}
 
@@ -165,11 +166,13 @@ function Register() {
               type="email"
               required
               value={email}
-              className={`w-full p-2 mb-1 border-2 rounded-lg bg-white text-black text-lg ${emailError ? "border-red-500" : "border-[#8d6d62]"}`}
               onChange={(e) => {
                 setEmail(e.target.value);
                 validateEmail(e.target.value);
               }}
+              className={`w-full p-2 mb-1 border-2 rounded-lg bg-white text-black text-lg ${
+                emailError ? "border-red-500" : "border-[#8d6d62]"
+              }`}
             />
             {emailError && <p className="text-red-600 text-sm mb-2">{emailError}</p>}
 
@@ -180,15 +183,15 @@ function Register() {
                 required
                 value={password}
                 autoComplete="new-password"
-                className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-white text-black text-lg"
+                onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setShowPasswordHint(true)}
                 onBlur={() => setShowPasswordHint(false)}
-                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-white text-black text-lg"
               />
               <button
                 type="button"
-                className="absolute right-2 top-2 text-gray-500"
                 onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-2 top-2 text-gray-500"
               >
                 {passwordVisible ? <FiEyeOff /> : <FiEye />}
               </button>
@@ -201,20 +204,24 @@ function Register() {
                 required
                 value={confirmPassword}
                 autoComplete="new-password"
-                className={`w-full p-2 mb-2 border-2 border-[#8d6d62] rounded-lg bg-white text-black text-lg ${password !== confirmPassword ? "border-red-500" : "border-[#8d6d62]"}`}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 onFocus={() => setShowPasswordHint(true)}
                 onBlur={() => setShowPasswordHint(false)}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`w-full p-2 mb-2 border-2 rounded-lg bg-white text-black text-lg ${
+                  password !== confirmPassword ? "border-red-500" : "border-[#8d6d62]"
+                }`}
               />
               <button
                 type="button"
-                className="absolute right-2 top-2 text-gray-500"
                 onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                className="absolute right-2 top-2 text-gray-500"
               >
                 {confirmPasswordVisible ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-            {password !== confirmPassword && <p className="text-red-600 text-sm mb-2">Passwords do not match</p>}
+            {password !== confirmPassword && (
+              <p className="text-red-600 text-sm mb-2">Passwords do not match</p>
+            )}
 
             {showPasswordHint && (
               <div className="text-sm text-[#5c4033] mb-4 space-y-1">
@@ -252,8 +259,8 @@ function Register() {
 
             <button
               type="submit"
-              className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-2"
               disabled={loading}
+              className="w-full py-2 bg-[#e48f44] text-black text-lg rounded-lg cursor-pointer hover:bg-[#d67d3b] mt-2"
             >
               {loading ? "Processing..." : otpSent ? "Register" : "Send OTP"}
             </button>
