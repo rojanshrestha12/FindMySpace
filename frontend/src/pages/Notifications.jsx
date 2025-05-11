@@ -109,9 +109,9 @@ const Notifications = () => {
   }
 
   return (
-    <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
+    <div className="bg-[#f8f1ea] h-screen flex flex-col">
       <Navbar />
-      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen-full">
+      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen">
         <h1 className="text-3xl font-bold text-center text-[#e48f44] mb-8">Notifications</h1>
 
         {/* Error display */}
