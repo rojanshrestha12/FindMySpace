@@ -4,7 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Chatbot from "../components/ChatBot";
-import { FaBookmark , FaArrowLeft, FaArrowRight} from "react-icons/fa";
+import { FaBookmark, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -91,43 +91,42 @@ function Dashboard() {
     setCurrentPage(1);
   };
 
-const handleSaveToggle = (propertyId) => {
-  const isSaved = savedIds.includes(propertyId);
+  const handleSaveToggle = (propertyId) => {
+    const isSaved = savedIds.includes(propertyId);
 
-  if (isSaved) {
-    axios
-      .delete("http://localhost:5000/api/save-property", {
-        data: { userId, propertyId },
-      })
-      .then(() => {
-        setSavedIds((prev) => prev.filter((id) => id !== propertyId));
-        toast.info("Property removed from saved list");
-      })
-      .catch((err) => {
-        console.error("Error removing saved property", err);
-        toast.error("Failed to remove property");
-      });
-  } else {
-    axios
-      .post("http://localhost:5000/api/save-property", {
-        userId,
-        propertyId,
-      })
-      .then(() => {
-        setSavedIds((prev) => [...prev, propertyId]);
-        toast.success("Property saved successfully");
-      })
-      .catch((err) => {
-        if (err.response && err.response.status === 409) {
-          toast.warning("Property already saved");
-        } else {
-          console.error("Error saving property", err);
-          toast.error("Something went wrong");
-        }
-      });
-  }
-};
-
+    if (isSaved) {
+      axios
+        .delete("http://localhost:5000/api/save-property", {
+          data: { userId, propertyId },
+        })
+        .then(() => {
+          setSavedIds((prev) => prev.filter((id) => id !== propertyId));
+          toast.info("Property removed from saved list");
+        })
+        .catch((err) => {
+          console.error("Error removing saved property", err);
+          toast.error("Failed to remove property");
+        });
+    } else {
+      axios
+        .post("http://localhost:5000/api/save-property", {
+          userId,
+          propertyId,
+        })
+        .then(() => {
+          setSavedIds((prev) => [...prev, propertyId]);
+          toast.success("Property saved successfully");
+        })
+        .catch((err) => {
+          if (err.response && err.response.status === 409) {
+            toast.warning("Property already saved");
+          } else {
+            console.error("Error saving property", err);
+            toast.error("Something went wrong");
+          }
+        });
+    }
+  };
 
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
   const paginatedData = filteredProperties.slice(
@@ -139,7 +138,7 @@ const handleSaveToggle = (propertyId) => {
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
       <ToastContainer position="top-right" autoClose={2000} />
-      <div className=" w-7xl mx-auto px-4 flex-1 mt-10">
+      <div className="w-7xl mx-auto px-4 flex-1 mt-10">
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">
           Filter Properties
         </h2>
@@ -218,7 +217,7 @@ const handleSaveToggle = (propertyId) => {
 
         <h2 className="text-2xl font-bold text-[#e48f44] mb-6">List of Properties</h2>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {paginatedData.length > 0 ? (
             paginatedData.map((property) => (
               <div
@@ -242,10 +241,15 @@ const handleSaveToggle = (propertyId) => {
 
                 <button
                   onClick={() => handleSaveToggle(property.property_id)}
-                  className= "absolute text-gray-400 bottom-4 right-4 text-xl hover:scale-110 transition"
-            
+                  className="absolute bottom-4 right-4 text-xl hover:scale-110 transition"
                 >
-                  <FaBookmark />
+                  <FaBookmark
+                    className={
+                      savedIds.includes(property.property_id)
+                        ? "text-yellow-500"
+                        : "text-gray-400"
+                    }
+                  />
                 </button>
               </div>
             ))

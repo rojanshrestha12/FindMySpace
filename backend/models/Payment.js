@@ -21,12 +21,22 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-}, {
+  status: {
+  type: DataTypes.ENUM('pending', 'paid'),
+  defaultValue: 'pending',
+},
+movingDate: {
+  type: DataTypes.DATE,
+  allowNull: true,
+},
+}, 
+{
   timestamps: true,
   freezeTableName: true,
 });
 
 Payment.belongsTo(Request, { foreignKey: 'request_id', as: 'request' });
+
 
 
 export default Payment;

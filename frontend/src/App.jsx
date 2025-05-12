@@ -15,7 +15,7 @@ import UserList from "./pages/UserList.jsx";
 import Notification from "./pages/Notifications.jsx";
 import MyProperties from "./pages/MyProperties.jsx";
 import Saved from "./pages/Saved.jsx";
-import LandlordPayments from "./pages/landlordPayments.jsx";
+import LandlordPayment from "./pages/landlordPayments.jsx";
 import TermsAndPolicy from "./components/TermsAndpolicy.jsx";
 import EditProperty from "./pages/EditProperty.jsx";
 
@@ -46,7 +46,7 @@ function App() {
         <Route path="/my_properties" element={<MyProperties />} />
         <Route path="/notifications" element={<Notification />} />
         <Route path="/saved" element={<Saved />} />
-        <Route path="/payments" element={<LandlordPayments />} />
+        <Route path="/payments" element={<LandlordPayment />} />
         <Route path="/terms" element={<TermsAndPolicy />} />
         <Route path="/edit-property/:id" element={<EditProperty />} />
 

@@ -136,7 +136,7 @@ router.get('/repondMes/:userId', async (req, res) => {
     const requests = await Request.findAll({
       where: { tenant_id: tenantId },
       include: [
-        { model: User, as: 'landlord', attributes: ['fullname'] },
+        { model: User, as: 'landlord', attributes: ['fullname', 'email', 'phone_number'] },
         { model: Property, attributes: ['location'] },
       ],
       order: [['updatedAt', 'DESC']],
@@ -162,8 +162,8 @@ router.get('/repondMes/:userId', async (req, res) => {
       }
 
       return {
+        property_id: req.property_id,
         landlord_name: req.landlord.fullname,
-        property_location: req.Property.location,
         request_type: req.request_type,
         landlord_email: req.landlord.email,
         landlord_number: req.landlord.phone_number, 

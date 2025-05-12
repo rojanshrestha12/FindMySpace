@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -12,6 +13,7 @@ const Notifications = () => {
   const [error, setError] = useState(null);
   // eslint-disable-next-line no-unused-vars
   const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
 
   // Decode JWT token safely
   const decodeToken = (token) => {
@@ -109,9 +111,9 @@ const Notifications = () => {
   }
 
   return (
-    <div className="bg-[#f8f1ea] h-screen flex flex-col">
+    <div className="bg-[#f8f1ea] h-screen-full flex flex-col">
       <Navbar />
-      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen">
+      <main className="p-4 max-w-4xl mx-auto mt-10 w-full h-screen-full">
         <h1 className="text-3xl font-bold text-center text-[#e48f44] mb-8">Notifications</h1>
 
         {/* Error display */}
@@ -188,35 +190,36 @@ const Notifications = () => {
             <p className="text-center text-gray-600">No response notifications available.</p>
           ) : (
             <ul className="space-y-4">
-              {responses.map((res) => (
-                <li
-                  key={res.request_id}
-                  className={`p-4 rounded-lg border ${res.status === 'ACCEPTED'
-                    ? 'bg-green-50 border-green-300'
-                    : res.status === 'REJECTED'
-                    ? 'bg-red-50 border-red-300'
-                    : 'bg-yellow-50 border-yellow-300'
-                    }`}
-                >
-                  <p className="text-gray-800">{res.message}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    <strong>Status:</strong> {res.status}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    <strong>Landlord Name:</strong> {res.landlord_name}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    <strong>Landlord Email:</strong> {res.landlord_email}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    <strong>Landlord Phone Number:</strong> {res.landlord_Phone_number}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Last updated: {new Date(res.updatedAt).toLocaleString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
+             {responses.map((res) => (
+            <li
+              key={res.request_id}
+              onClick={() => navigate(`/property/${res.property_id}`)}
+              className={`p-4 rounded-lg border cursor-pointer transition hover:shadow-md ${
+                res.status === 'ACCEPTED'
+                  ? 'bg-green-50 border-green-300'
+                  : res.status === 'REJECTED'
+                  ? 'bg-red-50 border-red-300'
+                  : 'bg-yellow-50 border-yellow-300'
+              }`}
+            >
+              <p className="text-gray-800">{res.message}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                <strong>Status:</strong> {res.status}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                <strong>Landlord Name:</strong> {res.landlord_name}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                <strong>Landlord Email:</strong> {res.landlord_email}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                <strong>Landlord Phone Number:</strong> {res.landlord_number}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Last updated: {new Date(res.updatedAt).toLocaleString()}
+              </p>
+            </li>
+          ))}            </ul>
           )}
         </section>
       </main>

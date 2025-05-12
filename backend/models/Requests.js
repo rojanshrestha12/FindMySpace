@@ -4,6 +4,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../db/config.js';
 import User from './Users.js';
 import Property from './Property.js';
+import Agreement from './Agreement.js';
 
 const Request = sequelize.define('Request', {
   request_id: {
@@ -67,5 +68,9 @@ const Request = sequelize.define('Request', {
 Request.belongsTo(User, { as: 'tenant', foreignKey: 'tenant_id' });
 Request.belongsTo(User, { as: 'landlord', foreignKey: 'landlord_id' });
 Request.belongsTo(Property, { foreignKey: 'property_id' });
+
+Agreement.belongsTo(Request, { foreignKey: 'request_id' });
+
+Request.hasOne(Agreement, { foreignKey: 'request_id', as: 'agreement' });
 
 export default Request;
