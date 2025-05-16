@@ -15,7 +15,7 @@ const userLinks = [
   { label: "My Properties", path: "/my_properties" },
   { label: "Notifications", path: "/notifications" },
   { label: "Saved", path: "/saved" },
-  // { label: "Payments", path: "/payments" },
+  { label: "Payments", path: "/payments" },
 ];
 
 const decodeToken = (token) => {

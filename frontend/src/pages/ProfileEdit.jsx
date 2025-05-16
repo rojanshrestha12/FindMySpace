@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function Profile() {
   const [formData, setFormData] = useState({
@@ -101,23 +103,22 @@ function Profile() {
     const token = await auth.currentUser?.getIdToken();
     return !!token;
   };
-  
-  // ✅ Form submit handler
+
   const handleSave = async (e) => {
     e.preventDefault();
-  
+
     const newErrors = {};
     for (const [key, value] of Object.entries(formData)) {
       newErrors[key] = validateField(key, value);
     }
-  
+
     const hasErrors = Object.values(newErrors).some((err) => err);
-  
+
     if (!hasErrors) {
       try {
         let token;
-        const isGoogle = await isGoogleSignIn(); // ✅ Call the function properly
-  
+        const isGoogle = await isGoogleSignIn();
+
         if (isGoogle) {
           const auth = getAuth();
           token = await auth.currentUser?.getIdToken();
@@ -126,13 +127,10 @@ function Profile() {
           token = localStorage.getItem('token');
           if (!token) throw new Error("Token not found in localStorage");
         }
-  
-        // ✅ Send profile update request
+
         await axios.post("http://localhost:5000/api/user/profile/update", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-      
 
         setSuccess({ profile: true, password: false });
         setFormData({
@@ -145,18 +143,23 @@ function Profile() {
           about_me: "",
         });
         setErrors({ form: {}, password: {} });
+        toast.success("Profile updated successfully!");
       } catch (error) {
         console.error("Profile update error:", error);
         setErrors((prev) => ({
           ...prev,
           form: { ...prev.form, update: "Failed to update profile. Try again later." },
         }));
+        toast.error("Failed to update profile. Try again later.");
+        window.location.reload();
       }
     } else {
       setErrors((prev) => ({
         ...prev,
         form: { ...prev.form, ...newErrors, update: "Please fix the errors before submitting." },
       }));
+      toast.error("Please fix the errors before submitting.");
+      window.location.reload();
     }
   };
 
@@ -168,6 +171,7 @@ function Profile() {
         ...prev,
         password: { ...prev.password, confirmPassword: "Passwords do not match" },
       }));
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -175,9 +179,17 @@ function Profile() {
 
     if (!hasErrors) {
       try {
-        const auth = getAuth();
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) throw new Error("No authentication token available");
+        let token;
+        const isGoogle = await isGoogleSignIn();
+
+        if (isGoogle) {
+          const auth = getAuth();
+          token = await auth.currentUser?.getIdToken();
+          if (!token) throw new Error("No authentication token available");
+        } else {
+          token = localStorage.getItem('token');
+          if (!token) throw new Error("Token not found in localStorage");
+        }
 
         await axios.post("http://localhost:5000/api/user/password/update", passwordData, {
           headers: { Authorization: `Bearer ${token}` },
@@ -186,18 +198,25 @@ function Profile() {
         setSuccess({ profile: false, password: true });
         setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
         setErrors({ form: {}, password: {} });
+        toast.success("Password updated successfully!");
       } catch (error) {
         console.error("Password update error:", error);
         setErrors((prev) => ({
           ...prev,
           password: { ...prev.password, update: "Failed to update password. Try again later." },
         }));
+        toast.error("Failed to update password. Try again later.");
+        window.location.reload();
       }
+    
     } else {
       setErrors((prev) => ({
         ...prev,
         password: { ...prev.password, update: "Please fix the errors before submitting." },
       }));
+      toast.error("Please fix the errors before submitting.");
+      window.location.reload();
+
     }
   };
 
@@ -221,21 +240,22 @@ function Profile() {
       });
 
       if (response.status === 200 && typeof window !== "undefined") {
-        alert("Your account has been deleted successfully.");
+        toast.success("Your account has been deleted successfully.");
         await auth.signOut();
         window.location.href = "/login";
       } else {
-        alert("Failed to delete your account. Please try again later.");
+        toast.error("Failed to delete your account. Please try again later.");
       }
     } catch (error) {
       console.error("Delete account error:", error);
       if (typeof window !== "undefined") {
-        alert(error.message || "An error occurred while deleting your account. Please try again.");
+        toast.error(error.message || "An error occurred while deleting your account. Please try again.");
       }
     }
   };
+
   
-  return (
+   return (
     <div className="bg-[#f8f1ea] min-h-screen flex flex-col">
       <Navbar />
 
@@ -244,7 +264,6 @@ function Profile() {
           ACCOUNT
         </h2>
 
-        {/* Success Messages */}
         {success.profile && (
           <div className="mb-4 p-2 bg-green-100 text-green-700 text-sm rounded">
             Profile updated successfully!
@@ -261,14 +280,13 @@ function Profile() {
             <h3 className="text-lg font-semibold">Edit Profile</h3>
 
             <button
-            type="button"
-            className="bg-red-500 text-white py-2 px-4 rounded mt-4"
-            onClick={handleDeleteUser}
-          >
-            Delete Account
-          </button>
+              type="button"
+              className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+              onClick={handleDeleteUser}
+            >
+              Delete Account
+            </button>
           </div>
-
 
           <div className="flex flex-col items-center mb-6">
             <img
@@ -300,7 +318,9 @@ function Profile() {
                   />
                 </div>
                 {errors.form.fullname && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.fullname}</p>
+                  <p className="text-red-500 text-xs ml-24 mt-1">
+                    {errors.form.fullname}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-2">
@@ -320,7 +340,9 @@ function Profile() {
                   )}
                 </div>
                 {errors.form.email && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.email}</p>
+                  <p className="text-red-500 text-xs ml-24 mt-1">
+                    {errors.form.email}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-2">
@@ -337,7 +359,9 @@ function Profile() {
                   />
                 </div>
                 {errors.form.phone_number && (
-                    <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.phone_number}</p>
+                  <p className="text-red-500 text-xs ml-24 mt-1">
+                    {errors.form.phone_number}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-2">
@@ -354,7 +378,9 @@ function Profile() {
                   />
                 </div>
                 {errors.form.location && (
-                  <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.location}</p>
+                  <p className="text-red-500 text-xs ml-24 mt-1">
+                    {errors.form.location}
+                  </p>
                 )}
               </div>
             </div>
@@ -380,7 +406,9 @@ function Profile() {
                 </select>
               </div>
               {errors.form.gender && (
-                <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.gender}</p>
+                <p className="text-red-500 text-xs ml-24 mt-1">
+                  {errors.form.gender}
+                </p>
               )}
 
               <div className="flex items-center gap-2">
@@ -393,11 +421,13 @@ function Profile() {
                   }`}
                   value={formData.birth_date}
                   onChange={handleInputChange}
-                  max={new Date().toISOString().split('T')[0]} // Prevent future dates
+                  max={new Date().toISOString().split("T")[0]}
                 />
               </div>
               {errors.form.birth_date && (
-                <p className="text-red-500 text-xs ml-24 mt-1">{errors.form.birth_date}</p>
+                <p className="text-red-500 text-xs ml-24 mt-1">
+                  {errors.form.birth_date}
+                </p>
               )}
             </div>
 
@@ -425,7 +455,9 @@ function Profile() {
 
           <form onSubmit={handlePasswordSubmit}>
             <div className="mt-6">
-              <h3 className="font-medium text-gray-700 text-lg mb-4">Update Password</h3>
+              <h3 className="font-medium text-gray-700 text-lg mb-4">
+                Update Password
+              </h3>
               <div className="space-y-4 mb-4">
                 <div>
                   <input
@@ -439,7 +471,9 @@ function Profile() {
                     onChange={handlePasswordChange}
                   />
                   {errors.password.oldPassword && (
-                    <p className="text-red-500 text-xs mt-1">{errors.password.oldPassword}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.oldPassword}
+                    </p>
                   )}
                 </div>
                 <div>
@@ -454,7 +488,9 @@ function Profile() {
                     onChange={handlePasswordChange}
                   />
                   {errors.password.newPassword && (
-                    <p className="text-red-500 text-xs mt-1">{errors.password.newPassword}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.newPassword}
+                    </p>
                   )}
                 </div>
                 <div>
@@ -469,7 +505,9 @@ function Profile() {
                     onChange={handlePasswordChange}
                   />
                   {errors.password.confirmPassword && (
-                    <p className="text-red-500 text-xs mt-1">{errors.password.confirmPassword}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.confirmPassword}
+                    </p>
                   )}
                 </div>
               </div>
@@ -485,6 +523,7 @@ function Profile() {
       </div>
 
       <Footer />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
