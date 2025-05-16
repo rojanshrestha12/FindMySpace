@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
@@ -18,7 +18,7 @@ const convertTo12HourFormat = (time24) => {
 };
 
 function PropertyDetail() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const requestId = location.state?.requestId;
@@ -38,11 +38,11 @@ function PropertyDetail() {
   const token = localStorage.getItem("token");
   const tenantId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
 
-  useEffect(() => {
-    if (!tenantId) {
-      navigate("/");
-    }
-  }, [tenantId, navigate]);
+  // useEffect(() => {
+  //   if (!tenantId) {
+  //     navigate("/");
+  //   }
+  // }, [tenantId, navigate]);
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {

@@ -19,17 +19,17 @@ import LandlordPayment from "./pages/landlordPayments.jsx";
 import TermsAndPolicy from "./components/TermsAndpolicy.jsx";
 import EditProperty from "./pages/EditProperty.jsx";
 
-
-// ✅ General Protected Route
+// ✅ General Protected Route for authenticated users
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("isAdmin");
-  if (role =="true" ){
-    return token ? children : <Navigate to="/AdminDashboard" replace />;
-  }else{
   return token ? children : <Navigate to="/login" replace />;
+};
 
-  }
+// ✅ Admin-only Route
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("isAdmin");
+  return token && role === "true" ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
@@ -43,75 +43,26 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/about" element={<About />} />
-        <Route path="/my_properties" element={<MyProperties />} />
-        <Route path="/notifications" element={<Notification />} />
-        <Route path="/saved" element={<Saved />} />
-        <Route path="/payments" element={<LandlordPayment />} />
         <Route path="/terms" element={<TermsAndPolicy />} />
-        <Route path="/edit-property/:id" element={<EditProperty />} />
+        <Route path="/property/:id" element={<PropertyDetail />} />
 
+        {/* Protected Pages (requires login) */}
+        <Route path="/PropertyForm" element={<ProtectedRoute><PropertyForm /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/ProfileEdit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+        {/* <Route path="/property/:id" element={<ProtectedRoute><PropertyDetail /></ProtectedRoute>} /> */}
+        <Route path="/my_properties" element={<ProtectedRoute><MyProperties /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
+        <Route path="/saved" element={<ProtectedRoute><Saved /></ProtectedRoute>} />
+        <Route path="/payments" element={<ProtectedRoute><LandlordPayment /></ProtectedRoute>} />
+        <Route path="/edit-property/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/PropertyForm"
-          element={
-            <ProtectedRoute>
-              <PropertyForm />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ProfileEdit"
-          element={
-            <ProtectedRoute>
-              <ProfileEdit />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/property/:id"
-          element={
-            <ProtectedRoute>
-              <PropertyDetail />
-            </ProtectedRoute>
-          }
-        />
+        {/* Admin Only Pages */}
+        <Route path="/AdminDashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/PropertyList" element={<AdminRoute><PropertyList /></AdminRoute>} />
+        <Route path="/UserList" element={<AdminRoute><UserList /></AdminRoute>} />
 
-        {/* Admin Only Routes */}
-        <Route
-          path="/AdminDashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/PropertyList"
-          element={
-            <ProtectedRoute>
-              <PropertyList />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/UserList"
-          element={
-            <ProtectedRoute>
-              <UserList />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Fallback */}
+        {/* Optional Fallback Route */}
         {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
       </Routes>
     </Router>

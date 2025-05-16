@@ -30,25 +30,28 @@ const decodeToken = (token) => {
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-      const token = localStorage.getItem("token");
-    const userId = decodeToken(token);
 
   useEffect(() => {
-
+    const token = localStorage.getItem("token");
+    const userId = decodeToken(token);
 
     if (userId) {
-      axios.get(`http://localhost:5000/api/users/${userId}`)
+      axios
+        .get(`http://localhost:5000/api/users/${userId}`)
         .then((res) => setUser(res.data))
         .catch(() => {
           localStorage.removeItem("token");
           setUser(null);
-        });
+        })
+        .finally(() => setLoading(false));
     } else {
       localStorage.removeItem("token");
       setUser(null);
+      setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -68,16 +71,15 @@ function Navbar() {
       </Link>
     ));
 
+  if (loading) return null;
+
   return (
-<nav
-  className="sticky top-0 left-0 right-0 bg-[#cdb7a3] shadow-lg z-50"
-> 
+    <nav className="sticky top-0 left-0 right-0 bg-[#cdb7a3] shadow-lg z-50">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-20">
         <Link to="/">
           <img src="/assets/logo.png" alt="Logo" className="h-14" />
         </Link>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex space-x-10 text-lg font-semibold">
           {navLinks.map(({ label, path }, i) => (
             <Link key={i} to={path} className="text-black hover:text-gray-700">
@@ -86,7 +88,6 @@ function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Auth Section */}
         <div className="hidden md:flex items-center space-x-4">
           {!user ? (
             <>
@@ -131,7 +132,6 @@ function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Icon */}
         <div className="md:hidden">
           <button onClick={() => setMenuOpen((prev) => !prev)} className="text-black">
             {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -139,7 +139,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
       <AnimatePresence>
         {menuOpen && (
           <div
@@ -161,8 +160,12 @@ function Navbar() {
               ))}
               {!user ? (
                 <>
-                  <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">Log In</Link>
-                  <Link to="/register" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">Sign Up</Link>
+                  <Link to="/login" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">
+                    Log In
+                  </Link>
+                  <Link to="/register" onClick={() => setMenuOpen(false)} className="block px-3 py-2 hover:bg-[#cba67f]">
+                    Sign Up
+                  </Link>
                 </>
               ) : (
                 <>
